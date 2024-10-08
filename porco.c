@@ -50,7 +50,9 @@ void main(void)
   setup_graphics();
   // draw message  
   vram_adr(NTADR_A(2,2));
-  vram_write("HELLO, WORLD!", 12);
+  vram_write("PALMEIRAS NAO TEM MUNDIAL!!!", 28);
+  vram_adr(NTADR_A(2,3));
+  vram_write("Palmeiras nao tem Mundial!!!", 28);
   // enable rendering
   ppu_on_all();
   // infinite loop
