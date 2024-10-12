@@ -1,2 +1,2 @@
 .segment "CHARS"
-.incbin "chr_porco.chr"
+.incbin "files/chr_porco.chr"

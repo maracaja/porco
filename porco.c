@@ -1,7 +1,3 @@
-
-#include <stdlib.h>
-#include <string.h>
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,8 +7,8 @@
 // include CC65 NES Header (PPU)
 #include <nes.h>
 
-// link the pattern table into CHR ROM
-//#resource "chr_porco.chr"
+// Importação do nosso tileset
+//#resource "files/chr_porco.chr"
 //#link "tileset.s"
 
 // BCD arithmetic support
