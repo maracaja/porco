@@ -12,6 +12,7 @@
 #include <nes.h>
 
 // link the pattern table into CHR ROM
+//#resource "chr_porco.chr"
 //#link "tileset.s"
 
 // BCD arithmetic support
@@ -52,10 +53,16 @@ void main(void)
 {
   setup_graphics();
   // draw message  
-  vram_adr(NTADR_A(2,2));
-  vram_write("PALMEIRAS NAO TEM MUNDIAL!!!", 28);
-  vram_adr(NTADR_A(2,3));
-  vram_write("Palmeiras nao tem Mundial!!!", 28);
+  vram_adr(NTADR_A(3,2));
+  vram_write("ESTA e UMA OBRA DE FICCAO.", 26);
+  vram_adr(NTADR_A(4,4));
+  vram_write("QUALQUER SEMELHANCA COM", 23);
+  vram_adr(NTADR_A(4,5));
+  vram_write("NOMES, PESSOAS, FATOS OU", 24);
+  vram_adr(NTADR_A(2,6));
+  vram_write("CLUBES DE FUTEBOL NAO PASSA", 28);
+  vram_adr(NTADR_A(5,7));
+  vram_write("DE MERA COINCIDENCIA.", 21);
   // enable rendering
   ppu_on_all();
   // infinite loop
