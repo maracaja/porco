@@ -8,7 +8,7 @@
 #include <nes.h>
 
 // Importação do nosso tileset
-//#resource "files/chr_porco.chr"
+//#resource "chr_porco.chr"
 //#link "tileset.s"
 
 // BCD arithmetic support
