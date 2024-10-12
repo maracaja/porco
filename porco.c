@@ -12,7 +12,9 @@
 #include <nes.h>
 
 // link the pattern table into CHR ROM
-//#link "chr_generic.s"
+#include "chr_porco.h"
+#include "sprites.h"
+//link "chr_generic.s"
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -23,6 +25,9 @@
 //#link "vrambuf.c"
 
 /*{pal:"nes",layout:"nes"}*/
+const unsigned char PALETTE[16] = { 0x0c,0x0f,0x30,0x16,0x0c,0x1a,0x36,0x30,0x0c,0x04,0x36,0x07,0x0c,0x27,0x10,0x38 };
+
+/*
 const char PALETTE[32] = { 
   0x03,			// screen color
 
@@ -35,7 +40,7 @@ const char PALETTE[32] = {
   0x00,0x37,0x25,0x0,	// sprite palette 1
   0x0d,0x2d,0x3a,0x0,	// sprite palette 2
   0x0d,0x27,0x2a	// sprite palette 3
-};
+};*/
 
 // setup PPU and tables
 void setup_graphics() {
