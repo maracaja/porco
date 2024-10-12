@@ -12,9 +12,7 @@
 #include <nes.h>
 
 // link the pattern table into CHR ROM
-#include "chr_porco.h"
-#include "sprites.h"
-//link "chr_generic.s"
+//#link "tileset.s"
 
 // BCD arithmetic support
 #include "bcd.h"
