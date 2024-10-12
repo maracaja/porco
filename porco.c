@@ -7,7 +7,7 @@
 // include CC65 NES Header (PPU)
 #include <nes.h>
 
-// Importação do nosso tileset
+// Importacao do nosso tileset
 //#resource "chr_porco.chr"
 //#link "tileset.s"
 
