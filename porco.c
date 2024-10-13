@@ -28,10 +28,10 @@ const unsigned char PALETTE[16] = { 0x0c,0x0f,0x30,0x16,0x0c,0x1a,0x36,0x30,0x0c
 
 // setup PPU and tables
 void setup_graphics() {
-  // clear sprites
-  oam_clear();
-  // set palette colors
-  pal_all(PALETTE);
+    // clear sprites
+    oam_clear();
+    // set palette colors
+    pal_all(PALETTE);
 }
 
 // Frase inicial, com centralizacao automatica
@@ -39,26 +39,26 @@ void disclaimer()
 {
 	const unsigned char N_LIN = 5;
 	unsigned char i, tam, col;
-	char *trechos[N_LIN] = {"ESTA e UMA OBRA DE FICCAO.", 
-							"QUALQUER SEMELHANCA COM", 
-							"NOMES, PESSOAS, FATOS OU", 
-							"CLUBES DE FUTEBOL NAO PASSA", 
-							"DE MERA COINCIDENCIA."};
+	const char* trechos[N_LIN] = {"ESTA e UMA OBRA DE FICCAO.",
+                                      "QUALQUER SEMELHANCA COM",
+                                      "NOMES, PESSOAS, FATOS OU",
+                                      "CLUBES DE FUTEBOL NAO PASSA",
+                                      "DE MERA COINCIDENCIA."};
 	for (i = 0; i < N_LIN; i++)
 	{
-		tam = strlen(trechos[i]);
-		col = 16 - tam/2 - tam % 2;
-		vram_adr(NTADR_A(col, 2 * i + 10));
-		vram_write(trechos[i], tam);  
+            tam = strlen(trechos[i]);
+            col = 16 - tam/2 - tam % 2;
+            vram_adr(NTADR_A(col, 2 * i + 10));
+            vram_write(trechos[i], tam);  
 	}
 }
 
 void main(void)
 {
-	setup_graphics();
-	disclaimer();
-	ppu_on_all();
-	// infinite loop
-	while(1) {
-	}
+    setup_graphics();
+    disclaimer();
+    ppu_on_all();
+    // infinite loop
+    while(1) {
+    }
 }
