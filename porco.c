@@ -45,21 +45,23 @@ void setup_graphics() {
   pal_all(PALETTE);
 }
 
+void disclaimer()
+{
+  unsigned char i, tam, col;
+  char *trechos[5] = {"ESTA e UMA OBRA DE FICCAO.", "QUALQUER SEMELHANCA COM", "NOMES, PESSOAS, FATOS OU", "CLUBES DE FUTEBOL NAO PASSA", "DE MERA COINCIDENCIA."};
+  for (i = 0; i < 5; i++)
+  {
+    tam = strlen(trechos[i]);
+    col = 16 - tam/2 - tam % 2;
+    vram_adr(NTADR_A(col, 2 * i + 10));
+    vram_write(trechos[i], tam);  
+  }
+}
+
 void main(void)
 {
   setup_graphics();
-  // draw message  
-  vram_adr(NTADR_A(3,10));
-  vram_write("ESTA e UMA OBRA DE FICCAO.", 26);
-  vram_adr(NTADR_A(4,12));
-  vram_write("QUALQUER SEMELHANCA COM", 23);
-  vram_adr(NTADR_A(4,14));
-  vram_write("NOMES, PESSOAS, FATOS OU", 24);
-  vram_adr(NTADR_A(2,16));
-  vram_write("CLUBES DE FUTEBOL NAO PASSA", 28);
-  vram_adr(NTADR_A(5,18));
-  vram_write("DE MERA COINCIDENCIA.", 21);
-  // enable rendering
+  disclaimer();
   ppu_on_all();
   // infinite loop
   while(1) {
