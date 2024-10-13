@@ -13,7 +13,6 @@
 
 // Importacao dos demais recursos graficos
 #include "graphics/titulo.h"
-#include "graphics/sprites.h"
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -37,10 +36,9 @@ void setup_graphics() {
 // Frase inicial, com centralizacao automatica
 void disclaimer()
 {
-    const unsigned char N_LIN = 5;
     unsigned char i, tam, col;
-    const char* trechos[N_LIN] = {"ESTA e UMA OBRA DE FICCAO.", "QUALQUER SEMELHANCA COM", "NOMES, PESSOAS, FATOS OU", "CLUBES DE FUTEBOL NAO PASSA", "DE MERA COINCIDENCIA."};
-    for (i = 0; i < N_LIN; i++)
+    const char* trechos[5] = {"ESTA e UMA OBRA DE FICCAO.", "QUALQUER SEMELHANCA COM", "NOMES, PESSOAS, FATOS OU", "CLUBES DE FUTEBOL NAO PASSA", "DE MERA COINCIDENCIA."};
+    for (i = 0; i < 5; i++)
     {
         tam = strlen(trechos[i]);
         col = 16 - tam/2 - tam % 2;
