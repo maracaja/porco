@@ -10,9 +10,8 @@
 // Importacao do nosso tileset
 //#resource "files/chr_porco.chr"
 //#link "tileset.s"
-
-// Importacao dos demais recursos graficos
-#include "graphics/titulo.h"
+#include "titulo.h"
+#include "sprites.h"
 
 // BCD arithmetic support
 #include "bcd.h"
