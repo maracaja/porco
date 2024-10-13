@@ -37,20 +37,16 @@ void setup_graphics() {
 // Frase inicial, com centralizacao automatica
 void disclaimer()
 {
-	const unsigned char N_LIN = 5;
-	unsigned char i, tam, col;
-	const char* trechos[N_LIN] = {"ESTA e UMA OBRA DE FICCAO.",
-                                      "QUALQUER SEMELHANCA COM",
-                                      "NOMES, PESSOAS, FATOS OU",
-                                      "CLUBES DE FUTEBOL NAO PASSA",
-                                      "DE MERA COINCIDENCIA."};
-	for (i = 0; i < N_LIN; i++)
-	{
-            tam = strlen(trechos[i]);
-            col = 16 - tam/2 - tam % 2;
-            vram_adr(NTADR_A(col, 2 * i + 10));
-            vram_write(trechos[i], tam);  
-	}
+    const unsigned char N_LIN = 5;
+    unsigned char i, tam, col;
+    const char* trechos[N_LIN] = {"ESTA e UMA OBRA DE FICCAO.", "QUALQUER SEMELHANCA COM", "NOMES, PESSOAS, FATOS OU", "CLUBES DE FUTEBOL NAO PASSA", "DE MERA COINCIDENCIA."};
+    for (i = 0; i < N_LIN; i++)
+    {
+        tam = strlen(trechos[i]);
+        col = 16 - tam/2 - tam % 2;
+        vram_adr(NTADR_A(col, 2 * i + 10));
+        vram_write(trechos[i], tam);  
+    }
 }
 
 void main(void)
