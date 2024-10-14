@@ -7,7 +7,7 @@
 // include CC65 NES Header (PPU)
 #include <nes.h>
 
-// Importacao do nosso tileset
+// Importacao dos recursos graficos
 //#resource "chr_porco.chr"
 //#link "tileset.s"
 #include "titulo.h"
@@ -22,7 +22,7 @@
 //#link "vrambuf.c"
 
 /*{pal:"nes",layout:"nes"}*/
-const unsigned char PALETTE[16] = { 0x0c,0x0f,0x30,0x16,0x0c,0x1a,0x36,0x30,0x0c,0x04,0x36,0x07,0x0c,0x27,0x10,0x38 };
+const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x1A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x28 };
 
 // setup PPU and tables
 void setup_graphics() {
@@ -36,10 +36,10 @@ void disclaimer()
 {
     unsigned char i, tam, col;
     const char* trechos[5] = { "ESTA e UMA OBRA DE FICCAO.",
-                              "QUALQUER SEMELHANCA COM",
-                              "NOMES, PESSOAS, FATOS OU",
-                              "CLUBES DE FUTEBOL NAO PASSA",
-                              "DE MERA COINCIDENCIA." };
+                               "QUALQUER SEMELHANCA COM",
+                               "NOMES, PESSOAS, FATOS OU",
+                               "CLUBES DE FUTEBOL NAO PASSA",
+                               "DE MERA COINCIDENCIA." };
     for (i = 0; i < 5; i++)
     {
         tam = strlen(trechos[i]);
@@ -47,14 +47,70 @@ void disclaimer()
         vram_adr(NTADR_A(col, 2 * i + 10));
         vram_write(trechos[i], tam);
     }
+    ppu_on_all();
+    delay(255);
+}
+
+void selecao(bool completo)
+{
+    ppu_wait_frame();
+    vram_adr(NTADR_A(6, completo ? 22 : 25));
+    vram_put(0x00);
+    pal_col(3, PALETTE[completo ? 3 : 15]);
+    vram_adr(NTADR_A(6, completo ? 25 : 22));
+    vram_put(0x06);
+}
+
+void apresentacao()
+{
+    unsigned int i = 0;
+    vram_adr(NAMETABLE_C);
+    vram_unrle(titulo);
+    disclaimer();
+    for (i = 0; i < 240; i++) 
+    {
+        ppu_wait_frame();
+        scroll(0, i);
+    }
+    ppu_off();
+    vram_fill(0x00, 960);
+    vram_adr(NAMETABLE_A);
+    vram_unrle(titulo);
+    scroll(0, 0);
+    ppu_on_all();
 }
 
 void main(void)
 {
+    char pad;
+    bool completo = false, menu = true;
     setup_graphics();
-    disclaimer();
+    apresentacao();
+    selecao(false);
+    // Controle do menu de jogo
+    while (menu)
+    {
+        pad = pad_poll(0);
+      	if (pad & PAD_DOWN && !completo) 
+        {
+            completo = true;
+            selecao(true);
+        }  
+        if (pad & PAD_UP && completo)
+        {
+            completo = false;
+            selecao(false);
+        }
+        if (pad & PAD_START) menu = false;
+    }
+    ppu_off();
+    vram_fill(0x00, 1920);
     ppu_on_all();
+    vram_adr(NTADR_A(2, 2));
+    vram_write(completo ? "JOGO COMPLETO": " DEMONSTRACAO", 13);
     // infinite loop
-    while(1) {
+    while(1) 
+    {
+      	
     }
 }
