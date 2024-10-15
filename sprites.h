@@ -65,7 +65,7 @@ const unsigned char spr_liberta[] = {
 	128
 };
 
-const unsigned char* const sprites_list[] = {
+const unsigned char* sprites_list[] = {
 	spr_bloco,
 	spr_moeda,
 	spr_nrg,
