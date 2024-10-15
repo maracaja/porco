@@ -35,8 +35,8 @@ void setup_graphics() {
 void disclaimer()
 {
     unsigned char i, tam, col;
-    const char* trechos[5] = { "ESTA e UMA OBRA DE FICCAO.",
-                              "QUALQUER SEMELHANCA COM",
+    const char* trechos[5] = { "ESTA e UMA OBRA DE FICcAO.",
+                              "QUALQUER SEMELHANcA COM",
                               "NOMES, PESSOAS, FATOS OU",
                               "CLUBES DE FUTEBOL NAO PASSA",
                               "DE MERA COINCIDENCIA." };
