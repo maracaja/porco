@@ -29,7 +29,8 @@ void setup_graphics() {
     // clear sprites
     oam_clear();
     // set palette colors
-    pal_all(PALETTE);
+    pal_bg(PALETTE);
+    pal_spr(PALETTE);
 }
 
 void disclaimer()
@@ -73,7 +74,7 @@ void apresentacao()
         scroll(0, i);
     }
     ppu_off();
-    vram_fill(0x00, 960);
+    delay(1);
     vram_adr(NAMETABLE_A);
     vram_unrle(titulo);
     scroll(0, 0);
@@ -103,11 +104,10 @@ void main(void)
         }
         if (pad & PAD_START) menu = false;
     }
-    ppu_off();
-    vram_fill(0x00, 960);
-    ppu_on_all();
-    vram_adr(NTADR_A(2, 2));
-    vram_write(completo ? "JOGO COMPLETO": " DEMONSTRACAO", 13);
+    //vram_adr(NTADR_A(2, 2));
+    oam_meta_spr(32, 24, 0, spr_titia);
+    vram_adr(NTADR_A(2, 18));
+    vram_write(completo ? "JOGO COMPLETO": " DEMONSTRAcAO", 13);
     // infinite loop
     while(1) 
     {
