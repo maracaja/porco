@@ -54,12 +54,8 @@ void disclaimer()
 
 void selecao(bool completo)
 {
-    ppu_wait_frame();
-    vram_adr(NTADR_A(6, completo ? 22 : 25));
-    vram_put(0x00);
-    pal_col(3, PALETTE[completo ? 3 : 15]);
-    vram_adr(NTADR_A(6, completo ? 25 : 22));
-    vram_put(0x06);
+    oam_spr(52, 431 + (completo ? 24 : 0), 0x06, completo ? 0 : 3, 4);
+    ppu_wait_nmi();
 }
 
 void apresentacao()
@@ -70,15 +66,9 @@ void apresentacao()
     disclaimer();
     for (i = 0; i < 240; i++) 
     {
-        ppu_wait_frame();
+        ppu_wait_nmi();
         scroll(0, i);
     }
-    ppu_off();
-    delay(1);
-    vram_adr(NAMETABLE_A);
-    vram_unrle(titulo);
-    scroll(0, 0);
-    ppu_on_all();
 }
 
 void main(void)
@@ -87,25 +77,26 @@ void main(void)
     bool completo = false, menu = true;
     setup_graphics();
     apresentacao();
-    selecao(false);
+    selecao(completo);
     // Controle do menu de jogo
     while (menu)
     {
         pad = pad_poll(0);
-      	if (pad & PAD_DOWN && !completo) 
-        {
-            completo = true;
-            selecao(true);
-        }  
-        if (pad & PAD_UP && completo)
-        {
-            completo = false;
-            selecao(false);
-        }
+      	if (pad & PAD_DOWN && !completo) selecao(completo = true); 
+        if (pad & PAD_UP && completo) selecao(completo = false);
         if (pad & PAD_START) menu = false;
     }
-    //vram_adr(NTADR_A(2, 2));
-    oam_meta_spr(32, 24, 0, spr_titia);
+    ppu_off();
+    oam_clear();
+    set_vram_update(NULL);
+    vram_adr(NTADR_A(1,1));
+    vram_fill(0, 960);
+    scroll(0,0);
+    ppu_on_spr();
+    oam_meta_spr(32, 24, 24, spr_titia);
+    ppu_on_bg();
+    
+    
     vram_adr(NTADR_A(2, 18));
     vram_write(completo ? "JOGO COMPLETO": " DEMONSTRAcAO", 13);
     // infinite loop
