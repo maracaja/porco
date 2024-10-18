@@ -73,7 +73,8 @@ void apresentacao()
 }
 
 // draw a message on the screen
-void escreve_mensagem(const char* msg) {
+void escreve_mensagem(const char* msg, unsigned char col_ini, unsigned char col_fim) 
+{
   char ch;
   byte x,y;
   x = 2;
