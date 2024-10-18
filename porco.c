@@ -12,6 +12,7 @@
 //#link "tileset.s"
 #include "titulo.h"
 #include "sprites.h"
+#include "tutorial.h"
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -22,7 +23,7 @@
 //#link "vrambuf.c"
 
 /*{pal:"nes",layout:"nes"}*/
-const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x1A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x28 };
+const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x28 };
 
 // setup PPU and tables
 void setup_graphics() {
@@ -71,6 +72,33 @@ void apresentacao()
     }
 }
 
+// draw a message on the screen
+void escreve_mensagem(const char* msg) {
+  char ch;
+  byte x,y;
+  x = 2;
+
+
+  // repeat until end of string (0) is read
+  while ((ch = *charptr++)) {
+    while (y >= 60) y -= 60; // compute (y % 60)
+    // newline character? go to start of next line
+    if (ch == '\n') {
+      x = 2;
+      y++;
+    } else {
+      // put character into nametable
+      vrambuf_put(getntaddr(x, y), &ch, 1);
+      x++;
+    }
+    // typewriter sound
+    sfx_play(SND_HIT,0);
+    // flush buffer and wait a few frames
+    vrambuf_flush();
+    delay(5);
+  }
+}
+
 void main(void)
 {
     char pad;
@@ -92,6 +120,7 @@ void main(void)
     vram_adr(NTADR_A(1,1));
     vram_fill(0, 960);
     scroll(0,0);
+    pal_col(25, 0x0A);
     ppu_on_spr();
     oam_meta_spr(32, 24, 24, spr_titia);
     ppu_on_bg();
