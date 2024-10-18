@@ -22,7 +22,11 @@
 #include "vrambuf.h"
 //#link "vrambuf.c"
 
-/*{pal:"nes",layout:"nes"}*/
+// Funcoes uteis
+#include "funcoes.h"
+//#link "funcoes.c"
+
+// Paleta padrao
 const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x28 };
 
 // setup PPU and tables
@@ -36,19 +40,13 @@ void setup_graphics() {
 
 void disclaimer()
 {
-    unsigned char i, tam, col;
     const char* trechos[5] = { "ESTA e UMA OBRA DE FICcAO.",
                               "QUALQUER SEMELHANcA COM",
                               "NOMES, PESSOAS, FATOS OU",
                               "CLUBES DE FUTEBOL NAO PASSA",
                               "DE MERA COINCIDENCIA." };
     for (i = 0; i < 5; i++)
-    {
-        tam = strlen(trechos[i]);
-        col = 16 - tam / 2 - tam % 2;
-        vram_adr(NTADR_A(col, 2 * i + 10));
-        vram_write(trechos[i], tam);
-    }
+        escrita_centralizada(trechos[i], 2 * i + 10);
     ppu_on_all();
     delay(255);
 }
@@ -72,34 +70,6 @@ void apresentacao()
     }
 }
 
-// draw a message on the screen
-void escreve_mensagem(const char* msg, unsigned char col_ini, unsigned char col_fim) 
-{
-  char ch;
-  byte x,y;
-  x = 2;
-
-
-  // repeat until end of string (0) is read
-  while ((ch = *charptr++)) {
-    while (y >= 60) y -= 60; // compute (y % 60)
-    // newline character? go to start of next line
-    if (ch == '\n') {
-      x = 2;
-      y++;
-    } else {
-      // put character into nametable
-      vrambuf_put(getntaddr(x, y), &ch, 1);
-      x++;
-    }
-    // typewriter sound
-    sfx_play(SND_HIT,0);
-    // flush buffer and wait a few frames
-    vrambuf_flush();
-    delay(5);
-  }
-}
-
 void main(void)
 {
     char pad;
@@ -121,14 +91,11 @@ void main(void)
     vram_adr(NTADR_A(1,1));
     vram_fill(0, 960);
     scroll(0,0);
-    pal_col(25, 0x0A);
-    ppu_on_spr();
-    oam_meta_spr(32, 24, 24, spr_titia);
-    ppu_on_bg();
-    
-    
-    vram_adr(NTADR_A(2, 18));
-    vram_write(completo ? "JOGO COMPLETO": " DEMONSTRAcAO", 13);
+    vram_adr(NAMETABLE_A);
+    vram_unrle(tutorial);
+    ppu_on_bg();   
+    //vram_adr(NTADR_A(2, 18));
+    escree_mensagem(completo ? "JOGO COMPLETO": " DEMONSTRAcAO", 2, 5);
     // infinite loop
     while(1) 
     {
