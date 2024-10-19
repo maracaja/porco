@@ -96,7 +96,7 @@ void main(void)
     vram_adr(NAMETABLE_A);
     vram_unrle(tutorial);
     ppu_on_all(); 
-    escreve_mensagem(completo ? "JOGO COMPLETO" : "DEMONSTRAcAO", 3, 6);
+    escreve_mensagem(completo ? "JOGO COMPLETO" : "TA PEGANDO FOGO, BICHO!", 3, 6);
     // infinite loop
     while(1) 
     {

@@ -14,19 +14,14 @@ void escrita_centralizada(const char* str, unsigned char linha)
 
 void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col)
 {
-    unsigned char x = col, y = lin, tam = strlen(msg), i = 0;
+    unsigned char x = col, y = lin, tam = MIN(strlen(msg), 28), i = 0;
     // Repete ate encontrar caractere 0x00 ('\0')
-    while (i <= tam) 
+    while (i < tam) 
     {
-        //ppu_off();
-        //set_vram_update(NULL);
-        //vram_adr(NTADR_A(x + i, y));
-        //vram_put(msg[i]);
         vrambuf_put(NTADR_A(x + i, y), &msg[i], 1);
-        flush_vram_update(updbuf);
-        //vrambuf_flush();
+        ppu_wait_nmi();
+        set_vram_update(updbuf);
         i++;
-        //ppu_on_all();
-        delay(10);
+        delay(5);
     }
 }
