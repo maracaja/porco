@@ -27,6 +27,6 @@ void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col)
         //vrambuf_flush();
         i++;
         //ppu_on_all();
-        delay(5);
+        delay(10);
     }
 }
