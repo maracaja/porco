@@ -26,11 +26,12 @@
 #include "funcoes.h"
 //#link "funcoes.c"
 
-// Paleta padrao
-const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x28 };
+/*{pal:"nes",layout:"nes"}*/
+const unsigned char PALETTE[16] = { 0x0c,0x0f,0x30,0x16,0x0c,0x1a,0x36,0x30,0x0c,0x04,0x36,0x07,0x0c,0x27,0x10,0x38 };
 
 // setup PPU and tables
-void setup_graphics() {
+void setup_graphics() 
+{
     // clear sprites
     oam_clear();
     // set palette colors
@@ -40,12 +41,13 @@ void setup_graphics() {
 
 void disclaimer()
 {
+    byte i;
     const char* trechos[5] = { "ESTA e UMA OBRA DE FICcAO.",
                               "QUALQUER SEMELHANcA COM",
                               "NOMES, PESSOAS, FATOS OU",
                               "CLUBES DE FUTEBOL NAO PASSA",
                               "DE MERA COINCIDENCIA." };
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 5; i++) 
         escrita_centralizada(trechos[i], 2 * i + 10);
     ppu_on_all();
     delay(255);
@@ -93,9 +95,8 @@ void main(void)
     scroll(0,0);
     vram_adr(NAMETABLE_A);
     vram_unrle(tutorial);
-    ppu_on_bg();   
-    //vram_adr(NTADR_A(2, 18));
-    escree_mensagem(completo ? "JOGO COMPLETO": " DEMONSTRAcAO", 2, 5);
+    ppu_on_all(); 
+    escreve_mensagem(completo ? "JOGO COMPLETO" : "DEMONSTRAcAO", 3, 6);
     // infinite loop
     while(1) 
     {
