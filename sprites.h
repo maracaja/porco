@@ -68,3 +68,11 @@ const unsigned char* const spr_list[] = {
 	spr_caim_correndo
 
 };
+
+// Animacao do Caim
+const unsigned char* const spr_caim[4][4] = {
+    {spr_caim_parado, spr_caim_correndo, spr_caim_parado, spr_caim_correndo},
+    {spr_caim_correndo,spr_caim_parado, spr_caim_correndo, spr_caim_parado},
+    {spr_caim_parado, spr_caim_correndo, spr_caim_parado, spr_caim_correndo},
+    {spr_caim_correndo,spr_caim_parado, spr_caim_correndo, spr_caim_parado}
+};

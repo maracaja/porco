@@ -2,6 +2,7 @@
 #include "vrambuf.h"
 #include "funcoes.h"
 #include <string.h>
+#include "titulo.h"
 
 void escrita_centralizada(const char* str, unsigned char linha)
 {
@@ -23,5 +24,42 @@ void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col)
         set_vram_update(updbuf);
         i++;
         delay(5);
+    }
+}
+
+void limpa_tela(unsigned int adr)
+{
+    ppu_off();
+    oam_clear();
+    set_vram_update(NULL);
+    vram_adr(adr);
+    vram_fill(0, 1024);
+    ppu_on_all();
+}
+
+void disclaimer()
+{
+    byte i;
+    const char* trechos[5] = { "ESTA e UMA OBRA DE FICcAO.",
+                              "QUALQUER SEMELHANcA COM",
+                              "NOMES, PESSOAS, FATOS OU",
+                              "CLUBES DE FUTEBOL NAO PASSA",
+                              "DE MERA COINCIDENCIA." };
+    for (i = 0; i < 5; i++) 
+        escrita_centralizada(trechos[i], 2 * i + 10);
+    ppu_on_all();
+    delay(255);
+}
+
+void apresentacao()
+{
+    unsigned int i = 0;
+    vram_adr(NAMETABLE_C);
+    vram_unrle(titulo);
+    disclaimer();
+    for (i = 0; i < 240; i++) 
+    {
+        ppu_wait_nmi();
+        scroll(0, i);
     }
 }

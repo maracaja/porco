@@ -10,7 +10,7 @@
 // Importacao dos recursos graficos
 //#resource "chr_porco.chr"
 //#link "tileset.s"
-#include "titulo.h"
+//#include "titulo.h"
 #include "sprites.h"
 #include "tutorial.h"
 
@@ -27,7 +27,7 @@
 //#link "funcoes.c"
 
 /*{pal:"nes",layout:"nes"}*/
-const unsigned char PALETTE[16] = { 0x0c,0x0f,0x30,0x16,0x0c,0x1a,0x36,0x30,0x0c,0x04,0x36,0x07,0x0c,0x27,0x10,0x38 };
+const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
 
 // setup PPU and tables
 void setup_graphics() 
@@ -39,43 +39,18 @@ void setup_graphics()
     pal_spr(PALETTE);
 }
 
-void disclaimer()
-{
-    byte i;
-    const char* trechos[5] = { "ESTA e UMA OBRA DE FICcAO.",
-                              "QUALQUER SEMELHANcA COM",
-                              "NOMES, PESSOAS, FATOS OU",
-                              "CLUBES DE FUTEBOL NAO PASSA",
-                              "DE MERA COINCIDENCIA." };
-    for (i = 0; i < 5; i++) 
-        escrita_centralizada(trechos[i], 2 * i + 10);
-    ppu_on_all();
-    delay(255);
-}
-
 void selecao(bool completo)
 {
-    oam_spr(52, 431 + (completo ? 24 : 0), 0x06, completo ? 0 : 3, 4);
+    oam_spr(52, 175 + (completo ? 24 : 0), 0x06, completo ? 0 : 3, 4);
     ppu_wait_nmi();
-}
-
-void apresentacao()
-{
-    unsigned int i = 0;
-    vram_adr(NAMETABLE_C);
-    vram_unrle(titulo);
-    disclaimer();
-    for (i = 0; i < 240; i++) 
-    {
-        ppu_wait_nmi();
-        scroll(0, i);
-    }
 }
 
 void main(void)
 {
     char pad;
     bool completo = false, menu = true;
+    unsigned char i;
+    unsigned char caim_x, caim_y, caim_id; // Coordenadas do personagem principal
     setup_graphics();
     apresentacao();
     selecao(completo);
@@ -87,16 +62,28 @@ void main(void)
         if (pad & PAD_UP && completo) selecao(completo = false);
         if (pad & PAD_START) menu = false;
     }
-    ppu_off();
-    oam_clear();
-    set_vram_update(NULL);
-    vram_adr(NTADR_A(1,1));
-    vram_fill(0, 960);
+    // Prepara apresentacao do jogo
+    setup_graphics();
+    limpa_tela(NAMETABLE_C);
+    limpa_tela(NAMETABLE_A);
     scroll(0,0);
+    ppu_off();
+    escrita_centralizada("BROOKLIN", 13);
+    escrita_centralizada("1984", 14);
+    ppu_on_all();
+    delay(180);
+    limpa_tela(NAMETABLE_A);
     vram_adr(NAMETABLE_A);
     vram_unrle(tutorial);
-    ppu_on_all(); 
-    escreve_mensagem(completo ? "JOGO COMPLETO" : "TA PEGANDO FOGO, BICHO!", 3, 6);
+    // Inicio do jogo
+    caim_x = 120; caim_y = 220;
+    caim_id = oam_meta_spr(126, 200, 0, spr_caim[caim_x & 3][caim_y & 3]);
+    for (i = 0; i >= 60; i -= 3)
+    {
+      caim_x -= i; caim_y -= i;
+      caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim[caim_x & 3][caim_y & 3]);
+      ppu_wait_nmi();
+    }
     // infinite loop
     while(1) 
     {
