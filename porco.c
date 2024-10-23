@@ -10,7 +10,7 @@
 // Importacao dos recursos graficos
 //#resource "chr_porco.chr"
 //#link "tileset.s"
-//#include "titulo.h"
+#include "titulo.h"
 #include "sprites.h"
 #include "tutorial.h"
 
@@ -37,6 +37,19 @@ void setup_graphics()
     // set palette colors
     pal_bg(PALETTE);
     pal_spr(PALETTE);
+}
+
+void apresentacao()
+{
+    unsigned int i = 0;
+    vram_adr(NAMETABLE_C);
+    vram_unrle(titulo);
+    disclaimer();
+    for (i = 0; i < 240; i++) 
+    {
+        ppu_wait_nmi();
+        scroll(0, i);
+    }
 }
 
 void selecao(bool completo)
