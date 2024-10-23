@@ -10,7 +10,7 @@ void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col);
 // Limpa a tela selecionada
 void limpa_tela(unsigned int adr);
 
-// Abertura do jogo
-void apresentacao(void);
+// Parte da abertura do jogo
+void disclaimer(void);
 
 #endif
