@@ -48,7 +48,7 @@ void selecao(bool completo)
 void main(void)
 {
     char pad;
-    bool completo = false, menu = true;
+    bool completo = false, menu = true, lado = false;
     unsigned char i;
     unsigned char caim_x, caim_y, caim_id; // Coordenadas do personagem principal
     setup_graphics();
@@ -77,13 +77,17 @@ void main(void)
     vram_unrle(tutorial);
     // Inicio do jogo
     caim_x = 120; caim_y = 220;
-    caim_id = oam_meta_spr(126, 200, 0, spr_caim[caim_x & 3][caim_y & 3]);
-    for (i = 0; i >= 60; i -= 3)
+    caim_id = oam_meta_spr(126, 200, 0, spr_caim_parado);
+    for (i = 0; i <= 86; i++)
     {
-      caim_x -= i; caim_y -= i;
-      caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim[caim_x & 3][caim_y & 3]);
-      ppu_wait_nmi();
+        caim_x--; caim_y--;
+        oam_clear();
+        caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim[lado = !lado]);
+        ppu_wait_nmi();
+        delay(4);
     }
+    oam_clear();
+    caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim_parado);
     // infinite loop
     while(1) 
     {

@@ -48,7 +48,7 @@ const unsigned char spr_caim_parado[] = {
 
 };
 
-const unsigned char spr_caim_correndo[] = {
+const unsigned char spr_caim_correndo1[] = {
 
 	-8,-8,0x09,1,
 	-8,  0,0x1a,1,
@@ -58,6 +58,18 @@ const unsigned char spr_caim_correndo[] = {
 
 };
 
+const unsigned char spr_caim_correndo2[] = {
+
+	0,-8,0x09,1 | OAM_FLIP_H,
+	0,  0,0x1a,1 | OAM_FLIP_H,
+	  -8,  0,0x1b,1,
+	  -8,-8,0x0a,1,
+	128
+
+};
+
+const unsigned char* const spr_caim[2] = {spr_caim_correndo1, spr_caim_correndo2};
+
 const unsigned char* const spr_list[] = {
 
 	spr_moeda,
@@ -65,14 +77,7 @@ const unsigned char* const spr_list[] = {
 	spr_liberta,
 	spr_bola,
 	spr_caim_parado,
-	spr_caim_correndo
+	spr_caim_correndo1,
+        spr_caim_correndo2
 
-};
-
-// Animacao do Caim
-const unsigned char* const spr_caim[4][4] = {
-    {spr_caim_parado, spr_caim_correndo, spr_caim_parado, spr_caim_correndo},
-    {spr_caim_correndo,spr_caim_parado, spr_caim_correndo, spr_caim_parado},
-    {spr_caim_parado, spr_caim_correndo, spr_caim_parado, spr_caim_correndo},
-    {spr_caim_correndo,spr_caim_parado, spr_caim_correndo, spr_caim_parado}
 };
