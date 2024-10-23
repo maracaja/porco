@@ -90,14 +90,13 @@ void main(void)
     vram_unrle(tutorial);
     // Inicio do jogo
     caim_x = 120; caim_y = 220;
-    caim_id = oam_meta_spr(126, 200, 0, spr_caim_parado);
+    caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim_parado);
     for (i = 0; i <= 86; i++)
     {
-        caim_x--; caim_y--;
+        caim_x--; caim_y -= 2;
         oam_clear();
         caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim[lado = !lado]);
-        ppu_wait_nmi();
-        delay(4);
+        ppu_wait_nmi(); delay(4);
     }
     oam_clear();
     caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim_parado);
