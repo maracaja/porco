@@ -73,7 +73,7 @@ void main(void)
         pad = pad_poll(0);
       	if (pad & PAD_DOWN && !completo) selecao(completo = true); 
         if (pad & PAD_UP && completo) selecao(completo = false);
-        if (pad & PAD_START) menu = false;
+        if (pad & PAD_A) menu = false;
     }
     // Prepara apresentacao do jogo
     setup_graphics();
@@ -87,7 +87,7 @@ void main(void)
     delay(180);
     limpa_tela(NAMETABLE_A);
     vram_adr(NAMETABLE_A);
-    vram_unrle(tutorial);
+    vram_unrle(tutorial); //  tirar daqui e fazer com sprite mesmo...
     // Inicio do jogo
     caim_x = 120; caim_y = 220;
     caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim_parado);
