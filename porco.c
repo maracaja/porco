@@ -60,8 +60,8 @@ void selecao(bool completo)
 void main(void)
 {
     char pad;
-    bool completo = false, menu = true, lado = false;
-    unsigned char i, j;
+    bool completo = false, menu = true;
+    unsigned char i;
     unsigned char caim_x, caim_y; // Coordenadas do personagem principal
     setup_graphics();
     apresentacao();
@@ -87,33 +87,22 @@ void main(void)
     limpa_tela(NAMETABLE_A);
     // Inicio do jogo
     ppu_off();
-    vram_adr(NAMETABLE_A);
     caim_x = 111; caim_y = 224;
-    caim_id = oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
-    tt = oam_meta_spr(titia_x, titia_y, 1, spr_titia);
-    j = 0;
+    oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
+    desenha_tia();
     ppu_on_all();
-    for (i = 0; i <= 86; )
-    {
-        if (j % 4 == 0)
-        {
-            ppu_off();
-            caim_x--; caim_y -= 2;
-            //oam_clear();
-            oam_meta_spr(titia_x, titia_y, TITIA, spr_titia);
-            caim_id = oam_meta_spr(caim_x, caim_y, CAIM, spr_caim[lado = !lado]);
-            i++;
-            ppu_on_all();
-        }
-        ppu_wait_nmi();
-        j++;
+    for (i = 0; i <= 86; i++)
+    {      
+        caim_x--; caim_y -= 2;
+        oam_clear();
+        desenha_tia();
+        oam_meta_spr(caim_x, caim_y, CAIM, spr_caim[i % 2]);
+        ppu_wait_nmi();        
+        delay(4);
     }
-    //oam_clear();
-    ppu_off();
-    oam_hide_rest(caim_id);
-    //oam_meta_spr(titia_x, titia_y, tt, spr_titia);
-    caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim_parado);
-    ppu_on_all();
+    desenha_tia();
+    oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
+    // Escrita das mensagens...
     // infinite loop
     while(1) 
     {
