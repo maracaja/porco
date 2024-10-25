@@ -12,7 +12,6 @@
 //#link "tileset.s"
 #include "titulo.h"
 #include "sprites.h"
-#include "tutorial.h"
 
 // BCD arithmetic support
 #include "bcd.h"
@@ -63,8 +62,7 @@ void main(void)
     char pad;
     bool completo = false, menu = true, lado = false;
     unsigned char i, j;
-    unsigned char caim_x, caim_y, caim_id, tt; // Coordenadas do personagem principal
-    const unsigned char titia_x = 24, titia_y = 32;
+    unsigned char caim_x, caim_y; // Coordenadas do personagem principal
     setup_graphics();
     apresentacao();
     selecao(completo);
@@ -87,29 +85,35 @@ void main(void)
     ppu_on_all();
     delay(180);
     limpa_tela(NAMETABLE_A);
-    vram_adr(NAMETABLE_A);
     // Inicio do jogo
+    ppu_off();
+    vram_adr(NAMETABLE_A);
     caim_x = 111; caim_y = 224;
-    caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim_parado);
+    caim_id = oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
     tt = oam_meta_spr(titia_x, titia_y, 1, spr_titia);
     j = 0;
+    ppu_on_all();
     for (i = 0; i <= 86; )
     {
         if (j % 4 == 0)
         {
-          caim_x--; caim_y -= 2;
-          //oam_clear();
-          /oam_meta_spr(titia_x, titia_y, tt, spr_titia);
-          caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim[lado = !lado]);
-          i++;
+            ppu_off();
+            caim_x--; caim_y -= 2;
+            //oam_clear();
+            oam_meta_spr(titia_x, titia_y, TITIA, spr_titia);
+            caim_id = oam_meta_spr(caim_x, caim_y, CAIM, spr_caim[lado = !lado]);
+            i++;
+            ppu_on_all();
         }
         ppu_wait_nmi();
         j++;
     }
     //oam_clear();
+    ppu_off();
     oam_hide_rest(caim_id);
     //oam_meta_spr(titia_x, titia_y, tt, spr_titia);
     caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim_parado);
+    ppu_on_all();
     // infinite loop
     while(1) 
     {
