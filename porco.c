@@ -1,29 +1,20 @@
 #include <stdlib.h>
 #include <string.h>
-
-// include NESLIB header
 #include "neslib.h"
-
-// include CC65 NES Header (PPU)
 #include <nes.h>
+
+#include "vrambuf.h"	// VRAM update buffer
+//#link "vrambuf.c"
+#include "bcd.h"	// BCD arithmetic support
+//#link "bcd.c"
+#include "funcoes.h"	// Funcoes uteis
+//#link "funcoes.c"
 
 // Importacao dos recursos graficos
 //#resource "chr_porco.chr"
 //#link "tileset.s"
 #include "titulo.h"
 #include "sprites.h"
-
-// BCD arithmetic support
-#include "bcd.h"
-//#link "bcd.c"
-
-// VRAM update buffer
-#include "vrambuf.h"
-//#link "vrambuf.c"
-
-// Funcoes uteis
-#include "funcoes.h"
-//#link "funcoes.c"
 
 /*{pal:"nes",layout:"nes"}*/
 const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
