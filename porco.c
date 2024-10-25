@@ -65,7 +65,7 @@ void main(void)
         if (pad & PAD_UP && completo) selecao(completo = false);
         if (pad & PAD_A) menu = false;
     }
-    // Prepara apresentacao do jogo
+    // Prepara inicio da historia
     setup_graphics();
     limpa_tela(NAMETABLE_C);
     limpa_tela(NAMETABLE_A);
@@ -75,6 +75,18 @@ void main(void)
     escrita_centralizada("1984", 14);
     ppu_on_all();
     delay(180);
+    limpa_tela(NAMETABLE_A);
+    for (i = NORMAL; i > 0;)
+    {
+        ppu_off();
+        pal_bright(--i);
+        ppu_wait_nmi();
+        ppu_on_all();
+        delay(5);
+    }
+    ppu_off();
+    pal_bright(NORMAL);
+    ppu_on_all();
     limpa_tela(NAMETABLE_A);
     // Inicio do jogo
     ppu_off();

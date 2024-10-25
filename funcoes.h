@@ -2,6 +2,7 @@
 #define FUNCOES_H
 
 /* Constantes */
+#define NORMAL 4
 #define CAIM 0x00
 #define MOEDA 0x03
 #define ENERG 0x05
