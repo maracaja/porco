@@ -38,6 +38,16 @@ const unsigned char spr_bola[] = {
 
 };
 
+const unsigned char spr_titia[]={
+	- 8,-16,0x60,2,
+	  0,-16,0x60,2|OAM_FLIP_H,
+	- 8,- 8,0x70,2,
+	  0,- 8,0x70,2|OAM_FLIP_H,
+	- 8,  0,0x80,2,
+	  0,  0,0x80,2|OAM_FLIP_H,
+	128
+};
+
 const unsigned char spr_caim_parado[] = {
 
 	-8,-8,0x09,1,
@@ -76,6 +86,7 @@ const unsigned char* const spr_list[] = {
 	spr_nrg,
 	spr_liberta,
 	spr_bola,
+        spr_titia,
 	spr_caim_parado,
 	spr_caim_correndo1,
         spr_caim_correndo2

@@ -62,8 +62,9 @@ void main(void)
 {
     char pad;
     bool completo = false, menu = true, lado = false;
-    unsigned char i;
-    unsigned char caim_x, caim_y, caim_id; // Coordenadas do personagem principal
+    unsigned char i, j;
+    unsigned char caim_x, caim_y, caim_id, tt; // Coordenadas do personagem principal
+    const unsigned char titia_x = 24, titia_y = 32;
     setup_graphics();
     apresentacao();
     selecao(completo);
@@ -87,19 +88,28 @@ void main(void)
     delay(180);
     limpa_tela(NAMETABLE_A);
     vram_adr(NAMETABLE_A);
-    vram_unrle(tutorial); //  tirar daqui e fazer com sprite mesmo...
     // Inicio do jogo
-    caim_x = 120; caim_y = 220;
+    caim_x = 111; caim_y = 224;
     caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim_parado);
-    for (i = 0; i <= 86; i++)
+    tt = oam_meta_spr(titia_x, titia_y, 1, spr_titia);
+    j = 0;
+    for (i = 0; i <= 86; )
     {
-        caim_x--; caim_y -= 2;
-        oam_clear();
-        caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim[lado = !lado]);
-        ppu_wait_nmi(); delay(4);
+        if (j % 4 == 0)
+        {
+          caim_x--; caim_y -= 2;
+          //oam_clear();
+          /oam_meta_spr(titia_x, titia_y, tt, spr_titia);
+          caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim[lado = !lado]);
+          i++;
+        }
+        ppu_wait_nmi();
+        j++;
     }
-    oam_clear();
-    caim_id = oam_meta_spr(caim_x, caim_y, caim_id, spr_caim_parado);
+    //oam_clear();
+    oam_hide_rest(caim_id);
+    //oam_meta_spr(titia_x, titia_y, tt, spr_titia);
+    caim_id = oam_meta_spr(caim_x, caim_y, 0, spr_caim_parado);
     // infinite loop
     while(1) 
     {
