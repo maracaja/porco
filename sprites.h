@@ -1,3 +1,6 @@
+#ifndef SPRITES_H
+#define SPRITES_H
+
 const unsigned char spr_moeda[] = {
 
 	-8,-8,0x03,3,
@@ -78,8 +81,11 @@ const unsigned char spr_caim_correndo2[] = {
 
 };
 
-const unsigned char* const spr_caim[2] = {spr_caim_correndo1, spr_caim_correndo2};
+#define spr_caim(x) ((x) == 0 ? spr_caim_correndo1 : spr_caim_correndo2)
 
+#endif
+
+/*
 const unsigned char* const spr_list[] = {
 
 	spr_moeda,
@@ -91,4 +97,4 @@ const unsigned char* const spr_list[] = {
 	spr_caim_correndo1,
         spr_caim_correndo2
 
-};
+};*/

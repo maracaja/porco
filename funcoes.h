@@ -15,17 +15,24 @@
 
 /* Macros */
 #define desenha_tia(void) oam_meta_spr(TTX, TTY, TITIA, spr_titia)
+#define reset_pulo(void) *pulo = false
 
-// Escreve um texto de forma a centraliza-lo na tela (A)
+/* Variável de controle para escapar de introduções */
+static bool *pulo;
+
+// Escreve um texto de forma a centralizá-lo na tela (nametable A)
 void escrita_centralizada(const char* str, unsigned char linha);
 
-// Escreve uma mensagem de linha unica aparecendo um caractere por vez
+// Escreve uma mensagem de linha única aparecendo um caractere por vez
 void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col);
 
-// Limpa a tela selecionada
+// Limpa a tela do nametable selecionado
 void limpa_tela(unsigned int adr);
 
-// Parte da abertura do jogo
-void disclaimer(void);
+// Abertura do jogo
+void apresentacao();
+
+// História inicial do jogo
+void historinha(void);
 
 #endif
