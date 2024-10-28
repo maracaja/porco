@@ -5,6 +5,10 @@
 #include "titulo.h"
 #include "funcoes.h"
 
+#define desenha_tia(void) oam_meta_spr(TTX, TTY, TITIA, spr_titia)
+#define desenha_caim_intro(void) oam_meta_spr(TTX, TTY + 18, CAIM, spr_caim_parado)
+#define ESPACO " "
+
 //extern const unsigned char titulo[];
 
 void escrita_centralizada(const char* str, unsigned char linha)
@@ -61,7 +65,7 @@ void disclaimer()
     for (i = 0; i < 5; i++) 
         escrita_centralizada(trechos[i], 2 * i + 10);
     ppu_on_all();
-    delay(255);
+    for (i = 0; i < 3; i++) delay(127);
 }
 
 void apresentacao()
@@ -77,25 +81,73 @@ void apresentacao()
     }
 }
 
+void transicao_intro()
+{
+    limpa_tela(NAMETABLE_A);
+    ppu_off();
+    oam_clear();
+    desenha_tia();
+    desenha_caim_intro();
+    ppu_on_all();
+}
+
 void conversa()
 {
     byte i;
+    const byte spry = TTY + 60;
     const char* const trechos[] = { "OLA, CAIM! SOU A TITIA,",
                                     "DONA E PATROCINADORA DO",
                                     "PORCARIAS FC. FUI PRESA",
                                     "PELO TERRIVEL FUTEBOWSER",
                                     "NUMA REALIDADE ONDE MEU ",
                                     "TIME NAO TEM MUNDIAL.",
+                                    ESPACO,
                                     "TE CONTRATEI PARA NOS",
                                     "LIBERTAR DESSA MALDIcAO.",
-                                    " " };
-    for (i = 0; i < 9; i++)
+                                    ESPACO,
+                                    "USE OS GOLEIROS PARA SE",
+                                    "PROTEGER DOS ATAQUES DOS",
+                                    "ADVERSARIOS.",
+                                    ESPACO, 
+                                    "CONSEGUI TAMBEM ARBITROS",
+                                    "QUE TE AJUDARAO A TIRAR",
+                                    "NOSSOS RIVAIS DA FRENTE.",
+                                    ESPACO,
+                                    "SEMPRE QUE PRECISAR, USE",
+                                    "ENERGETICOS QUE LEMBRAM",
+                                    "A NOSSA CONQUISTA DE 51.",
+                                    ESPACO,
+                                    "LEMBRANDO: USE A GRANA ",
+                                    "PRA GANHAR A VIDA, NUNCA",
+                                    "O CONTRARIO. E COMO SOU",
+                                    "RYCA, VOU VOAR AGORA NO",
+                                    "MEU, DIGO, NOSSO AVIAO.",
+                                    ESPACO,
+                                    "PARA CONQUISTAR O MUNDO,",
+                                    "e PRECISO ATRAVESSA-LO.",
+                                    "BOA SORTE!"};
+    for (i = 0; i < 7; i++)
         escreve_mensagem(trechos[i], 2 * i + 2, 5);
+    oam_meta_spr(TTX, spry, TACA, spr_liberta);
+    for (; i < 10; i++)
+        escreve_mensagem(trechos[i], 2 * i + 2, 5);
+    delay(60);
+    transicao_intro();
+    for (; i < 14; i++)
+        escreve_mensagem(trechos[i], 2 * i - 18, 5);
+    for (; i < 18; i++)
+        escreve_mensagem(trechos[i], 2 * i - 18, 5);
+    for (; i < 22; i++)
+        escreve_mensagem(trechos[i], 2 * i - 18, 5);
+    delay(60);
+    transicao_intro();
+    for (; i < 31; i++)
+        escreve_mensagem(trechos[i], 2 * i - 42, 5);
 }
 
 void historinha()
 {
-    unsigned char i;
+    //unsigned char i;
     unsigned char caim_x, caim_y; // Coordenadas do personagem principal
     char pad;
     limpa_tela(NAMETABLE_C);
@@ -116,12 +168,12 @@ void historinha()
     oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
     desenha_tia();
     ppu_on_all();
-    for (i = 0; i <= 86 && !*pulo; i++)
+    while (caim_x > TTX && !*pulo)
     {      
         caim_x--; caim_y -= 2;
         oam_clear();
         desenha_tia();
-        oam_meta_spr(caim_x, caim_y, CAIM, spr_caim(i % 2));
+        oam_meta_spr(caim_x, caim_y, CAIM, spr_caim(caim_x % 2));
         ppu_wait_nmi();
         // Pula introdução
         pad = pad_poll(0);

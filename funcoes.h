@@ -8,13 +8,12 @@
 #define ENERG 0x05
 #define CARD 0x06
 #define BOLA 0x07
-#define TACA 0x13
+#define TACA 0x14
 #define TITIA 0x60
 #define TTX 24
 #define TTY 32
 
 /* Macros */
-#define desenha_tia(void) oam_meta_spr(TTX, TTY, TITIA, spr_titia)
 #define reset_pulo(void) *pulo = false
 
 /* Variável de controle para escapar de introduções */
