@@ -8,6 +8,7 @@
 #define desenha_tia(void) oam_meta_spr(TTX, TTY, TITIA, spr_titia)
 #define desenha_caim_intro(void) oam_meta_spr(TTX, TTY + 18, CAIM, spr_caim_parado)
 #define ESPACO " "
+#define COL_INTRO 5
 
 //extern const unsigned char titulo[];
 
@@ -83,12 +84,16 @@ void apresentacao()
 
 void transicao_intro()
 {
-    limpa_tela(NAMETABLE_A);
-    ppu_off();
-    oam_clear();
-    desenha_tia();
-    desenha_caim_intro();
-    ppu_on_all();
+    if (!*pulo)
+    {
+        delay(60);
+        limpa_tela(NAMETABLE_A);
+        ppu_off();
+        oam_clear();
+        desenha_tia();
+        desenha_caim_intro();
+        ppu_on_all();
+    }
 }
 
 void conversa()
@@ -127,27 +132,25 @@ void conversa()
                                     "e PRECISO ATRAVESSA-LO.",
                                     "BOA SORTE!"};
     for (i = 0; i < 7; i++)
-        escreve_mensagem(trechos[i], 2 * i + 2, 5);
-    oam_meta_spr(TTX, spry, TACA, spr_liberta);
+        escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
+    if (!*pulo) oam_meta_spr(TTX, spry, TACA, spr_liberta);
     for (; i < 10; i++)
-        escreve_mensagem(trechos[i], 2 * i + 2, 5);
-    delay(60);
+        escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
     transicao_intro();
     for (; i < 14; i++)
-        escreve_mensagem(trechos[i], 2 * i - 18, 5);
+        escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
     for (; i < 18; i++)
-        escreve_mensagem(trechos[i], 2 * i - 18, 5);
+        escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
     for (; i < 22; i++)
-        escreve_mensagem(trechos[i], 2 * i - 18, 5);
-    delay(60);
+        escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
     transicao_intro();
     for (; i < 31; i++)
-        escreve_mensagem(trechos[i], 2 * i - 42, 5);
+        escreve_mensagem(trechos[i], 2 * i - 42, COL_INTRO);
 }
 
 void historinha()
 {
-    //unsigned char i;
+    unsigned char i;
     unsigned char caim_x, caim_y; // Coordenadas do personagem principal
     char pad;
     limpa_tela(NAMETABLE_C);
@@ -157,11 +160,13 @@ void historinha()
     escrita_centralizada("BROOKLIN", 13);
     escrita_centralizada("1984", 15);
     ppu_on_all();
-    delay(180);
-    limpa_tela(NAMETABLE_A);
-    ppu_off();
-    pal_bright(NORMAL);
-    ppu_on_all();
+    delay(30);
+    for (i = 0; i < 150 && !*pulo; i++)
+    {
+        pad = pad_poll(0);
+        if (pad & PAD_A) *pulo = true;
+        ppu_wait_nmi();
+    }
     limpa_tela(NAMETABLE_A);
     ppu_off();
     caim_x = 111; caim_y = 224;
@@ -182,5 +187,5 @@ void historinha()
     }
     desenha_tia();
     oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
-    conversa();
+    if (!*pulo) conversa();
 }
