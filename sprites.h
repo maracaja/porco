@@ -20,10 +20,10 @@ const unsigned char spr_titia[] = {
 };
 
 const unsigned char spr_bola[] = {
-    - 8,- 8,0x10,0,
-    0,- 8,0x11,0,
-    - 8,  0,0x12,0,
-    0,  0,0x13,0,
+    -8, -8, 0x1c, 0,
+    0, -8, 0x1d, 0,
+    -8, 0, 0x1e, 0,
+    0, 0, 0x1f, 0,
     128
 };
 

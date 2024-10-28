@@ -7,7 +7,7 @@
 #define MOEDA 0x04
 #define ENERG 0x80
 #define CARD 0x01
-#define BOLA 0x10
+#define BOLA 0x1C
 #define TACA 0x14
 #define TITIA 0x0C
 #define TTX 24
