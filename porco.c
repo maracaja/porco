@@ -31,7 +31,7 @@ void setup_graphics()
 
 void selecao(bool completo)
 {
-    oam_spr(52, 175 + (completo ? 24 : 0), 0x06, completo ? 0 : 3, 4);
+    oam_spr(52, 175 + (completo ? 24 : 0), CARD, completo ? 0 : 3, 4);
     ppu_wait_nmi();
 }
 

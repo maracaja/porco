@@ -86,8 +86,8 @@ void troca_spr_intro()
 {
     ppu_off();
     oam_clear();
-    desenha_tia();
     desenha_caim_intro();
+    desenha_tia();
     ppu_on_all();
 }
 
@@ -192,15 +192,15 @@ void historinha()
     {      
         caim_x--; caim_y -= 2;
         oam_clear();
-        desenha_tia();
         oam_meta_spr(caim_x, caim_y, CAIM, spr_caim(caim_x % 2));
+        desenha_tia();
         ppu_wait_nmi();
         // Pula introdução
         pad = pad_poll(0);
         if (pad & PAD_A) *pulo = true;
         delay(4);
     }
-    desenha_tia();
     oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
+    desenha_tia();
     if (!*pulo) conversa();
 }
