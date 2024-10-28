@@ -5,11 +5,11 @@
 #define NORMAL 4
 #define CAIM 0x84
 #define MOEDA 0x04
-#define ENERG 0x80
+#define ENERG 0x94
 #define CARD 0x01
-#define BOLA 0x1C
+#define BOLA 0x24
 #define TACA 0x14
-#define TITIA 0x0C
+#define TITIA 0x64
 #define TTX 24
 #define TTY 32
 
