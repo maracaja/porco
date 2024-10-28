@@ -82,24 +82,31 @@ void apresentacao()
     }
 }
 
+void troca_spr_intro()
+{
+    ppu_off();
+    oam_clear();
+    desenha_tia();
+    desenha_caim_intro();
+    ppu_on_all();
+}
+
 void transicao_intro()
 {
     if (!*pulo)
     {
         delay(60);
         limpa_tela(NAMETABLE_A);
-        ppu_off();
-        oam_clear();
-        desenha_tia();
-        desenha_caim_intro();
-        ppu_on_all();
+        troca_spr_intro();
     }
 }
+
+
 
 void conversa()
 {
     byte i;
-    const byte spry = TTY + 60;
+    const byte SPRY = TTY + 60;
     const char* const trechos[] = { "OLA, CAIM! SOU A TITIA,",
                                     "DONA E PATROCINADORA DO",
                                     "PORCARIAS FC. FUI PRESA",
@@ -133,17 +140,25 @@ void conversa()
                                     "BOA SORTE!"};
     for (i = 0; i < 7; i++)
         escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
-    if (!*pulo) oam_meta_spr(TTX, spry, TACA, spr_liberta);
+    if (!*pulo) oam_meta_spr(TTX, SPRY, TACA, spr_liberta);
     for (; i < 10; i++)
         escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
     transicao_intro();
+    // Goleiro...
     for (; i < 14; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
+    // Árbitro...
     for (; i < 18; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
+    if (!*pulo) 
+    {
+      	troca_spr_intro();
+        oam_meta_spr(TTX - 4, SPRY, ENERG, spr_nrg);
+    }
     for (; i < 22; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
     transicao_intro();
+    oam_meta_spr(TTX, SPRY, MOEDA, spr_moeda);
     for (; i < 31; i++)
         escreve_mensagem(trechos[i], 2 * i - 42, COL_INTRO);
 }

@@ -3,13 +3,13 @@
 
 /* Constantes */
 #define NORMAL 4
-#define CAIM 0x00
-#define MOEDA 0x03
-#define ENERG 0x05
-#define CARD 0x06
-#define BOLA 0x07
+#define CAIM 0x84
+#define MOEDA 0x04
+#define ENERG 0x80
+#define CARD 0x01
+#define BOLA 0x10
 #define TACA 0x14
-#define TITIA 0x60
+#define TITIA 0x0C
 #define TTX 24
 #define TTY 32
 
@@ -29,7 +29,7 @@ void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col);
 void limpa_tela(unsigned int adr);
 
 // Abertura do jogo
-void apresentacao();
+void apresentacao(void);
 
 // História inicial do jogo
 void historinha(void);
