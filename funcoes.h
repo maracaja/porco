@@ -3,10 +3,10 @@
 
 /* Constantes */
 #define NORMAL 4
+#define TILE_CARD 0x01
 #define CAIM 0x84
 #define MOEDA 0x04
-#define ENERG 0x94
-#define CARD 0x01
+#define ENERG 0xA4
 #define BOLA 0x24
 #define TACA 0x14
 #define TITIA 0x64
