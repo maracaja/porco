@@ -53,6 +53,18 @@ const unsigned char spr_caim_correndo2[] = {
     128
 };
 
+const unsigned char spr_goleiro[] = {
+    0,-8,0x16,3,
+    0, 0,0x17,3,
+    128
+};
+
+const unsigned char spr_arbitro[] = {
+    0,-8,0x18,0,
+    0, 0,0x19,0,
+    128
+};
+
 #define spr_caim(x) ((x) == 0 ? spr_caim_correndo1 : spr_caim_correndo2)
 
 #endif

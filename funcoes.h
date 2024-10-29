@@ -17,6 +17,8 @@
 #define EXTRA 0xE8
 #define TTX 24
 #define TTY 32
+#define SPRX TTX - 4
+#define SPRY TTY + 60
 
 /* Macros */
 #define reset_pulo(void) *pulo = false

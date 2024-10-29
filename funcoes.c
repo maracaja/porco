@@ -6,7 +6,7 @@
 #include "funcoes.h"
 
 #define desenha_tia(void) oam_meta_spr(TTX, TTY, EXTRA, spr_titia)
-#define desenha_caim_intro(void) oam_meta_spr(TTX - 4, TTY + 18, CAIM, spr_caim_parado)
+#define desenha_caim_intro(void) oam_meta_spr(SPRX, TTY + 18, CAIM, spr_caim_parado)
 #define ESPACO " "
 #define COL_INTRO 5
 
@@ -106,7 +106,6 @@ void transicao_intro()
 void conversa()
 {
     byte i;
-    const byte SPRY = TTY + 60;
     const char* const trechos[] = { "OLA, CAIM! SOU A TITIA,",
                                     "DONA E PATROCINADORA DO",
                                     "PORCARIAS FC. FUI PRESA",
@@ -144,16 +143,20 @@ void conversa()
     for (; i < 10; i++)
         escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
     transicao_intro();
-    // Goleiro...
+    if (!*pulo) oam_meta_spr(SPRX, SPRY, GOLEIRO, spr_goleiro);
     for (; i < 14; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
-    // Árbitro...
+    if (!*pulo)
+    {
+        troca_spr_intro();
+        oam_meta_spr(SPRX, SPRY, JUIZ, spr_arbitro);
+    }
     for (; i < 18; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
     if (!*pulo) 
     {
       	troca_spr_intro();
-        oam_meta_spr(TTX - 4, SPRY, ENERG, spr_nrg);
+        oam_meta_spr(SPRX, SPRY, ENERG, spr_nrg);
     }
     for (; i < 22; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
