@@ -10,8 +10,6 @@
 #define ESPACO " "
 #define COL_INTRO 5
 
-//extern const unsigned char titulo[];
-
 void escrita_centralizada(const char* str, unsigned char linha)
 {
     unsigned tam, col;
