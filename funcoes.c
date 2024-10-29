@@ -5,8 +5,8 @@
 #include "titulo.h"
 #include "funcoes.h"
 
-#define desenha_tia(void) oam_meta_spr(TTX, TTY, TITIA, spr_titia)
-#define desenha_caim_intro(void) oam_meta_spr(TTX, TTY + 18, CAIM, spr_caim_parado)
+#define desenha_tia(void) oam_meta_spr(TTX, TTY, EXTRA, spr_titia)
+#define desenha_caim_intro(void) oam_meta_spr(TTX - 4, TTY + 18, CAIM, spr_caim_parado)
 #define ESPACO " "
 #define COL_INTRO 5
 
@@ -184,11 +184,11 @@ void historinha()
     }
     limpa_tela(NAMETABLE_A);
     ppu_off();
-    caim_x = 111; caim_y = 224;
+    caim_x = 100; caim_y = 210;
     oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
     desenha_tia();
     ppu_on_all();
-    while (caim_x > TTX && !*pulo)
+    while (caim_x > TTX - 4 && !*pulo)
     {      
         caim_x--; caim_y -= 2;
         oam_clear();
