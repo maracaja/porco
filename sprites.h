@@ -3,14 +3,16 @@
 
 const unsigned char spr_moeda[] = {
     -8,-8,0x02,3,
-    0,-8,0x02,3 | OAM_FLIP_H | OAM_FLIP_V,
+    0,0,0x02,3 | OAM_FLIP_H | OAM_FLIP_V,
+    -8,0,0x03,3,
+    0,-8,0x03,3 | OAM_FLIP_H | OAM_FLIP_V,
     128
 };
 
 const unsigned char spr_titia[] = {
     -8,-16,0x0c,2,
     -8,-8,0x0d,2,
-    -8, 0,0x0e,2,
+    -8,0,0x0e,2,
     0, 0,0x0e,2|OAM_FLIP_H,
     0,-8,0x0d,2|OAM_FLIP_H,
     0,-16,0x0c,2|OAM_FLIP_H,
@@ -28,31 +30,26 @@ const unsigned char spr_liberta[] = {
 };
 
 const unsigned char spr_nrg[] = {
-    0,-8,0x10,0,
+      0,-8,0x10,0,
+      0, 0,0x11,0,
     128
 };
 
 const unsigned char spr_caim_parado[] = {
-    - 8,- 8,0x84,1,
-    - 8,  0,0x85,1,
-    0,  0,0x85,1|OAM_FLIP_H,
-    0,- 8,0x84,1|OAM_FLIP_H,
+    0,-8,0x12,1,
+    0, 0,0x13,1,
     128
 };
 
 const unsigned char spr_caim_correndo1[] = {
-    - 8,- 8,0x84,1,
-    - 8,  0,0x86,1,
-    0,- 8,0x87,1|OAM_FLIP_H,
-    0,  0,0x88,1|OAM_FLIP_H,
+    0,-8,0x14,1,
+    0, 0,0x15,1,
     128
 };
 
 const unsigned char spr_caim_correndo2[] = {
-    0,- 8,0x84,1|OAM_FLIP_H,
-    0,  0,0x86,1|OAM_FLIP_H,
-    - 8,- 8,0x87,1,
-    - 8,  0,0x88,1,
+    0,-8,0x14,1 | OAM_FLIP_H,
+    0, 0,0x15,1 | OAM_FLIP_H,
     128
 };
 
