@@ -2,7 +2,6 @@
 #include <string.h>
 #include "neslib.h"
 #include <nes.h>
-
 #include "vrambuf.h"	// VRAM update buffer
 //#link "vrambuf.c"
 #include "bcd.h"	// BCD arithmetic support
@@ -17,11 +16,17 @@
 
 #include "funcoes.h"	// Funcoes úteis
 //#link "funcoes.c"
+#include "objetos.h"    // Definição dos atores do jogo
 
+// Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
 const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
 
-extern unsigned char spr_arbitro[];
+//extern unsigned char spr_arbitro[];
+
+Adversario advs[11];
+Bola bolas[32];
+Cartao cards[10];
 
 // setup PPU and tables
 void setup_graphics() 
@@ -43,46 +48,46 @@ void main(void)
 {
     char pad;
     bool completo = false, menu = true, lado = false;
+    unsigned char i = 0;
     unsigned char caim_x = CX, caim_y = CY;
-    setup_graphics();
-    reset_pulo();
-    apresentacao();
-    selecao(completo);
-    // Controle do menu de jogo
-    while (menu)
+    while (1)   // Loop infinito
     {
-        pad = pad_poll(0);
-      	if (pad & PAD_DOWN && !completo) selecao(completo = true); 
-        if (pad & PAD_UP && completo) selecao(completo = false);
-        if (pad & PAD_A) menu = false;
-    }
-    // Prepara início da história
-    setup_graphics();
-    historinha();
-    limpa_tela(NAMETABLE_A);
-    reset_pulo();
-    // Teste de nível
-    vram_adr(NAMETABLE_A);
-    oam_meta_spr(caim_x, caim_x, CAIM, spr_caim_parado);
-    
-    // infinite loop
-    while(1) 
-    {
-      	pad = pad_poll(0);
-        if (pad & 0xF0) lado = !lado;
-      	if (pad & PAD_DOWN) 
-          if (caim_y < 200) caim_y += 4; 
-        if (pad & PAD_UP)
-          if (caim_y > 24) caim_y -= 4;
-        if (pad & PAD_LEFT) 
-          if (caim_x > 10) caim_x -= 4; 
-        if (pad & PAD_RIGHT) 
-          if (caim_x < 238) caim_x += 4;
-        //if (pad & PAD_A) menu = false;
-        //ppu_off();
-        oam_clear();
-        oam_meta_spr(caim_x, caim_y, CAIM, pad & 0xF0 ? spr_caim(lado) : spr_caim_parado);
-        //ppu_on_all();
-        delay(4);
+        setup_graphics();
+        reset_pulo();
+        apresentacao();
+        selecao(completo);
+        while (menu)    // Controle do menu de jogo
+        {
+            pad = pad_poll(0);
+            if (pad & PAD_DOWN && !completo) selecao(completo = true);
+            if (pad & PAD_UP && completo) selecao(completo = false);
+            if (pad & PAD_A) menu = false;
+        }
+        // Prepara início da história
+        setup_graphics();
+        historinha();
+        limpa_tela(NAMETABLE_A);
+        reset_pulo();
+        // Teste de nível
+        vram_adr(NAMETABLE_A);
+        oam_meta_spr(caim_x, caim_x, CAIM, spr_caim_parado);
+        while (1)
+        {
+            pad = pad_poll(0);
+            i++;
+            if (i == 5) i = 0;
+            if (pad & 0xF0 && i == 0) lado = !lado;
+            if (pad & PAD_DOWN)
+                if (caim_y < 200) caim_y += 4;
+            if (pad & PAD_UP)
+                if (caim_y > 24) caim_y -= 4;
+            if (pad & PAD_LEFT)
+                if (caim_x > 10) caim_x -= 4;
+            if (pad & PAD_RIGHT)
+                if (caim_x < 238) caim_x += 4;
+            oam_clear();
+            oam_meta_spr(caim_x, caim_y, CAIM, pad & 0xF0 ? spr_caim(lado) : spr_caim_parado);
+            ppu_wait_nmi();   // Desfazer para fazer o cálculo quadro a quadro
+        }
     }
 }

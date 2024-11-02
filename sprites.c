@@ -35,19 +35,19 @@ unsigned char spr_nrg[] = {
     128
 };
 
-unsigned char spr_caim_parado[] = {
+unsigned char spr_jogador_parado[] = {
     0,-8,0x12,1,
     0, 0,0x13,1,
     128
 };
 
-unsigned char spr_caim_correndo1[] = {
+unsigned char spr_jogador_correndo1[] = {
     0,-8,0x14,1,
     0, 0,0x15,1,
     128
 };
 
-unsigned char spr_caim_correndo2[] = {
+unsigned char spr_jogador_correndo2[] = {
     0,-8,0x14,1 | OAM_FLIP_H,
     0, 0,0x15,1 | OAM_FLIP_H,
     128

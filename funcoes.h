@@ -9,9 +9,9 @@
 #define ENERG 0x08
 #define JUIZ 0x10
 #define GOLEIRO 0x18
-// 0x20 - 0x77 = adversários (<=11)
-// 0x78 - 0x8F = cartões disparados (<=10)
-// 0x90 - 0xBF = bolas chutadas (<=32)
+#define ADV 0x20
+#define CARTAO 0x78
+#define TIRO 0x90
 #define MOEDA 0xC0
 #define TACA 0xD0
 #define EXTRA 0xE8

@@ -6,7 +6,7 @@
 #include "funcoes.h"
 
 #define desenha_tia(void) oam_meta_spr(TTX, TTY, EXTRA, spr_titia)
-#define desenha_caim_intro(void) oam_meta_spr(SPRX, TTY + 18, CAIM, spr_caim_parado)
+#define desenha_jogador_intro(void) oam_meta_spr(SPRX, TTY + 18, CAIM, spr_jogador_parado)
 #define ESPACO " "
 #define COL_INTRO 5
 
@@ -84,7 +84,7 @@ void troca_spr_intro()
 {
     ppu_off();
     oam_clear();
-    desenha_caim_intro();
+    desenha_jogador_intro();
     desenha_tia();
     ppu_on_all();
 }
@@ -186,14 +186,14 @@ void historinha()
     limpa_tela(NAMETABLE_A);
     ppu_off();
     caim_x = 100; caim_y = 210;
-    oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
+    oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
     ppu_on_all();
     while (caim_x > TTX - 4 && !*pulo)
     {      
         caim_x--; caim_y -= 2;
         oam_clear();
-        oam_meta_spr(caim_x, caim_y, CAIM, spr_caim(caim_x % 2));
+        oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador(caim_x % 2));
         desenha_tia();
         ppu_wait_nmi();
         // Pula introdução
@@ -201,7 +201,7 @@ void historinha()
         if (pad & PAD_A) *pulo = true;
         delay(4);
     }
-    oam_meta_spr(caim_x, caim_y, CAIM, spr_caim_parado);
+    oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
     if (!*pulo) conversa();
 }
