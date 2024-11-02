@@ -70,7 +70,7 @@ void main(void)
         reset_pulo();
         // Teste de nível
         vram_adr(NAMETABLE_A);
-        oam_meta_spr(caim_x, caim_x, CAIM, spr_caim_parado);
+        oam_meta_spr(caim_x, caim_x, CAIM, spr_jogador_parado);
         while (1)
         {
             pad = pad_poll(0);
@@ -86,7 +86,7 @@ void main(void)
             if (pad & PAD_RIGHT)
                 if (caim_x < 238) caim_x += 4;
             oam_clear();
-            oam_meta_spr(caim_x, caim_y, CAIM, pad & 0xF0 ? spr_caim(lado) : spr_caim_parado);
+            oam_meta_spr(caim_x, caim_y, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
             ppu_wait_nmi();   // Desfazer para fazer o cálculo quadro a quadro
         }
     }
