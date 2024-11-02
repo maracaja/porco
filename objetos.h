@@ -4,14 +4,14 @@
 #include "neslib.h"
 
 typedef struct {
-    bool ativo = false;
+    bool ativo;
     unsigned short x, y;
     unsigned char dir;
 } Bola;
 
 typedef struct {
-    bool ativo = false;
-    bool vermelho = false;
+    bool ativo;
+    bool vermelho;
     unsigned short x, y;
     unsigned char dir;
 } Cartao;
@@ -22,11 +22,11 @@ typedef struct {
     unsigned char energia;
     unsigned char luvas;
     unsigned char vidas;
-    bool cartoes = false;
+    bool cartoes;
 } Jogador;
 
 typedef struct {
-    bool ativo = false;
+    bool ativo;
     unsigned short x, y;
     unsigned char energia;
 } Adversario;

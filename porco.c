@@ -30,9 +30,8 @@ Cartao cards[10];
 
 // setup PPU and tables
 void setup_graphics() 
-{
-    // clear sprites
-    oam_clear();
+{  
+    oam_clear();   // clear sprites
     // set palette colors
     pal_bg(PALETTE);
     pal_spr(PALETTE);
@@ -47,12 +46,13 @@ void selecao(bool completo)
 void main(void)
 {
     char pad;
-    bool completo = false, menu = true, lado = false;
+    bool completo = false, menu, lado = false;
     unsigned char i = 0;
     unsigned char caim_x = CX, caim_y = CY;
     while (1)   // Loop infinito
     {
         setup_graphics();
+        menu = true;
         reset_pulo();
         apresentacao();
         selecao(completo);
@@ -78,13 +78,20 @@ void main(void)
             if (i == 5) i = 0;
             if (pad & 0xF0 && i == 0) lado = !lado;
             if (pad & PAD_DOWN)
-                if (caim_y < 200) caim_y += 4;
+                if (caim_y < 200) caim_y++;
             if (pad & PAD_UP)
-                if (caim_y > 24) caim_y -= 4;
+                if (caim_y > 24) caim_y--;
             if (pad & PAD_LEFT)
-                if (caim_x > 10) caim_x -= 4;
+                if (caim_x > 10) caim_x--;
             if (pad & PAD_RIGHT)
-                if (caim_x < 238) caim_x += 4;
+                if (caim_x < 238) caim_x++;
+            if (pad & PAD_B)
+            {
+                limpa_tela(NAMETABLE_A);
+                limpa_tela(NAMETABLE_C);
+                ppu_off();
+                break;// TESTE DE SAÍDA DEPOIS DE PERDER
+            }
             oam_clear();
             oam_meta_spr(caim_x, caim_y, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
             ppu_wait_nmi();   // Desfazer para fazer o cálculo quadro a quadro
