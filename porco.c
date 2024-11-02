@@ -43,7 +43,7 @@ void main(void)
 {
     char pad;
     bool completo = false, menu = true, lado = false;
-    unsigned char caim_x, caim_y;
+    unsigned char caim_x = CX, caim_y = CY;
     setup_graphics();
     reset_pulo();
     apresentacao();
@@ -63,7 +63,7 @@ void main(void)
     reset_pulo();
     // Teste de nível
     vram_adr(NAMETABLE_A);
-    oam_meta_spr(120, 200, CAIM, spr_caim_parado);
+    oam_meta_spr(caim_x, caim_x, CAIM, spr_caim_parado);
     
     // infinite loop
     while(1) 
@@ -71,13 +71,13 @@ void main(void)
       	pad = pad_poll(0);
         if (pad) lado = !lado;
       	if (pad & PAD_DOWN) 
-          if (caim_y < 200) caim_y++; 
+          if (caim_y < 200) caim_y += 4; 
         if (pad & PAD_UP)
-          if (caim_y > 24) caim_y--;
+          if (caim_y > 24) caim_y -= 4;
         if (pad & PAD_LEFT) 
-          if (caim_x > 10) caim_x--; 
+          if (caim_x > 10) caim_x -= 4; 
         if (pad & PAD_RIGHT) 
-          if (caim_x < 230) caim_x++;
+          if (caim_x < 238) caim_x += 4;
         //if (pad & PAD_A) menu = false;
         //ppu_off();
         oam_clear();

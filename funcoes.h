@@ -19,6 +19,8 @@
 #define TTY 32
 #define SPRX TTX - 4
 #define SPRY TTY + 60
+#define CX 120
+#define CY 200
 
 /* Macros */
 #define reset_pulo(void) *pulo = false
