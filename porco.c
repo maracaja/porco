@@ -69,7 +69,7 @@ void main(void)
     while(1) 
     {
       	pad = pad_poll(0);
-        if (pad) lado = !lado;
+        if (pad & 0xF0) lado = !lado;
       	if (pad & PAD_DOWN) 
           if (caim_y < 200) caim_y += 4; 
         if (pad & PAD_UP)
@@ -81,7 +81,7 @@ void main(void)
         //if (pad & PAD_A) menu = false;
         //ppu_off();
         oam_clear();
-        oam_meta_spr(caim_x, caim_y, CAIM, pad ? spr_caim(lado) : spr_caim_parado);
+        oam_meta_spr(caim_x, caim_y, CAIM, pad & 0xF0 ? spr_caim(lado) : spr_caim_parado);
         //ppu_on_all();
         delay(4);
     }
