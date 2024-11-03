@@ -3,6 +3,10 @@
 
 #include "neslib.h"
 
+#define N_ADVS  11
+#define N_BOLAS 32
+#define N_CARDS 10
+
 typedef struct {
     bool ativo;
     unsigned short x, y;

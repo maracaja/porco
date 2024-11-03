@@ -24,10 +24,6 @@ const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C
 
 //extern unsigned char spr_arbitro[];
 
-Adversario advs[11];
-Bola bolas[32];
-Cartao cards[10];
-
 // setup PPU and tables
 void setup_graphics() 
 {  
@@ -49,6 +45,11 @@ void main(void)
     bool completo = false, menu, lado = false, pausa = false;
     unsigned char i = 0;
     unsigned char caim_x = CX, caim_y = CY;
+    // Objetos
+    Adversario advs[11];
+    Bola bolas[32];
+    Cartao cards[10];
+    Jogador caim;
     while (1)   // Loop infinito
     {
         setup_graphics();
