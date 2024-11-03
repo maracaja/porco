@@ -3,9 +3,18 @@
 
 #include "neslib.h"
 
+/* Constantes */
 #define N_ADVS  11
 #define N_BOLAS 32
 #define N_CARDS 10
+#define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
+
+/* Objetos */
+typedef struct {
+    bool ativo;
+    unsigned short x, y;
+    char energia;
+} Adversario;
 
 typedef struct {
     bool ativo;
@@ -29,11 +38,19 @@ typedef struct {
     bool cartoes;
 } Jogador;
 
-typedef struct {
-    bool ativo;
-    unsigned short x, y;
-    unsigned char energia;
-} Adversario;
+/* Inicializações */
+Jogador* inicializaJogador();
+void inicializaAdv(Adversario** a);
+void inicializaBol(Bola** b);
+void inicializaCar(Cartao** c);
+
+/* Funções aplicadas a objetos */
+void levaBolada(Jogador* j);
+void sofreFalta(Jogador *j);
+void tomaEnergetico(Jogador* j);
+void escalaGoleiro(Jogador* j);
+void compraArbitro(Jogador* j);
+void levaCartao(Adversario* a, Cartao* c, unsigned char nivel);
 
 #endif
 

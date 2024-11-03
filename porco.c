@@ -17,12 +17,11 @@
 #include "funcoes.h"	// Funcoes úteis
 //#link "funcoes.c"
 #include "objetos.h"    // Definição dos atores do jogo
+//#link "objetos.c"
 
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
 const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
-
-//extern unsigned char spr_arbitro[];
 
 // setup PPU and tables
 void setup_graphics() 
@@ -44,11 +43,10 @@ void main(void)
     char pad;
     bool completo = false, menu, lado = false, pausa = false;
     unsigned char i = 0;
-    unsigned char caim_x = CX, caim_y = CY;
     // Objetos
-    Adversario advs[11];
-    Bola bolas[32];
-    Cartao cards[10];
+    Adversario advs[N_ADVS];
+    Bola bolas[N_BOLAS];
+    Cartao cards[N_CARDS];
     Jogador caim;
     while (1)   // Loop infinito
     {
@@ -70,10 +68,13 @@ void main(void)
         limpa_tela(NAMETABLE_A);
         reset_pulo();
         // Teste de nível
-        
+        caim = inicializaJogador();
+        inicializaAdv(advs);
+        inicializaBol(bolas);
+        inicializaCar(cards);
         vram_adr(NAMETABLE_A);
-        oam_meta_spr(caim_x, caim_x, CAIM, spr_jogador_parado);
-        while (1)
+        oam_meta_spr(caim->x, caim->y, CAIM, spr_jogador_parado);
+        while (caim->vidas > 0)
         {
             pad = pad_poll(0);
             if (pausa && pad & PAD_START)
@@ -90,13 +91,13 @@ void main(void)
                 if (i == 4) i = 0;
                 if (pad & 0xF0 && i == 0) lado = !lado;
                 if (pad & PAD_DOWN)
-                    if (caim_y < 216) caim_y++;
+                    if (caim->y < 216) caim->y++;
                 if (pad & PAD_UP)
-                    if (caim_y > 24) caim_y--;
+                    if (caim->y > 24) caim->y--;
                 if (pad & PAD_LEFT)
-                    if (caim_x > 10) caim_x--;
+                    if (caim->x > 10) caim->x--;
                 if (pad & PAD_RIGHT)
-                    if (caim_x < 238) caim_x++;
+                    if (caim->x < 238) caim->x++;
                 if (pad & PAD_B)
                 {
                     limpa_tela(NAMETABLE_A);
@@ -112,7 +113,7 @@ void main(void)
                     ppu_on_all();
                 }
                 oam_clear();
-                oam_meta_spr(caim_x, caim_y, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
+                oam_meta_spr(caim->x, caim->y, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();   // Desfazer para fazer o cálculo quadro a quadro
                 if (pausa) delay(30);
             }
