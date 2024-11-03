@@ -36,6 +36,7 @@ typedef struct {
     unsigned char luvas;
     unsigned char vidas;
     bool cartoes;
+    bool vermelho;
 } Jogador;
 
 /* Inicializações */
