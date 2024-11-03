@@ -44,10 +44,10 @@ void main(void)
     bool completo = false, menu, lado = false, pausa = false;
     unsigned char i = 0;
     // Objetos
-    Adversario* advs[N_ADVS];
-    Bola* bolas[N_BOLAS];
-    Cartao* cards[N_CARDS];
-    Jogador* caim;
+    Adversario advs[N_ADVS];
+    Bola bolas[N_BOLAS];
+    Cartao cards[N_CARDS];
+    Jogador caim;
     while (1)   // Loop infinito
     {
         setup_graphics();
@@ -69,12 +69,12 @@ void main(void)
         reset_pulo();
         // Teste de nível
         caim = inicializaJogador();
-        inicializaAdv(advs);
-        inicializaBol(bolas);
-        inicializaCar(cards);
+        inicializaAdv(&advs);
+        inicializaBol(&bolas);
+        inicializaCar(&cards);
         vram_adr(NAMETABLE_A);
-        oam_meta_spr(caim->x, caim->y, CAIM, spr_jogador_parado);
-        while (caim->vidas > 0)
+        oam_meta_spr(caim.x, caim.y, CAIM, spr_jogador_parado);
+        while (caim.vidas > 0)
         {
             pad = pad_poll(0);
             if (pausa && pad & PAD_START)
@@ -91,13 +91,13 @@ void main(void)
                 if (i == 4) i = 0;
                 if (pad & 0xF0 && i == 0) lado = !lado;
                 if (pad & PAD_DOWN)
-                    if (caim->y < 216) caim->y++;
+                    if (caim.y < 216) caim.y++;
                 if (pad & PAD_UP)
-                    if (caim->y > 24) caim->y--;
+                    if (caim.y > 24) caim.y--;
                 if (pad & PAD_LEFT)
-                    if (caim->x > 10) caim->x--;
+                    if (caim.x > 10) caim.x--;
                 if (pad & PAD_RIGHT)
-                    if (caim->x < 238) caim->x++;
+                    if (caim.x < 238) caim.x++;
                 if (pad & PAD_B)
                 {
                     limpa_tela(NAMETABLE_A);
@@ -113,7 +113,7 @@ void main(void)
                     ppu_on_all();
                 }
                 oam_clear();
-                oam_meta_spr(caim->x, caim->y, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
+                oam_meta_spr(caim.x, caim.y, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();   // Desfazer para fazer o cálculo quadro a quadro
                 if (pausa) delay(30);
             }
