@@ -46,12 +46,12 @@ void inicializaBol(Bola* b);
 void inicializaCar(Cartao* c);
 
 // Funções aplicadas a objetos 
-void levaBolada(Jogador j);
-void sofreFalta(Jogador j);
-void tomaEnergetico(Jogador j);
-void escalaGoleiro(Jogador j);
-void compraArbitro(Jogador j);
-void levaCartao(Adversario a, Cartao c, unsigned char nivel);
+void levaBolada(Jogador* j);
+void sofreFalta(Jogador* j);
+void tomaEnergetico(Jogador* j);
+void escalaGoleiro(Jogador* j);
+void compraArbitro(Jogador* j);
+void levaCartao(Adversario* a, Cartao* c, unsigned char nivel);
 
 #endif
 
