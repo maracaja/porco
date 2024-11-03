@@ -1,4 +1,4 @@
-#include "objetos->h"
+#include "objetos.h"
 
 #define CX 120
 #define CY 200

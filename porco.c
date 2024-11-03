@@ -69,9 +69,9 @@ void main(void)
         reset_pulo();
         // Teste de nível
         caim = inicializaJogador();
-        inicializaAdv(&advs);
-        inicializaBol(&bolas);
-        inicializaCar(&cards);
+        inicializaAdv(advs);
+        inicializaBol(bolas);
+        inicializaCar(cards);
         vram_adr(NAMETABLE_A);
         oam_meta_spr(caim.x, caim.y, CAIM, spr_jogador_parado);
         while (caim.vidas > 0)
