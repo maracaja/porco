@@ -5,16 +5,14 @@
 
 unsigned char i;
 
-Jogador* inicializaJogador()
+void inicializaJogador(Jogador *j)
 {
-    Jogador *j;
     j->x = CX; j->y = CY;
     j->dinheiro = 0;
     j->energia = 99;
     j->luvas = 0;
     j->vidas = 3;
     j->cartoes = false;
-    return j;
 }
 
 void inicializaAdv(Adversario** a)
