@@ -1,23 +1,7 @@
 #include <stdlib.h>
 #include "objetos.h"
 
-#define CX 120
-#define CY 200
-
 unsigned char i;
-
-Jogador* inicializaJogador()
-{
-    Jogador *j = (Jogador *) malloc(sizeof(Jogador));
-    j->x = CX << 8;
-    j->y = CY << 8;
-    j->dinheiro = 0;
-    j->energia = 99;
-    j->luvas = 0;
-    j->vidas = 3;
-    j->cartoes = false;
-    return j;
-}
 
 void inicializaAdv(Adversario* a)
 {
@@ -40,37 +24,9 @@ void inicializaCar(Cartao* c)
     }
 }
 
-void levaBolada(Jogador* j)
-{
-    if (j->luvas > 0) j->luvas--;
-    else if (j->cartoes)
-    {
-        if (j->vermelho) j->vermelho = false;
-        else j->cartoes = false;
-    }
-    else j->energia = MAX(0, j->energia - 19);
-}
 
-void sofreFalta(Jogador* j)
-{ j->energia = MAX(0, j->energia - 50); }
 
-void tomaEnergetico(Jogador* j)
-{ j->energia = MIN(j->energia + 51, 99); }
-
-void escalaGoleiro(Jogador* j)
-{ j->luvas = 5; }
-
-void compraArbitro(Jogador* j)
-{
-    if (!j->cartoes)
-    {
-        j->cartoes = true;
-        j->vermelho = false;
-    }
-    else j->vermelho = true;
-}
-
-void levaCartao(Adversario* a, Cartao* c, unsigned char nivel)
+void levaCartao(register Adversario* a, register Cartao* c, unsigned char nivel)
 {
     unsigned char bloco = nivel / DIVISOR;
     switch (bloco)

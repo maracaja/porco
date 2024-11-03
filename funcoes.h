@@ -1,7 +1,7 @@
 #ifndef FUNCOES_H
 #define FUNCOES_H
 
-/* Constantes */
+// Constantes
 #define NORMAL 4
 #define CARD 0x01
 #define BOLA 0x0A
@@ -20,10 +20,10 @@
 #define SPRX TTX - 4
 #define SPRY TTY + 60
 
-/* Macros */
+// Macros
 #define reset_pulo(void) *pulo = false
 
-/* Variável de controle para escapar de introduções */
+// Variável de controle para escapar de introduções
 static bool *pulo;
 
 // Escreve um texto de forma a centralizá-lo na tela (nametable A)

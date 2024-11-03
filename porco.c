@@ -23,6 +23,20 @@
 /*{pal:"nes",layout:"nes"}*/
 const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
 
+// Objetos
+Adversario advs[N_ADVS];
+Bola bolas[N_BOLAS];
+Cartao cards[N_CARDS];
+
+// Dados do jogador
+unsigned short x, y;
+unsigned char dinheiro;
+unsigned char energia;
+unsigned char luvas;
+unsigned char vidas;
+bool cartoes;
+bool vermelho;
+
 // setup PPU and tables
 void setup_graphics() 
 {  
@@ -32,10 +46,53 @@ void setup_graphics()
     pal_spr(PALETTE);
 }
 
+// Seleciona modo de jogo
 void selecao(bool completo)
 {
     oam_spr(52, 175 + (completo ? 24 : 0), CARD, completo ? 0 : 3, 4);
     ppu_wait_nmi();
+}
+
+// Funções referentes ao jogador
+void inicializaJogador()
+{
+    x = CX << 8;
+    y = CY << 8;
+    dinheiro = 0;
+    energia = 99;
+    luvas = 0;
+    vidas = 3;
+    cartoes = false;
+}
+
+void levaBolada()
+{
+    if (luvas > 0) luvas--;
+    else if (cartoes)
+    {
+        if (vermelho) vermelho = false;
+        else cartoes = false;
+    }
+    else energia = MAX(0, energia - 19);
+}
+
+void sofreFalta()
+{ energia = MAX(0, energia - 50); }
+
+void tomaEnergetico()
+{ energia = MIN(energia + 51, 99); }
+
+void escalaGoleiro()
+{ luvas = 5; }
+
+void compraArbitro()
+{
+    if (!cartoes)
+    {
+        cartoes = true;
+        vermelho = false;
+    }
+    else vermelho = true;
 }
 
 void main(void)
@@ -43,11 +100,6 @@ void main(void)
     char pad;
     bool completo = false, menu, lado = false, pausa = false;
     unsigned char i = 0;
-    // Objetos
-    Adversario advs[N_ADVS];
-    Bola bolas[N_BOLAS];
-    Cartao cards[N_CARDS];
-    Jogador *caim;
     while (1)   // Loop infinito
     {
         setup_graphics();
@@ -68,13 +120,13 @@ void main(void)
         limpa_tela(NAMETABLE_A);
         reset_pulo();
         // Teste de nível
-        caim = inicializaJogador();
+        inicializaJogador();
         inicializaAdv(advs);
         inicializaBol(bolas);
         inicializaCar(cards);
         vram_adr(NAMETABLE_A);
-        oam_meta_spr(posX(&caim), posY(&caim), CAIM, spr_jogador_parado);
-        while (&caim->vidas > 0)
+        oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
+        while (vidas > 0)
         {
             pad = pad_poll(0);
             if (pausa && pad & PAD_START)
@@ -91,13 +143,13 @@ void main(void)
                 if (i == 4) i = 0;
                 if (pad & 0xF0 && i == 0) lado = !lado;
                 if (pad & PAD_DOWN)
-                    if (posY(&caim) < 216) caim->y += 128;
+                    if (pos(y) < 216) y += 256;
                 if (pad & PAD_UP)
-                    if (posY(&caim) > 24) caim->y -= 128;
+                    if (pos(y) > 24) y -= 256;
                 if (pad & PAD_LEFT)
-                    if (posX(&caim) > 10) caim->x -= 128;
+                    if (pos(x) > 10) x -= 256;
                 if (pad & PAD_RIGHT)
-                    if (posX(&caim) < 238) caim->x += 128;
+                    if (pos(x) < 238) x += 256;
                 if (pad & PAD_B)
                 {
                     limpa_tela(NAMETABLE_A);
@@ -113,7 +165,7 @@ void main(void)
                     ppu_on_all();
                 }
                 oam_clear();
-                oam_meta_spr(posX(&caim), posY(&caim), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
+                oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();
                 if (pausa) delay(30);
             }
