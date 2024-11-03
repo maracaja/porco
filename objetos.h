@@ -40,7 +40,7 @@ typedef struct {
 } Jogador;
 
 /* Inicializações */
-void inicializaJogador(Jogador j);
+Jogador inicializaJogador(void);
 void inicializaAdv(Adversario* a);
 void inicializaBol(Bola* b);
 void inicializaCar(Cartao* c);
