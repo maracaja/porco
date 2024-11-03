@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "objetos.h"
 
 #define CX 120
@@ -7,8 +8,9 @@ unsigned char i;
 
 Jogador* inicializaJogador()
 {
-    Jogador *j;
-    j->x = CX; j->y = CY;
+    Jogador *j = (Jogador *) malloc(sizeof(Jogador));
+    j->x = CX << 8;
+    j->y = CY << 8;
     j->dinheiro = 0;
     j->energia = 99;
     j->luvas = 0;

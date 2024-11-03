@@ -9,6 +9,11 @@
 #define N_CARDS 10
 #define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
 
+// Macros
+#define pos(n) (n) >> 8
+#define posX(o) pos(*o->x)
+#define posY(o) pos(*o->y)
+
 // Objetos 
 typedef struct {
     bool ativo;
