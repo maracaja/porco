@@ -1,5 +1,8 @@
 #include "objetos.h"
 
+#define CX 120
+#define CY 200
+
 unsigned char i;
 
 Jogador* inicializaJogador()

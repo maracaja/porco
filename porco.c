@@ -44,10 +44,10 @@ void main(void)
     bool completo = false, menu, lado = false, pausa = false;
     unsigned char i = 0;
     // Objetos
-    Adversario advs[N_ADVS];
-    Bola bolas[N_BOLAS];
-    Cartao cards[N_CARDS];
-    Jogador caim;
+    Adversario* advs[N_ADVS];
+    Bola* bolas[N_BOLAS];
+    Cartao* cards[N_CARDS];
+    Jogador* caim;
     while (1)   // Loop infinito
     {
         setup_graphics();
