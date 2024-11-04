@@ -40,9 +40,6 @@ void escrita_centralizada(const char* str, unsigned char linha);
 // Escreve uma mensagem de linha única aparecendo um caractere por vez
 void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col);
 
-//Imprime número na tela (até 2 dígitos)
-void put_num(unsigned char num, unsigned char lin, unsigned char col, unsigned char len);
-
 // Limpa a tela do nametable selecionado
 void limpa_tela(unsigned int adr);
 

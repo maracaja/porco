@@ -54,17 +54,6 @@ void limpa_tela(unsigned int adr)
     ppu_on_all();
 }
 
-void put_num(unsigned char num, unsigned char lin, unsigned char col, unsigned char len)
-{
-    vram_adr(NTADR_A(col, lin));
-    if (len > 1)
-    {
-      	vram_put(ZERO + (num/10) % 10);
-        vram_adr(NTADR_A(col + 1, lin));
-    }
-    vram_put(ZERO + num % 10);
-}
-
 void disclaimer()
 {
     byte i;

@@ -13,6 +13,7 @@
 #include "sprites.h"
 //#link "sprites.c"
 //#resource "titulo.h"
+#include "nivel_a.h"
 
 #include "funcoes.h"	// Funcoes úteis
 //#link "funcoes.c"
@@ -134,9 +135,12 @@ void main(void)
         inicializaAdv(advs);
         inicializaBol(bolas);
         inicializaCar(cards);
+        ppu_off();
         vram_adr(NAMETABLE_A);  // LEVAR PARA DENTRO DO LAÇO E CRIAR UM A MAIS PARA MANTER O NIVEL
         vram_unrle(nivel_a);
+        scroll(0, 0);
         oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
+        ppu_on_all();
         while (vidas > 0 && nivel <= NIVEIS)
         {
             
@@ -194,7 +198,6 @@ void main(void)
                 }
                 // Atualização do quadro
                 oam_clear();
-                put_num(10, 1, 1, 2);
                 oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();
                 if (pausa) delay(30);
