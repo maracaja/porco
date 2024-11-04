@@ -22,6 +22,8 @@
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
 unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
+const unsigned char PAL_EXTRA[16] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f };
+// MAN-COR-TIG-SAN
 
 // Tabela de senos normalizados em 8 bits
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -132,10 +134,12 @@ void main(void)
         inicializaAdv(advs);
         inicializaBol(bolas);
         inicializaCar(cards);
-        vram_adr(NAMETABLE_A);
+        vram_adr(NAMETABLE_A);  // LEVAR PARA DENTRO DO LAÇO E CRIAR UM A MAIS PARA MANTER O NIVEL
+        vram_unrle(nivel_a);
         oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
         while (vidas > 0 && nivel <= NIVEIS)
         {
+            
             pad = pad_poll(0);
             if (pausa && pad & PAD_START)
             {

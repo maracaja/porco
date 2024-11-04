@@ -64,3 +64,93 @@ unsigned char spr_arbitro[] = {
     0, 0,0x19,0,
     128
 };
+
+unsigned char spr_edson_parado[] = {
+   -8,-8,0x22,2,
+	 0,-8,0x22,2 | OAM_FLIP_H,
+	 0,  0,0x23,2 | OAM_FLIP_H,
+   -8,  0,0x23,2,
+   -8,  8,0x24,2,
+	 0,  8,0x24,2 | OAM_FLIP_H,
+   128
+};
+
+unsigned char spr_edson_correndo1[] = {
+   -8,-8,0x22,2,
+	 0,-8,0x22,2 | OAM_FLIP_H,
+   -8,  0,0x27,2,
+   -8,  8,0x26,2,
+	 0,  0,0x25,2 | OAM_FLIP_H,
+	 0,  8,0x24,2 | OAM_FLIP_H,
+   128
+};
+
+unsigned char spr_edson_correndo2[] = {
+	 0,-8,0x22,2 | OAM_FLIP_H,
+   -8,-8,0x22,2,
+	 0,  0,0x27,2 | OAM_FLIP_H,
+	 0,  8,0x26,2 | OAM_FLIP_H,
+   -8,  0,0x25,2,
+   -8,  8,0x24,2,
+   128
+};
+
+unsigned char spr_diabito_parado[] = {
+   -8,-8,0x66,2,
+	 0,-8,0x66,2 | OAM_FLIP_H,
+   -8,  0,0x67,2,
+	 0,  0,0x67,2 | OAM_FLIP_H,
+	 0,  8,0x68,2 | OAM_FLIP_H,
+   -8,  8,0x68,2,
+   128
+};
+
+unsigned char spr_diabito_correndo1[] = {
+   -8,-8,0x66,2,
+	 0,-8,0x66,2 | OAM_FLIP_H,
+   -8,  0,0x69,2,
+	 0,  0,0x67,2 | OAM_FLIP_H,
+	 0,  8,0x6a,2 | OAM_FLIP_H,
+   -8,  8,0x68,2,
+   128
+};
+
+unsigned char spr_diabito_correndo2[] = {
+	 0,-8,0x66,2 | OAM_FLIP_H,
+   -8,-8,0x66,2,
+	 0,  0,0x69,2 | OAM_FLIP_H,
+   -8,  0,0x67,2,
+   -8,  8,0x6a,2,
+	 0,  8,0x68,2 | OAM_FLIP_H,
+   128
+};
+
+unsigned char spr_tigre_parado[] = {
+   -8,-8,0x5b,2,
+	 0,-8,0x5b,2 | OAM_FLIP_H,
+   -8,  0,0x5c,2,
+	 0,  0,0x5c,2 | OAM_FLIP_H,
+	 0,  8,0x5d,2 | OAM_FLIP_H,
+   -8,  8,0x5d,2,
+   128
+};
+
+unsigned char spr_tigre_correndo1[] = {
+   -8,-8,0x5b,2,
+	 0,-8,0x5b,2 | OAM_FLIP_H,
+   -8,  0,0x5c,2,
+	 0,  0,0x5f,2 | OAM_FLIP_H,
+	 0,  8,0x5d,2 | OAM_FLIP_H,
+   -8,  8,0x5e,2,
+   128
+};
+
+unsigned char spr_tigre_correndo2[] = {
+	 0,-8,0x5b,2 | OAM_FLIP_H,
+   -8,-8,0x5b,2,
+	 0,  0,0x5c,2 | OAM_FLIP_H,
+   -8,  0,0x5f,2,
+   -8,  8,0x5d,2,
+	 0,  8,0x5e,2 | OAM_FLIP_H,
+   128
+};
