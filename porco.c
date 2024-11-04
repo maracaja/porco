@@ -21,7 +21,10 @@
 
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
-const unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
+unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
+
+// Tabela de senos normalizados em 8 bits
+const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
 
 // Objetos
 Adversario advs[N_ADVS];
@@ -98,7 +101,8 @@ void compraArbitro()
 void main(void)
 {
     char pad;
-    bool completo = false, menu, lado = false, pausa = false;
+    bool menu, move, completo = false, lado = false, pausa = false;
+    unsigned char dir;
     unsigned char i = 0;
     while (1)   // Loop infinito
     {
@@ -139,24 +143,40 @@ void main(void)
             }
             else if (!pausa)
             {
-                i++;
-                if (i == 4) i = 0;
+                // Comando de animação
+                i++; move = true;
+                if (i == 4) i = 0; 
                 if (pad & 0xF0 && i == 0) lado = !lado;
-                if (pad & PAD_DOWN)
-                    if (pos(y) < 216) y += 256;
-                if (pad & PAD_UP)
-                    if (pos(y) > 24) y -= 256;
+                // Controles de direção
                 if (pad & PAD_LEFT)
-                    if (pos(x) > 10) x -= 256;
-                if (pad & PAD_RIGHT)
-                    if (pos(x) < 238) x += 256;
+                {
+                    dir = 16;
+                    if (pad & PAD_UP) dir += 4;
+                    else if (pad & PAD_DOWN) dir -= 4;
+                }
+                else if (pad & PAD_RIGHT)
+                {
+                    dir = 0;
+                    if (pad & PAD_UP) dir -= 4;
+                    else if (pad & PAD_DOWN) dir += 4;
+                }
+                else if (pad & PAD_UP) dir = 24;
+                else if (pad & PAD_DOWN) dir = 8;
+                else move = false;
+                if (move)
+                {
+                    x += COS(dir); 
+                    y += SEN(dir);
+                }
+                // TESTE DE SAÍDA DEPOIS DE PERDER
                 if (pad & PAD_B)
                 {
                     limpa_tela(NAMETABLE_A);
                     limpa_tela(NAMETABLE_C);
                     ppu_off();
-                    break;// TESTE DE SAÍDA DEPOIS DE PERDER
+                    break;
                 }
+                // Pause
                 if (pad & PAD_START)
                 {
                     pausa = true;
@@ -164,6 +184,7 @@ void main(void)
                     escrita_centralizada("PAUSADO", 2);
                     ppu_on_all();
                 }
+                // Atualização do quadro
                 oam_clear();
                 oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();

@@ -22,6 +22,8 @@
 
 // Macros
 #define reset_pulo(void) *pulo = false
+#define SEN(x) senos[(x) & 0x1F]
+#define COS(x) SEN((x) + 8)
 
 // Variável de controle para escapar de introduções
 static bool *pulo;

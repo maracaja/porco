@@ -24,8 +24,6 @@ void inicializaCar(Cartao* c)
     }
 }
 
-
-
 void levaCartao(register Adversario* a, register Cartao* c, unsigned char nivel)
 {
     unsigned char bloco = nivel / DIVISOR;

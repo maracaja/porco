@@ -99,8 +99,6 @@ void transicao_intro()
     }
 }
 
-
-
 void conversa()
 {
     byte i;

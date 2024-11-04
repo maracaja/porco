@@ -10,6 +10,10 @@
 #define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
 #define CX 120
 #define CY 200
+#define XMIN 8
+#define XMAX 236
+#define YMIN 16
+#define YMAX 224
 
 // Macros
 #define pos(n) (n) >> 8
