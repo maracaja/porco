@@ -10,6 +10,11 @@
 #define JUIZ 0x10
 #define GOLEIRO 0x18
 #define ADV 0x20
+#define PL_VIDA 0x4C
+#define PL_NRG 0x50
+#define PL_DIN 0x58
+#define PL_LUVA 0x60
+#define PL_CARD 0x74
 #define CARTAO 0x78
 #define TIRO 0x90
 #define MOEDA 0xC0
@@ -19,6 +24,7 @@
 #define TTY 32
 #define SPRX TTX - 4
 #define SPRY TTY + 60
+#define NIVEIS 51
 
 // Macros
 #define reset_pulo(void) *pulo = false
@@ -33,6 +39,9 @@ void escrita_centralizada(const char* str, unsigned char linha);
 
 // Escreve uma mensagem de linha única aparecendo um caractere por vez
 void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col);
+
+//Imprime número na tela (até 2 dígitos)
+void put_num(unsigned char num, unsigned char lin, unsigned char col, unsigned char len);
 
 // Limpa a tela do nametable selecionado
 void limpa_tela(unsigned int adr);

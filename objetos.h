@@ -5,8 +5,8 @@
 
 // Constantes 
 #define N_ADVS  11
-#define N_BOLAS 32
-#define N_CARDS 10
+#define N_BOLAS 12
+#define N_CARDS 6
 #define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
 #define CX 120
 #define CY 200

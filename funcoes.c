@@ -9,6 +9,7 @@
 #define desenha_jogador_intro(void) oam_meta_spr(SPRX, TTY + 18, CAIM, spr_jogador_parado)
 #define ESPACO " "
 #define COL_INTRO 5
+#define ZERO 0x30
 
 void escrita_centralizada(const char* str, unsigned char linha)
 {
@@ -51,6 +52,17 @@ void limpa_tela(unsigned int adr)
     vram_adr(adr);
     vram_fill(0, 1024);
     ppu_on_all();
+}
+
+void put_num(unsigned char num, unsigned char lin, unsigned char col, unsigned char len)
+{
+    vram_adr(NTADR_A(col, lin));
+    if (len > 1)
+    {
+      	vram_put(ZERO + (num/10) % 10);
+        vram_adr(NTADR_A(col + 1, lin));
+    }
+    vram_put(ZERO + num % 10);
 }
 
 void disclaimer()

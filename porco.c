@@ -26,6 +26,9 @@ unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x0A,0x36,0x30,0x0C,0x04,
 // Tabela de senos normalizados em 8 bits
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
 
+// Tabela de níveis do modo demonstração
+const unsigned char const demo[6] = {0, 10, 25, 34, 50, 51};
+
 // Objetos
 Adversario advs[N_ADVS];
 Bola bolas[N_BOLAS];
@@ -101,9 +104,10 @@ void compraArbitro()
 void main(void)
 {
     char pad;
-    bool menu, move, completo = false, lado = false, pausa = false;
-    unsigned char dir;
-    unsigned char i = 0;
+    bool move, lado = false;	// Flags de animação
+    bool menu, completo = false, pausa = false;	// Modos de jogo
+    unsigned char dir, nivel;
+    unsigned char i = 0, j = 0;
     while (1)   // Loop infinito
     {
         setup_graphics();
@@ -130,7 +134,7 @@ void main(void)
         inicializaCar(cards);
         vram_adr(NAMETABLE_A);
         oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
-        while (vidas > 0)
+        while (vidas > 0 && nivel <= NIVEIS)
         {
             pad = pad_poll(0);
             if (pausa && pad & PAD_START)
@@ -186,10 +190,13 @@ void main(void)
                 }
                 // Atualização do quadro
                 oam_clear();
+                put_num(10, 1, 1, 2);
                 oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();
                 if (pausa) delay(30);
             }
         }
+        if (vidas <= 0) ; // Game Over
+        else if (nivel > NIVEIS) ; // Vitória
     }
 }
