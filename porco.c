@@ -200,7 +200,7 @@ void main(void)
                 oam_clear();
                 oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();
-                if (pausa) delay(30);
+                if (pausa) delay(100);
             }
         }
         if (vidas <= 0) ; // Game Over
