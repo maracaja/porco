@@ -30,7 +30,6 @@
 #define reset_pulo(void) *pulo = false
 #define SEN(x) senos[(x) & 0x1F]
 #define COS(x) SEN((x) + 8)
-#define MAP_ADR(x,y) ((((y)-2) << 4)|(x))
 
 // Variável de controle para escapar de introduções
 static bool *pulo;

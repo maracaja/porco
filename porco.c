@@ -38,13 +38,13 @@ Bola bolas[N_BOLAS];
 Cartao cards[N_CARDS];
 
 // Dados do jogador
-unsigned short x, y;
-unsigned char dinheiro;
-unsigned char energia;
-unsigned char luvas;
-unsigned char vidas;
-bool cartoes;
-bool vermelho;
+static unsigned short x, y;
+static unsigned char dinheiro;
+static unsigned char energia;
+static unsigned char luvas;
+static unsigned char vidas;
+static bool cartoes;
+static bool vermelho;
 
 // setup PPU and tables
 void setup_graphics() 
@@ -109,7 +109,7 @@ void main(void)
     char pad;
     bool move, lado = false;	// Flags de animação
     bool menu, completo = false, pausa = false;	// Modos de jogo
-    unsigned char dir, nivel;
+    unsigned char dir, nivel, dx, dy;
     unsigned char i = 0, j = 0;
     while (1)   // Loop infinito
     {
@@ -177,8 +177,12 @@ void main(void)
                 else move = false;
                 if (move)
                 {
-                    x += COS(dir); 
-                    y += SEN(dir);
+                    // CRIAR MAP PARA ARMAZENAR OS LOCAIS DOS TIJOLOS
+                    // MELHOR CRIAR A FUNÇÃO AQUI MESMO...
+                    dx = COS(dir); 
+                    dy = SEN(dir);
+                    if (!bate_parede(x + dx, y)) x += dx;
+                    if (!bate_parede(x, y + dy)) y += dy;
                 }
                 // TESTE DE SAÍDA DEPOIS DE PERDER
                 if (pad & PAD_B)
