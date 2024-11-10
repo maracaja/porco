@@ -22,27 +22,28 @@
 
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
-unsigned char PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x19,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
-const unsigned char PAL_EXTRA[16] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f };
+const byte PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x19,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
+const byte PAL_EXTRA[16] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f };
 // MAN-COR-TIG-SAN
 
 // Tabela de senos normalizados em 8 bits
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
 
 // Tabela de níveis do modo demonstração
-const unsigned char const demo[6] = {0, 10, 25, 34, 50, 51};
+const byte const demo[6] = {0, 10, 25, 34, 50, 51};
 
 // Objetos
+static byte cenario;
 Adversario advs[N_ADVS];
 Bola bolas[N_BOLAS];
 Cartao cards[N_CARDS];
 
 // Dados do jogador
-static unsigned short x, y;
-static unsigned char dinheiro;
-static unsigned char energia;
-static unsigned char luvas;
-static unsigned char vidas;
+static word x, y;
+static byte dinheiro;
+static byte energia;
+static byte luvas;
+static byte vidas;
 static bool cartoes;
 static bool vermelho;
 
@@ -50,8 +51,7 @@ static bool vermelho;
 void setup_graphics() 
 {  
     oam_clear();   // clear sprites
-    // set palette colors
-    pal_bg(PALETTE);
+    pal_bg(PALETTE);	// set palette colors
     pal_spr(PALETTE);
 }
 
@@ -72,6 +72,7 @@ void inicializaJogador()
     luvas = 0;
     vidas = 3;
     cartoes = false;
+    vermelho = false;
 }
 
 void levaBolada()
@@ -104,13 +105,49 @@ void compraArbitro()
     else vermelho = true;
 }
 
+// Inicializações
+void inicializaAgentes()
+{
+    inicializaAdv(advs);
+    inicializaBol(bolas);
+    inicializaCar(cards);
+}
+
+// Verifica se objeto nao bate nos blocos
+bool nao_bate_parede(word x, word y)
+{
+    byte i = pos(x), j = pos(y);
+    if (i <= XMIN || i >= XMAX || j <= YMIN || j >= YMAX) return false;
+    switch (cenario)	// Valores adaptados dos desenhos criados (usa menos RAM)
+    {
+      	case 0:
+            if (j <= YMIN + 16) return i >= XMIN + 81 && i <= XMAX - 81;
+            if (j <= YMIN + 32) 
+              	return i <= XMIN + 57 || i >= XMAX - 57 || i >= XMIN + 81 && i <= XMAX - 81;
+            if (j >= 112 && j <= 142) return i <= XMIN + 73 || i >= XMAX - 73;
+      	default: break; // PROVISORIO
+    }
+    return true;
+}
+
+// Atualização do placar a cada quadro
+void atualizaPlacar()
+{
+    placar(vidas, PLV, 1);
+    placar(dinheiro, PLD, 2);
+    placar(energia, PLE, 2);
+    contaLuvas(luvas);
+    if (cartoes) corCartao(vermelho);
+}
+
 void main(void)
 {
     char pad;
     bool move, lado = false;	// Flags de animação
     bool menu, completo = false, pausa = false;	// Modos de jogo
-    unsigned char dir, nivel, dx, dy;
-    unsigned char i = 0, j = 0;
+    byte dir, nivel;
+    byte i = 0, j = 0;
+    word dx, dy, k = 0;
     while (1)   // Loop infinito
     {
         setup_graphics();
@@ -130,14 +167,13 @@ void main(void)
         historinha();
         limpa_tela(NAMETABLE_A);
         reset_pulo();
-        // Teste de nível
         inicializaJogador();
-        inicializaAdv(advs);
-        inicializaBol(bolas);
-        inicializaCar(cards);
+        // Teste de nível
+        inicializaAgentes();
         ppu_off();
         vram_adr(NAMETABLE_A);  // LEVAR PARA DENTRO DO LAÇO E CRIAR UM A MAIS PARA MANTER O NIVEL
         vram_unrle(nivel_a);
+        cenario = 0;
         scroll(0, 0);
         oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
         ppu_on_all();
@@ -169,7 +205,7 @@ void main(void)
                 else if (pad & PAD_RIGHT)
                 {
                     dir = 0;
-                    if (pad & PAD_UP) dir -= 4;
+                    if (pad & PAD_UP) dir = 28;
                     else if (pad & PAD_DOWN) dir += 4;
                 }
                 else if (pad & PAD_UP) dir = 24;
@@ -177,20 +213,14 @@ void main(void)
                 else move = false;
                 if (move)
                 {
-                    // CRIAR MAP PARA ARMAZENAR OS LOCAIS DOS TIJOLOS
-                    // MELHOR CRIAR A FUNÇÃO AQUI MESMO...
-                    dx = COS(dir); 
-                    dy = SEN(dir);
-                    if (!bate_parede(x + dx, y)) x += dx;
-                    if (!bate_parede(x, y + dy)) y += dy;
+                    dx = COS(dir); dy = SEN(dir);
+                    if (nao_bate_parede(x + dx, y)) x += dx;
+                    if (nao_bate_parede(x, y + dy)) y += dy;
                 }
                 // TESTE DE SAÍDA DEPOIS DE PERDER
                 if (pad & PAD_B)
                 {
-                    limpa_tela(NAMETABLE_A);
-                    limpa_tela(NAMETABLE_C);
-                    ppu_off();
-                    break;
+                    vidas = 0;
                 }
                 // Pause
                 if (pad & PAD_START)
@@ -202,12 +232,25 @@ void main(void)
                 }
                 // Atualização do quadro
                 oam_clear();
+                atualizaPlacar();
                 oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                 ppu_wait_nmi();
                 if (pausa) delay(100);
             }
         }
-        if (vidas <= 0) ; // Game Over
-        else if (nivel > NIVEIS) ; // Vitória
+        if (vidas <= 0) // Game Over
+        {
+            limpa_tela(NAMETABLE_A);
+	    game_over();
+            pad = pad_poll(0);
+            while (!(pad & PAD_START))
+            {
+              	pad = pad_poll(0);
+                ppu_wait_nmi();
+            }
+            limpa_tela(NAMETABLE_A);
+            limpa_tela(NAMETABLE_C);
+        } 
+        else ; // Vitória
     }
 }

@@ -24,12 +24,6 @@ void inicializaCar(Cartao* c)
     }
 }
 
-bool bate_parede(word x, word y)
-{
-    word m = MAP_ADR(pos(x), pos(y));
-    return m >= 0x7C && m <= 0x7F;
-}
-
 void levaCartao(register Adversario* a, register Cartao* c, unsigned char nivel)
 {
     unsigned char bloco = nivel / DIVISOR;

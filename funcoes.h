@@ -2,9 +2,10 @@
 #define FUNCOES_H
 
 // Constantes
-#define NORMAL 4
+#define ZERO 0x30
 #define CARD 0x01
 #define BOLA 0x0A
+#define LUVA 0x62
 #define CAIM 0x00
 #define ENERG 0x08
 #define JUIZ 0x10
@@ -24,6 +25,12 @@
 #define TTY 32
 #define SPRX TTX - 4
 #define SPRY TTY + 60
+#define PL_LIN 7
+#define PLV 6
+#define PLD 10
+#define PLE 20
+#define PLL 23
+#define PLC 240
 #define NIVEIS 51
 
 // Macros
@@ -48,5 +55,13 @@ void apresentacao(void);
 
 // História inicial do jogo
 void historinha(void);
+
+// Tela de derrota
+void game_over(void);
+
+// Funções de placar
+void placar(byte n, byte col, byte dig);
+void contaLuvas(byte n);
+void corCartao(bool verm);
 
 #endif
