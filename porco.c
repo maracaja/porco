@@ -145,7 +145,7 @@ void main(void)
     char pad;
     bool move, lado = false;	// Flags de animação
     bool menu, completo = false, pausa = false;	// Modos de jogo
-    byte dir, nivel;
+    byte dir, nivel, prox;
     byte i = 0, j = 0;
     word dx, dy, k = 0;
     while (1)   // Loop infinito
@@ -167,75 +167,80 @@ void main(void)
         historinha();
         limpa_tela(NAMETABLE_A);
         reset_pulo();
+        j = 0; nivel = 0;
         inicializaJogador();
-        // Teste de nível
-        inicializaAgentes();
-        ppu_off();
-        vram_adr(NAMETABLE_A);  // LEVAR PARA DENTRO DO LAÇO E CRIAR UM A MAIS PARA MANTER O NIVEL
-        vram_unrle(nivel_a);
-        cenario = 0;
-        scroll(0, 0);
-        oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
-        ppu_on_all();
         while (vidas > 0 && nivel <= NIVEIS)
         {
-            
-            pad = pad_poll(0);
-            if (pausa && pad & PAD_START)
+            // Preparando o início do nível
+            // Apresentaçao = nivel xx
+            inicializaAgentes();
+            ppu_off();
+            vram_adr(NAMETABLE_A);
+            vram_unrle(nivel_a);
+            cenario = 0;
+            scroll(0, 0);
+            oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
+            ppu_on_all();
+            while (prox == false && energia > 0)
             {
-              	pausa = false;
-                ppu_off();
-                escrita_centralizada("       ", 2);
-                ppu_on_all();
-                delay(5);
-            }
-            else if (!pausa)
-            {
-                // Comando de animação
-                i++; move = true;
-                if (i == 4) i = 0; 
-                if (pad & 0xF0 && i == 0) lado = !lado;
-                // Controles de direção
-                if (pad & PAD_LEFT)
+                pad = pad_poll(0);
+                if (pausa && pad & PAD_START)
                 {
-                    dir = 16;
-                    if (pad & PAD_UP) dir += 4;
-                    else if (pad & PAD_DOWN) dir -= 4;
-                }
-                else if (pad & PAD_RIGHT)
-                {
-                    dir = 0;
-                    if (pad & PAD_UP) dir = 28;
-                    else if (pad & PAD_DOWN) dir += 4;
-                }
-                else if (pad & PAD_UP) dir = 24;
-                else if (pad & PAD_DOWN) dir = 8;
-                else move = false;
-                if (move)
-                {
-                    dx = COS(dir); dy = SEN(dir);
-                    if (nao_bate_parede(x + dx, y)) x += dx;
-                    if (nao_bate_parede(x, y + dy)) y += dy;
-                }
-                // TESTE DE SAÍDA DEPOIS DE PERDER
-                if (pad & PAD_B)
-                {
-                    vidas = 0;
-                }
-                // Pause
-                if (pad & PAD_START)
-                {
-                    pausa = true;
+                    pausa = false;
                     ppu_off();
-                    escrita_centralizada("PAUSADO", 2);
+                    escrita_centralizada("       ", 2);
                     ppu_on_all();
+                    delay(5);
                 }
-                // Atualização do quadro
-                oam_clear();
-                atualizaPlacar();
-                oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
-                ppu_wait_nmi();
-                if (pausa) delay(100);
+                else if (!pausa)
+                {
+                    // Comando de animação
+                    i++; move = true;
+                    if (i == 4) i = 0; 
+                    if (pad & 0xF0 && i == 0) lado = !lado;
+                    // Controles de direção
+                    if (pad & PAD_LEFT)
+                    {
+                        dir = 16;
+                        if (pad & PAD_UP) dir += 4;
+                        else if (pad & PAD_DOWN) dir -= 4;
+                    }
+                    else if (pad & PAD_RIGHT)
+                    {
+                        dir = 0;
+                        if (pad & PAD_UP) dir = 28;
+                        else if (pad & PAD_DOWN) dir += 4;
+                    }
+                    else if (pad & PAD_UP) dir = 24;
+                    else if (pad & PAD_DOWN) dir = 8;
+                    else move = false;
+                    if (move)
+                    {
+                        dx = COS(dir); dy = SEN(dir);
+                        if (nao_bate_parede(x + dx, y)) x += dx;
+                        if (nao_bate_parede(x, y + dy)) y += dy;
+                    }
+                    // TESTE DE SAÍDA DEPOIS DE PERDER
+                    if (pad & PAD_B)
+                    {
+                        vidas = 0;
+                    }
+                    // Pause
+                    if (pad & PAD_START)
+                    {
+                        pausa = true;
+                        ppu_off();
+                        escrita_centralizada("PAUSADO", 2);
+                        ppu_on_all();
+                    }
+                    // Atualização do quadro
+                    oam_clear();
+                    atualizaPlacar();
+                    oam_meta_spr(128, 44, TACA, spr_liberta);
+                    oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
+                    ppu_wait_nmi();
+                    if (pausa) delay(100);
+                }
             }
         }
         if (vidas <= 0) // Game Over
