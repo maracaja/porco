@@ -7,7 +7,7 @@
 #include "bcd.h"	// BCD arithmetic support
 //#link "bcd.c"
 
-// Importacao dos recursos gráficos
+// Importação dos recursos gráficos
 //#resource "chr_porco.chr"
 //#link "tileset.s"
 #include "sprites.h"
@@ -15,10 +15,15 @@
 //#resource "titulo.h"
 #include "nivel_a.h"
 
+// Importação dos recursos de áudio
+//#link "abertura.s"
+
 #include "funcoes.h"	// Funcoes úteis
 //#link "funcoes.c"
 #include "objetos.h"    // Definição dos atores do jogo
 //#link "objetos.c"
+
+extern char abertura[];
 
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
@@ -153,6 +158,7 @@ void main(void)
         setup_graphics();
         menu = true;
         reset_pulo();
+        
         apresentacao();
         selecao(completo);
         while (menu)    // Controle do menu de jogo

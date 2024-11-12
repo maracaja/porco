@@ -38,6 +38,8 @@
 #define SEN(x) senos[(x) & 0x1F]
 #define COS(x) SEN((x) + 8)
 
+extern char abertura[];
+
 // Variável de controle para escapar de introduções
 static bool *pulo;
 
