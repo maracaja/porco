@@ -6,6 +6,7 @@
 //#link "vrambuf.c"
 #include "bcd.h"	// BCD arithmetic support
 //#link "bcd.c"
+//#link "famitone2.s"
 
 // Importação dos recursos gráficos
 //#resource "chr_porco.chr"
@@ -16,7 +17,6 @@
 #include "nivel_a.h"
 
 // Importação dos recursos de áudio
-//#link "famitone2.s"
 //#link "abertura.s"
 
 #include "funcoes.h"	// Funcoes úteis
