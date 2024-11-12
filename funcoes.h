@@ -34,7 +34,7 @@
 #define NIVEIS 51
 
 // Macros
-#define espera(n) word i; for (i = 0; i < (n); i++) ppu_wait_nmi()
+#define espera(n) word _i; for (_i = 0; _i < (n); _i++) ppu_wait_nmi()
 #define reset_pulo(void) *pulo = false
 #define SEN(x) senos[(x) & 0x1F]
 #define COS(x) SEN((x) + 8)
