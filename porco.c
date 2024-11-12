@@ -84,16 +84,18 @@ void inicializaJogador()
 void levaBolada()
 {
     if (luvas > 0) luvas--;
-    else if (cartoes)
-    {
-        if (vermelho) vermelho = false;
-        else cartoes = false;
-    }
     else energia = MAX(0, energia - 19);
 }
 
 void sofreFalta()
-{ energia = MAX(0, energia - 50); }
+{
+    if (cartoes)
+    {
+        if (vermelho) vermelho = false;
+        else cartoes = false;
+    }
+    else energia = MAX(0, energia - 50);
+}
 
 void tomaEnergetico()
 { energia = MIN(energia + 51, 99); }
@@ -152,17 +154,19 @@ void main(void)
     bool move, lado = false;	// Flags de animação
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte dir, nivel, prox;
-    byte i = 0, j = 0;
-    word dx, dy, k = 0;
-    //famitone_init(&abertura);
-    //nmi_set_callback(famitone_update);
+    byte i = 0, j = 0, k;
+    word dx, dy;
+    famitone_init(abertura);
+    sfx_init(NULL);
+    nmi_set_callback(famitone_update);
     while (1)   // Loop infinito
     {
         setup_graphics();
         menu = true;
         reset_pulo();
-        //music_play(0);
+        music_play(0);
         apresentacao();
+        music_stop();
         selecao(completo);
         while (menu)    // Controle do menu de jogo
         {
@@ -183,6 +187,13 @@ void main(void)
             // Preparando o início do nível
             // Apresentaçao = nivel xx
             inicializaAgentes();
+            for (k = 0; k < N_ADVS; k++) // LAÇO DE TESTE
+            {
+                if (k & 0x01) advs[k].ativo = true;
+                advs[k].x = 40 + 8 * k;
+                advs[k].y = 60 + 4 * k;
+                advs[k].energia = 100;
+            }
             ppu_off();
             vram_adr(NAMETABLE_A);
             vram_unrle(nivel_a);
@@ -199,7 +210,7 @@ void main(void)
                     ppu_off();
                     escrita_centralizada("       ", 2);
                     ppu_on_all();
-                    delay(5);
+                    espera(5);
                 }
                 else if (!pausa)
                 {
@@ -230,9 +241,9 @@ void main(void)
                         if (nao_bate_parede(x, y + dy)) y += dy;
                     }
                     // TESTE DE SAÍDA DEPOIS DE PERDER
-                    if (pad & PAD_B)
-                    {
-                        vidas = 0;
+                    if (pad & PAD_B){
+                      	vidas = 0;
+                        energia = 0;
                     }
                     // Pause
                     if (pad & PAD_START)
@@ -247,8 +258,10 @@ void main(void)
                     atualizaPlacar();
                     oam_meta_spr(128, 44, TACA, spr_liberta);
                     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
+                    for (k = 0; k < N_ADVS; k++)
+                      	if (advs[k].ativo) oam_spr(advs[k].x, advs[k].y , JADV, 0, ADV + 4*k);
                     ppu_wait_nmi();
-                    if (pausa) delay(100);
+                    if (pausa) espera(100);
                 }
             }
         }

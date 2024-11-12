@@ -5,6 +5,7 @@
 #define ZERO 0x30
 #define CARD 0x01
 #define BOLA 0x0A
+#define JADV 0x1A
 #define LUVA 0x62
 #define CAIM 0x00
 #define ENERG 0x08
@@ -34,15 +35,17 @@
 #define NIVEIS 51
 
 // Macros
-#define espera(n) word _i; for (_i = 0; _i < (n); _i++) ppu_wait_nmi()
-#define reset_pulo(void) *pulo = false
+#define reset_pulo(void) pulo = false
 #define SEN(x) senos[(x) & 0x1F]
 #define COS(x) SEN((x) + 8)
 
 extern char abertura[];
 
+// Delay sem travar processador
+void espera(word n);
+
 // Variável de controle para escapar de introduções
-static bool *pulo;
+static bool pulo;
 
 // Escreve um texto de forma a centralizá-lo na tela (nametable A)
 void escrita_centralizada(const char* str, unsigned char linha);
