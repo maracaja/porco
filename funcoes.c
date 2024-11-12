@@ -66,7 +66,7 @@ void disclaimer()
     for (i = 0; i < 5; i++) 
         escrita_centralizada(trechos[i], 2 * i + 10);
     ppu_on_all();
-    for (i = 0; i < 3; i++) delay(127);
+    espera(380);
 }
 
 void apresentacao()
@@ -201,7 +201,7 @@ void historinha()
         // Pula introdução
         pad = pad_poll(0);
         if (pad & PAD_A) *pulo = true;
-        delay(4);
+        espera(4);
     }
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
