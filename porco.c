@@ -16,6 +16,7 @@
 #include "nivel_a.h"
 
 // Importação dos recursos de áudio
+//#link "famitone2.s"
 //#link "abertura.s"
 
 #include "funcoes.h"	// Funcoes úteis
@@ -153,12 +154,14 @@ void main(void)
     byte dir, nivel, prox;
     byte i = 0, j = 0;
     word dx, dy, k = 0;
+    //famitone_init(&abertura);
+    //nmi_set_callback(famitone_update);
     while (1)   // Loop infinito
     {
         setup_graphics();
         menu = true;
         reset_pulo();
-        
+        //music_play(0);
         apresentacao();
         selecao(completo);
         while (menu)    // Controle do menu de jogo
