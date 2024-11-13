@@ -11,6 +11,12 @@
 #define COL_INTRO 5
 #define ZERO 0x30
 
+void espera(word n)
+{	
+    word i;
+    for (i = 0; i < n; i++) ppu_wait_nmi();
+}
+
 void escrita_centralizada(const char* str, unsigned char linha)
 {
     byte tam, col;
@@ -24,7 +30,7 @@ void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col)
 {
     byte x = col, y = lin, tam = MIN(strlen(msg), 28), i = 0, j = 0;
     char pad;
-    while (!*pulo && i < tam) 
+    while (!pulo && i < tam) 
     {
         if (j >= 4)
         {
@@ -40,7 +46,7 @@ void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col)
         }
         // Sai do diálogo se o jogador pressionar A
         pad = pad_poll(0);
-        if (pad & PAD_A) *pulo = true;
+        if (pad & PAD_A) pulo = true;
     }
 }
 
@@ -66,12 +72,12 @@ void disclaimer()
     for (i = 0; i < 5; i++) 
         escrita_centralizada(trechos[i], 2 * i + 10);
     ppu_on_all();
-    for (i = 0; i < 3; i++) delay(127);
+    espera(380);
 }
 
 void apresentacao()
 {
-    unsigned int i = 0;
+    unsigned char i = 0;
     ppu_off();
     vram_adr(NAMETABLE_C);
     vram_unrle(titulo);
@@ -95,9 +101,9 @@ void troca_spr_intro()
 
 void transicao_intro()
 {
-    if (!*pulo)
+    if (!pulo)
     {
-        delay(60);
+        espera(60);
         limpa_tela(NAMETABLE_A);
         troca_spr_intro();
     }
@@ -139,21 +145,21 @@ void conversa()
                                     "BOA SORTE!"};
     for (i = 0; i < 7; i++)
         escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
-    if (!*pulo) oam_meta_spr(TTX, SPRY, TACA, spr_liberta);
+    if (!pulo) oam_meta_spr(TTX, SPRY, TACA, spr_liberta);
     for (; i < 10; i++)
         escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
     transicao_intro();
-    if (!*pulo) oam_meta_spr(SPRX, SPRY, GOLEIRO, spr_goleiro);
+    if (!pulo) oam_meta_spr(SPRX, SPRY, GOLEIRO, spr_goleiro);
     for (; i < 14; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
-    if (!*pulo)
+    if (!pulo)
     {
         troca_spr_intro();
         oam_meta_spr(SPRX, SPRY, JUIZ, spr_arbitro);
     }
     for (; i < 18; i++)
         escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
-    if (!*pulo) 
+    if (!pulo) 
     {
       	troca_spr_intro();
         oam_meta_spr(SPRX, SPRY, ENERG, spr_nrg);
@@ -178,11 +184,11 @@ void historinha()
     escrita_centralizada("BROOKLIN", 13);
     escrita_centralizada("1984", 15);
     ppu_on_all();
-    delay(30);
-    for (i = 0; i < 150 && !*pulo; i++)
+    espera(30);
+    for (i = 0; i < 150 && !pulo; i++)
     {
         pad = pad_poll(0);
-        if (pad & PAD_A) *pulo = true;
+        if (pad & PAD_B) pulo = true;
         ppu_wait_nmi();
     }
     limpa_tela(NAMETABLE_A);
@@ -191,7 +197,7 @@ void historinha()
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
     ppu_on_all();
-    while (caim_x > TTX - 4 && !*pulo)
+    while (caim_x > TTX - 4 && !pulo)
     {      
         caim_x--; caim_y -= 2;
         oam_clear();
@@ -200,12 +206,12 @@ void historinha()
         ppu_wait_nmi();
         // Pula introdução
         pad = pad_poll(0);
-        if (pad & PAD_A) *pulo = true;
-        delay(4);
+        if (pad & PAD_B) pulo = true;
+        espera(4);
     }
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
-    if (!*pulo) conversa();
+    if (!pulo) conversa();
 }
 
 void game_over()
