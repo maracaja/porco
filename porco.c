@@ -14,7 +14,7 @@
 #include "sprites.h"
 //#link "sprites.c"
 //#resource "titulo.h"
-#include "nivel_a.h"
+#include "niveis.h"
 
 // Importação dos recursos de áudio
 //#link "abertura.s"
