@@ -9,7 +9,7 @@
 #define desenha_jogador_intro(void) oam_meta_spr(SPRX, TTY + 18, CAIM, spr_jogador_parado)
 #define ESPACO " "
 #define COL_INTRO 5
-#define ZERO 0x30
+#define BOTAO_PULO PAD_A
 
 void espera(word n)
 {	
@@ -188,7 +188,7 @@ void historinha()
     for (i = 0; i < 150 && !pulo; i++)
     {
         pad = pad_poll(0);
-        if (pad & PAD_B) pulo = true;
+        if (pad & BOTAO_PULO) pulo = true;
         ppu_wait_nmi();
     }
     limpa_tela(NAMETABLE_A);
@@ -206,7 +206,7 @@ void historinha()
         ppu_wait_nmi();
         // Pula introdução
         pad = pad_poll(0);
-        if (pad & PAD_B) pulo = true;
+        if (pad & BOTAO_PULO) pulo = true;
         espera(4);
     }
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
@@ -224,7 +224,6 @@ void game_over()
 
 void placar(byte n, byte col, byte dig)
 {
-    bool dezena = n >= 10;
     byte sprid;
     sbyte i;
     switch (col)

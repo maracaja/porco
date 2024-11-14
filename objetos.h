@@ -3,20 +3,31 @@
 
 #include "neslib.h"
 
-// Constantes 
+// CONSTANTES
+#define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
+// Quantidades máximas simultâneas de sprites
 #define N_ADVS  11
 #define N_BOLAS 12
 #define N_CARDS 6
-#define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
-#define CX 124	// Posições iniciais do jogador
+// Posições iniciais do jogador
+#define CX 124
 #define CY 200
-#define XMIN 15	// Limites máximos de deslocamento na tela
+// Limites máximos de deslocamento na tela
+#define XMIN 15
 #define XMAX 233 
 #define YMIN 30
 #define YMAX 208
+// Identificação dos bônus
+#define BGOL 0x01
+#define BARB 0x02
+#define BNRG 0x04
+#define BDIN 0x08
+#define TEM_CARTAO 0x10
+#define CARD_VERM 0x20
 
 // Macros
 #define pos(n) (n) >> 8
+#define vermelho(n) (n) & CARD_VERM
 
 // Objetos 
 typedef struct {
@@ -32,8 +43,7 @@ typedef struct {
 } Bola;
 
 typedef struct {
-    bool ativo;
-    bool vermelho;
+    byte info;	// Combina ativo com cor
     word x, y;
     byte dir;
 } Cartao;
@@ -44,6 +54,6 @@ void inicializaBol(Bola* b);
 void inicializaCar(Cartao* c);
 
 // Funções aplicadas a objetos 
-void levaCartao(register Adversario* a, register Cartao* c, byte nivel);
+void levaCartao(Adversario* a, Cartao* c, byte nivel);
 
 #endif

@@ -1,12 +1,16 @@
 #include <stdlib.h>
 #include <string.h>
-#include "neslib.h"
 #include <nes.h>
+#include "neslib.h"
 #include "vrambuf.h"	// VRAM update buffer
 //#link "vrambuf.c"
 #include "bcd.h"	// BCD arithmetic support
 //#link "bcd.c"
 //#link "famitone2.s"
+#include "funcoes.h"	// Funcoes úteis
+//#link "funcoes.c"
+#include "objetos.h"    // Definição dos atores do jogo
+//#link "objetos.c"
 
 // Importação dos recursos gráficos
 //#resource "chr_porco.chr"
@@ -18,13 +22,13 @@
 
 // Importação dos recursos de áudio
 //#link "abertura.s"
+//#link "trilha.s"
 
-#include "funcoes.h"	// Funcoes úteis
-//#link "funcoes.c"
-#include "objetos.h"    // Definição dos atores do jogo
-//#link "objetos.c"
+#define temCartao(void) bonus & TEM_CARTAO
+#define cVermelho(void) bonus & CARD_VERM
 
 extern char abertura[];
+extern char trilha[];
 
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
@@ -50,8 +54,9 @@ static byte dinheiro;
 static byte energia;
 static byte luvas;
 static byte vidas;
-static bool cartoes;
-static bool vermelho;
+
+// Dados de presença dos bônus
+static byte bonus;
 
 // setup PPU and tables
 void setup_graphics() 
@@ -77,8 +82,7 @@ void inicializaJogador()
     energia = 99;
     luvas = 0;
     vidas = 3;
-    cartoes = false;
-    vermelho = false;
+    bonus = 0x00;
 }
 
 void levaBolada()
@@ -89,10 +93,10 @@ void levaBolada()
 
 void sofreFalta()
 {
-    if (cartoes)
+    if (bonus & TEM_CARTAO)
     {
-        if (vermelho) vermelho = false;
-        else cartoes = false;
+        if (cVermelho()) bonus &= ~CARD_VERM;
+        else bonus &= ~TEM_CARTAO;
     }
     else energia = MAX(0, energia - 50);
 }
@@ -105,13 +109,11 @@ void escalaGoleiro()
 
 void compraArbitro()
 {
-    if (!cartoes)
-    {
-        cartoes = true;
-        vermelho = false;
-    }
-    else vermelho = true;
+    if (temCartao()) bonus |= CARD_VERM;
+    else bonus |= TEM_CARTAO & ~CARD_VERM;
 }
+
+// void atira(byte dir); // CRIAÇÃO DO PODER DE CARTÃO
 
 // Inicializações
 void inicializaAgentes()
@@ -133,6 +135,9 @@ bool nao_bate_parede(word x, word y)
             if (j <= YMIN + 32) 
               	return i <= XMIN + 57 || i >= XMAX - 57 || i >= XMIN + 81 && i <= XMAX - 81;
             if (j >= 112 && j <= 142) return i <= XMIN + 73 || i >= XMAX - 73;
+            break;
+      	case 1:
+        case 2:
       	default: break; // PROVISORIO
     }
     return true;
@@ -145,17 +150,20 @@ void atualizaPlacar()
     placar(dinheiro, PLD, 2);
     placar(energia, PLE, 2);
     contaLuvas(luvas);
-    if (cartoes) corCartao(vermelho);
+    if (temCartao()) corCartao(cVermelho());
 }
 
 void main(void)
 {
-    char pad;
+    char pad;	// Leitura do controle
     bool move, lado = false;	// Flags de animação
     bool menu, completo = false, pausa = false;	// Modos de jogo
-    byte dir, nivel, prox;
-    byte i = 0, j = 0, k;
-    word dx, dy;
+    byte dir, nivel, prox;	// Variáveis de andamento do nível
+    byte i = 0, j = 0, k;	// Variáveis para uso em laços
+    // Debounce do controle, rand, comandos de dificuldade
+    word dx, dy;	// Variáveis de deslocamento dos agentes
+    set_rand(nesclock());
+    // Configurações iniciais de áudio
     famitone_init(abertura);
     sfx_init(NULL);
     nmi_set_callback(famitone_update);

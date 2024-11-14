@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "objetos.h"
 
-unsigned char i;
+byte i;
 
 void inicializaAdv(Adversario* a)
 {
@@ -16,22 +16,16 @@ void inicializaBol(Bola* b)
 { for (i = 0; i < N_BOLAS; i++) b[i].ativo = false; }
 
 void inicializaCar(Cartao* c)
-{
-    for (i = 0; i < N_CARDS; i++)
-    {
-        c[i].ativo = false;
-        c[i].vermelho = false;
-    }
-}
+{  for (i = 0; i < N_CARDS; i++) c[i].info = 0x00; }
 
-void levaCartao(register Adversario* a, register Cartao* c, unsigned char nivel)
+void levaCartao(Adversario* a, Cartao* c, unsigned char nivel)
 {
     unsigned char bloco = nivel / DIVISOR;
     switch (bloco)
     {
-        case 0: a->energia -= c->vermelho ? 100 : 50; break;
-        case 1: a->energia -= c->vermelho ? 66 : 34; break;
-        default: a->energia -= c-> vermelho ? 50 : 25;
+        case 0: a->energia -= vermelho(c->info) ? 100 : 50; break;
+        case 1: a->energia -= vermelho(c->info) ? 66 : 34; break;
+        default: a->energia -= vermelho(c->info) ? 50 : 25;
     }
     if (a->energia <= 0) a->ativo = false;
 }
