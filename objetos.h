@@ -4,7 +4,7 @@
 #include "neslib.h"
 
 // CONSTANTES
-#define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
+#define DIVISOR 17  	// 51 níveis -> Divide o jogo em 3 grandes blocos
 // Quantidades máximas simultâneas de sprites
 #define N_ADVS  11
 #define N_BOLAS 12
@@ -16,7 +16,7 @@
 #define XMIN 15
 #define XMAX 233 
 #define YMIN 30
-#define YMAX 208
+#define YMAX 224
 // Posições da taça
 #define XTACA 128
 #define YTACA 44
@@ -58,5 +58,8 @@ void inicializaCar(Cartao* c);
 
 // Funções aplicadas a objetos 
 void levaCartao(Adversario* a, Cartao* c, byte nivel);
+
+// Encontra a direção para o adversário chutar
+byte direcao(short dx, short dy);
 
 #endif

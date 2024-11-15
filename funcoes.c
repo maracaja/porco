@@ -3,6 +3,7 @@
 #include "vrambuf.h"
 #include "sprites.h"
 #include "titulo.h"
+#include "niveis.h"
 #include "funcoes.h"
 
 #define desenha_tia(void) oam_meta_spr(TTX, TTY, EXTRA, spr_titia)
@@ -10,8 +11,6 @@
 #define ESPACO " "
 #define COL_INTRO 5
 #define BOTAO_PULO PAD_A
-
-const short const TG[16] = {-2599, -844, -479, -312, -210, -137, -78, -25, 25, 78, 137, 210, 312, 479, 844, 2599};
 
 void espera(word n)
 {	
@@ -144,7 +143,7 @@ void conversa()
                                     ESPACO,
                                     "PARA CONQUISTAR O MUNDO,",
                                     "e PRECISO ATRAVESSA-LO.",
-                                    "BOA SORTE!"};
+                                    "BOA SORTE!" };
     for (i = 0; i < 7; i++)
         escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
     if (!pulo) oam_meta_spr(TTX, SPRY, TACA, spr_liberta);
@@ -224,6 +223,29 @@ void game_over()
     ppu_on_all();
 }
 
+byte carrega_cenario(byte nivel)
+{
+    byte c;
+    vram_adr(NAMETABLE_A);
+    switch (nivel)
+    {
+        case 17:
+        case 34:
+        case 51:            
+            vram_unrle(nivel_v);
+            return 3;
+      	default:
+            c = nivel % 3;
+            switch (c)
+            {
+             	case 0: vram_unrle(nivel_a); break;
+              	case 1: vram_unrle(nivel_b); break;
+              	default: vram_unrle(nivel_c);
+            }
+            return c;
+    }
+}
+
 void placar(byte n, byte col, byte dig)
 {
     byte sprid;
@@ -251,15 +273,3 @@ void contaLuvas(byte n)
 
 void corCartao(bool verm)
 { oam_spr(PLC, PL_LIN, CARD, verm ? 0 : 3, PL_CARD); }
-
-byte direcao(short dx, short dy)
-{
-    short delta = dx >> 8, tan;
-    byte i = 0;
-    if (delta == 0) return dy >= 0 ? 8 : 24;
-    tan = dy / delta;
-    while (tan >= TG[i] && i < 15) i++;
-    i += 8;
-    if (dx > 0) i += 16;
-    return i & 0x1F;
-}

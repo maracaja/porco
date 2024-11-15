@@ -18,7 +18,7 @@
 #include "sprites.h"
 //#link "sprites.c"
 //#resource "titulo.h"
-#include "niveis.h"
+//#resource "niveis.h"
 
 // Importação dos recursos de áudio
 //#link "abertura.s"
@@ -128,17 +128,30 @@ bool nao_bate_parede(word x, word y)
 {
     byte i = pos(x), j = pos(y);
     if (i <= XMIN || i >= XMAX || j <= YMIN || j >= YMAX) return false;
-    switch (cenario)	// Valores adaptados dos desenhos criados (usa menos RAM)
-    {
+    // Valores adaptados dos desenhos criados (usa menos RAM)
+    if (cenario <= 2)
+    {	// Casos comuns aos níveis normais
+        if (j <= YMIN + 16) return i >= XMIN + 81 && i <= XMAX - 81;
+      	if (j <= YMIN + 32) 
+            return i <= XMIN + 57 || i >= XMAX - 57 || i >= XMIN + 81 && i <= XMAX - 81;
+    }
+    switch (cenario)	
+    {	// Casos específicos
       	case 0:
-            if (j <= YMIN + 16) return i >= XMIN + 81 && i <= XMAX - 81;
-            if (j <= YMIN + 32) 
-              	return i <= XMIN + 57 || i >= XMAX - 57 || i >= XMIN + 81 && i <= XMAX - 81;
+            if (j >= YMAX - 16) return false;
             if (j >= 112 && j <= 142) return i <= XMIN + 73 || i >= XMAX - 73;
             break;
       	case 1:
+            if (j >= 128 && j <= 158) return i >= XMIN + 65 && i <= XMAX - 65;
+            break;
         case 2:
-      	default: break; // PROVISORIO
+            if (j >= 80 && j <= 110 || j >= YMAX - 32 && j < YMAX - 16)
+              	return i >= XMIN + 17 && i <= XMAX - 17;
+            if (j >= 152 && j <= 182)
+                return i <= XMIN + 41 || i >= XMAX - 41 || i >= XMIN + 81 && i <= XMAX - 81;
+            if (j >= YMAX - 16) return i >= XMIN + 33 && i <= XMAX - 33;
+            break;
+      	default: return j <= YMIN + 32;
     }
     return true;
 }
@@ -205,9 +218,7 @@ void main(void)
                 advs[k].energia = 100;
             }
             ppu_off();
-            vram_adr(NAMETABLE_A);
-            vram_unrle(nivel_a);
-            cenario = 0;
+            cenario = carrega_cenario(nivel);
             scroll(0, 0);
             oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
             ppu_on_all();
@@ -266,7 +277,7 @@ void main(void)
                     // Atualização do quadro
                     oam_clear();
                     atualizaPlacar();
-                    energia = direcao(x - advs[9].x, y - advs[9].y);
+                    dinheiro = direcao(x - advs[9].x + 4, y - advs[9].y + 4);
                     oam_meta_spr(XTACA, YTACA, TACA, spr_liberta);
                     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                     for (k = 0; k < N_ADVS; k++)

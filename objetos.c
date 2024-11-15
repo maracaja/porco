@@ -1,7 +1,9 @@
-#include <stdlib.h>
 #include "objetos.h"
 
-byte i;
+// Tabela normalizada de tangentes
+const short const TG[16] = {-2599, -844, -479, -312, -210, -137, -78, -25, 25, 78, 137, 210, 312, 479, 844, 2599};
+
+byte i;	// Variável para iteração
 
 void inicializaAdv(Adversario* a)
 {
@@ -28,4 +30,15 @@ void levaCartao(Adversario* a, Cartao* c, unsigned char nivel)
         default: a->energia -= vermelho(c->info) ? 50 : 25;
     }
     if (a->energia <= 0) a->ativo = false;
+}
+
+byte direcao(short dx, short dy)
+{
+    short delta = dx >> 8, tan;
+    i = 0;
+    if (delta == 0) return dy >= 0 ? 8 : 24;
+    tan = dy / delta;
+    while (tan >= TG[i] && i < 15) i++;
+    i += dx > 0 ? 24 : 8;
+    return i & 0x1F;
 }
