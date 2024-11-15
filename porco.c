@@ -195,11 +195,13 @@ void main(void)
             // Preparando o início do nível
             // Apresentaçao = nivel xx
             inicializaAgentes();
+            famitone_init(trilha);
+            music_play(0);
             for (k = 0; k < N_ADVS; k++) // LAÇO DE TESTE
             {
-                if (k & 0x01) advs[k].ativo = true;
-                advs[k].x = 40 + 8 * k;
-                advs[k].y = 60 + 4 * k;
+                if (k == 9) advs[k].ativo = true;
+                advs[k].x = (40 + 8 * k) << 8;
+                advs[k].y = (60 + 4 * k) << 8;
                 advs[k].energia = 100;
             }
             ppu_off();
@@ -264,15 +266,18 @@ void main(void)
                     // Atualização do quadro
                     oam_clear();
                     atualizaPlacar();
-                    oam_meta_spr(128, 44, TACA, spr_liberta);
+                    energia = direcao(x - advs[9].x, y - advs[9].y);
+                    oam_meta_spr(XTACA, YTACA, TACA, spr_liberta);
                     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                     for (k = 0; k < N_ADVS; k++)
-                      	if (advs[k].ativo) oam_spr(advs[k].x, advs[k].y , JADV, 0, ADV + 4*k);
+                      	if (advs[k].ativo) oam_spr(pos(advs[k].x), pos(advs[k].y) , JADV, 0, ADV + 4*k);
                     ppu_wait_nmi();
                     if (pausa) espera(100);
                 }
             }
+            vidas--; // ENERGIA CAIU (ENEL)
         }
+        music_stop();
         if (vidas <= 0) // Game Over
         {
             limpa_tela(NAMETABLE_A);

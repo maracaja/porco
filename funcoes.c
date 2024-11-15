@@ -11,6 +11,8 @@
 #define COL_INTRO 5
 #define BOTAO_PULO PAD_A
 
+const short const TG[16] = {-2599, -844, -479, -312, -210, -137, -78, -25, 25, 78, 137, 210, 312, 479, 844, 2599};
+
 void espera(word n)
 {	
     word i;
@@ -249,3 +251,15 @@ void contaLuvas(byte n)
 
 void corCartao(bool verm)
 { oam_spr(PLC, PL_LIN, CARD, verm ? 0 : 3, PL_CARD); }
+
+byte direcao(short dx, short dy)
+{
+    short delta = dx >> 8, tan;
+    byte i = 0;
+    if (delta == 0) return dy >= 0 ? 8 : 24;
+    tan = dy / delta;
+    while (tan >= TG[i] && i < 15) i++;
+    i += 8;
+    if (dx > 0) i += 16;
+    return i & 0x1F;
+}

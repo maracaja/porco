@@ -17,6 +17,9 @@
 #define XMAX 233 
 #define YMIN 30
 #define YMAX 208
+// Posições da taça
+#define XTACA 128
+#define YTACA 44
 // Identificação dos bônus
 #define BGOL 0x01
 #define BARB 0x02

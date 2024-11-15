@@ -73,4 +73,7 @@ void placar(byte n, byte col, byte dig);
 void contaLuvas(byte n);
 void corCartao(bool verm);
 
+// Encontra a direção para o adversário chutar
+byte direcao(short dx, short dy);
+
 #endif
