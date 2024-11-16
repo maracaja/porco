@@ -42,3 +42,24 @@ byte direcao(short dx, short dy)
     i += dx > 0 ? 24 : 8;
     return i & 0x1F;
 }
+
+byte movimento(char pad)
+{
+    byte dir, mov = 0x20;
+    if (pad & PAD_LEFT)
+    {
+        dir = 16;
+        if (pad & PAD_UP) dir += 4;
+        else if (pad & PAD_DOWN) dir -= 4;
+    }
+    else if (pad & PAD_RIGHT)
+    {
+        dir = 0;
+        if (pad & PAD_UP) dir = 28;
+        else if (pad & PAD_DOWN) dir += 4;
+    }
+    else if (pad & PAD_UP) dir = 24;
+    else if (pad & PAD_DOWN) dir = 8;
+    else mov = 0x00;
+    return mov |= dir;
+}

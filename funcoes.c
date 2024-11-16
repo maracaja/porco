@@ -223,7 +223,7 @@ void game_over()
     ppu_on_all();
 }
 
-byte carrega_cenario(byte nivel)
+byte carrega_arena(byte nivel)
 {
     byte c;
     vram_adr(NAMETABLE_A);

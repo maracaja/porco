@@ -27,6 +27,7 @@
 #define BDIN 0x08
 #define TEM_CARTAO 0x10
 #define CARD_VERM 0x20
+#define TEM_TACA 0x40
 
 // Macros
 #define pos(n) (n) >> 8
@@ -61,5 +62,8 @@ void levaCartao(Adversario* a, Cartao* c, byte nivel);
 
 // Encontra a direção para o adversário chutar
 byte direcao(short dx, short dy);
+
+// Função que define o movimento do jogador
+byte movimento(char pad);
 
 #endif

@@ -41,8 +41,6 @@
 
 // Macros
 #define reset_pulo(void) pulo = false
-#define SEN(x) senos[(x) & 0x1F]
-#define COS(x) SEN((x) + 8)
 
 extern char abertura[];
 
@@ -71,7 +69,7 @@ void historinha(void);
 void game_over(void);
 
 // Função que determina o cenário do jogo
-byte carrega_cenario(byte nivel);
+byte carrega_arena(byte nivel);
 
 // Funções de placar
 void placar(byte n, byte col, byte dig);
