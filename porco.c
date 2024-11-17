@@ -60,7 +60,6 @@ const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
 
 // Objetos
 static byte arena;
-static byte adv;
 Adversario advs[N_ADVS];
 Bola bolas[N_BOLAS];
 Cartao cards[N_CARDS];
@@ -169,6 +168,9 @@ byte ativaCartao()
     return 0;
 }
 
+void desativaCartao(byte i)
+{ cards[i].info &= ~CARD_ATIVO; }
+
 void atira()
 {
     byte i = ativaCartao();
@@ -180,7 +182,7 @@ void atira()
             cards[i].x = x - real(10);
             cards[i].info |= 0x10;
         }
-        else cards[i].x = x + real(10);
+        else  cards[i].x = x + real(10);
     }
     else
     {
@@ -214,6 +216,19 @@ void troca_paleta(byte cor)
 void pal_adv()
 {  troca_paleta(nivel & 0x03); }
 
+// Define o metasprite do adversário a ser usado
+byte* spr_adv(byte nivel, bool lado)
+{
+    switch (nivel % 4)
+    {
+        case 0:
+      	case 1:
+            return spr_adv1(lado);
+        case 2: return spr_adv2(lado);
+        default: return spr_adv3(lado);
+    }
+}
+
 // Atualização do placar a cada quadro
 void atualizaPlacar()
 {
@@ -228,14 +243,28 @@ void atualizaPlacar()
 void atualizaSprites()
 {
     byte i;
+    word dx, dy;
     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
     for (i = 0; i < N_ADVS; i++)
-    	if (advs[i].ativo) oam_spr(pos(advs[i].x), pos(advs[i].y), adv, 2, ADV + 4 * i);
+    	if (advs[i].ativo) oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
     for (i = 0; i < N_BOLAS; i++)
         if (bolas[i].ativo) oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
     for (i = 0; i < N_CARDS; i++)
-    	if (card_ativo(cards[i])) oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
+    {
+    	if (card_ativo(cards[i]))
+        {
+            dx = 2 * COS(card_dir(cards[i]));
+            dy = 2 * SEN(card_dir(cards[i]));
+            if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy))
+            {
+                cards[i].x += dx;
+                cards[i].y += dy;
+            }
+            else desativaCartao(i);
+            oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
+        }
+    }
 }
 
 void main(void)
@@ -291,7 +320,7 @@ void main(void)
             // Define parâmetros de nível
             if (nivel_comum)
             {
-                adv = spr_adv(nivel); // Adversários
+                //adv = spr_adv(nivel, lado); // Adversários
             	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
@@ -325,8 +354,11 @@ void main(void)
                 {   // Regime normal do jogo
                     // Comando de animação
                     i++;
-                    if (i == 4) i = 0;
-                    if (pad & 0xF0 && i == 0) lado = !lado;
+                    if (i == 5)
+                    {
+                        i = 0;
+                    	lado = !lado;
+                    }
                     // Controle do deslocamento do jogador na tela
                     move = movimento(pad);
                     if (jogador_mov)

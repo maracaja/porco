@@ -23,8 +23,7 @@ void inicializaCar(Cartao* c)
 
 void levaCartao(Adversario* a, Cartao* c, unsigned char nivel)
 {
-    unsigned char bloco = nivel / DIVISOR;
-    switch (bloco)
+    switch (nivel / DIVISOR)
     {
         case 0: a->energia -= vermelho(*c) ? 100 : 50; break;
         case 1: a->energia -= vermelho(*c) ? 66 : 34; break;
@@ -64,9 +63,6 @@ byte movimento(char pad)
     else return 0x00;
     return 0x20 | dir;
 }
-
-byte spr_adv(byte nivel)
-{ return nivel & 0x02 ? JADV2 : JADV1; }
 
 bool nao_bate_parede(byte arena, word x, word y)
 {

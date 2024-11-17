@@ -223,7 +223,6 @@ void selecao(bool completo)
 
 void entrada_nivel(byte nivel)
 {
-    byte q;
     limpa_tela(NAMETABLE_A);
     ppu_off();
     vram_adr(NTADR_A(12, 13));
@@ -234,8 +233,7 @@ void entrada_nivel(byte nivel)
     vram_put(ZERO + nivel % 10);
     if (nivel % DIVISOR == 0)
     {
-        q = nivel / DIVISOR;
-        switch (q)
+        switch (nivel / DIVISOR)
         {
             case 0: escrita_centralizada("AQUECIMENTO", 15); break;
             case 1: escrita_centralizada("EL TIGRE", 15); break;
@@ -268,8 +266,7 @@ byte carrega_arena(byte nivel)
             vram_unrle(nivel_v);
             return 3;
       	default:
-            c = nivel % 3;
-            switch (c)
+            switch (nivel % 3)
             {
              	case 0: vram_unrle(nivel_a); break;
               	case 1: vram_unrle(nivel_b); break;

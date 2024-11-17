@@ -3,27 +3,25 @@
 
 #define NIVEIS 51
 #define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
-#define DEBOUNCE 60
-#define ZERO 0x30	// Sprite '0'
-#define CARD 0x01	// Sprite cartão
-#define BOLA 0x0A	// Sprite bola
-#define LUVA 0x62	// Sprite luva
-// Sprites adversário parado
-#define JADV1 0x1A
-#define JADV2 0x1D
+#define DEBOUNCE 30
+// Sprites
+#define ZERO 0x30
+#define CARD 0x01
+#define BOLA 0x0A
+#define LUVA 0x62
 // Endereços OAM
 #define CAIM 0x00
 #define ENERG 0x08
 #define JUIZ 0x10
 #define GOLEIRO 0x18
 #define ADV 0x20
-#define PL_VIDA 0x4C
-#define PL_NRG 0x50
-#define PL_DIN 0x58
-#define PL_LUVA 0x60
-#define PL_CARD 0x74
-#define CARTAO 0x78
-#define TIRO 0x90
+#define PL_VIDA 0x50
+#define PL_NRG 0x54
+#define PL_DIN 0x5C
+#define PL_LUVA 0x64
+#define PL_CARD 0x78
+#define CARTAO 0x7C
+#define TIRO 0x94
 #define MOEDA 0xC0
 #define TACA 0xD0
 #define EXTRA 0xE8

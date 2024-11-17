@@ -8,6 +8,7 @@
 #define real(n) ((n) << 8)
 #define vermelho(c) ((c).info & CARD_VERM)
 #define card_ativo(c) ((c).info & CARD_ATIVO)
+#define card_dir(c) ((c).info & 0x1F)
 
 // Objetos 
 typedef struct {
@@ -23,9 +24,8 @@ typedef struct {
 } Bola;
 
 typedef struct {
-    byte info;	// Combina ativo com cor
+    byte info;	// Ativo + cor + direção
     word x, y;
-    byte dir;
 } Cartao;
 
 // Inicializações 
@@ -44,8 +44,5 @@ byte movimento(char pad);
 
 // Verifica se objeto nao bate nos blocos
 bool nao_bate_parede(byte arena, word x, word y);
-
-// Define o sprite do adversário a ser usado
-byte spr_adv(byte nivel);
 
 #endif
