@@ -154,3 +154,57 @@ unsigned char spr_tigre_correndo2[] = {
 	 0,  8,0x5e,2 | OAM_FLIP_H,
    128
 };
+
+unsigned char spr_adv1_parado[] = {
+	  0,-8,0x12,2,
+	  0,  0,0x13,2,
+	128
+};
+
+unsigned char spr_adv1_correndo1[] = {
+	  0,-8,0x14,2 | OAM_FLIP_H,
+	  0,  0,0x15,2 | OAM_FLIP_H,
+	128
+};
+
+unsigned char spr_adv1_correndo2[] = {
+	  0,-8,0x14,2,
+	  0,  0,0x15,2,
+	128
+};
+
+unsigned char spr_adv2_parado[] = {
+	  0,-8,0x1c,2,
+	  0,  0,0x1a,2,
+	128
+};
+
+unsigned char spr_adv2_correndo1[] = {
+	  0,-8,0x1d,2 | OAM_FLIP_H,
+	  0,  0,0x1b,2 | OAM_FLIP_H,
+	128
+};
+
+unsigned char spr_adv2_correndo2[] = {
+	  0,-8,0x1d,2,
+	  0,  0,0x1b,2,
+	128
+};
+
+unsigned char spr_adv3_parado[] = {
+	  0,-8,0x12,2,
+	  0,  0,0x1a,2,
+	128
+};
+
+unsigned char spr_adv3_correndo1[] = {
+	  0,-8,0x12,2 | OAM_FLIP_H,
+	  0,  0,0x1b,2 | OAM_FLIP_H,
+	128
+};
+
+unsigned char spr_adv3_correndo2[] = {
+	  0,-8,0x12,2,
+	  0,  0,0x1b,2,
+	128
+};
