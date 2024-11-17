@@ -42,9 +42,9 @@ extern char trilha[];
 #define nrg_disponivel energia < 67
 #define arb_disponivel !(temCartao && cVermelho)
 #define gol_disponivel luvas < 3
+#define din_disponivel vidas < 9 || energia < 99
 // Tipo de nível
 #define nivel_comum nivel == 0 || nivel % DIVISOR != 0
-
 
 // Tabela de senos normalizados em 8 bits (x2)
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -207,18 +207,15 @@ bool nao_bate_parede(word x, word y)
     return true;
 }
 
+// Alternância de paleta conforme o nível
 void troca_paleta(byte cor)
 {
     byte i;
     for (i = 0; i < 4; i++) pal_col(24 + i, PAL_EXTRA[(cor << 2) | i]);
 }
 
-// Alternância de paleta conforme o nível
 void pal_adv()
-{
-    pal_spr(PALETTE);
-    troca_paleta(nivel & 0x03);
-}
+{  troca_paleta(nivel & 0x03); }
 
 // Atualização do placar a cada quadro
 void atualizaPlacar()
@@ -265,13 +262,12 @@ void main(void)
         setup_graphics();
         historinha();
         limpa_tela(NAMETABLE_A);
-        //reset_pulo();
         nivel = completo ? 0 : demo[j = 0];
         inicializaJogador();
         while (vidas > 0 && nivel <= NIVEIS)
         {   // Loop do jogo
             // Início do nível
-            // ************** Apresentaçao = nivel xx
+            entrada_nivel(nivel);
             posicionaJogador();
             inicializaAgentes();
             // *************** Posicionar adversários (algo como abaixo)
@@ -315,7 +311,8 @@ void main(void)
                     escrita_centralizada("       ", 2);
                     ppu_on_all();
                     espera(5);
-                }
+                    music_pause(0);
+                } 
                 else if (!pausa)
                 {   // Regime normal do jogo
                     // Comando de animação
@@ -331,14 +328,26 @@ void main(void)
                         if (nao_bate_parede(x + dx, y)) x += dx;
                         if (nao_bate_parede(x, y + dy)) y += dy;
                     }
+                    // Atira cartão ******************
+                    if (pad & PAD_A && temCartao)
+                    {}
                     if (pad & PAD_START)
                     {	// Pausa
                         pausa = true;
                         ppu_off();
                         escrita_centralizada("PAUSADO", 2);
+                        music_pause(*trilha);
                         ppu_on_all();
                     }
-                    if (pegou_taca()) prox = true;
+                    if (pegou_taca())
+                    {
+                        ppu_off();
+                        music_stop();
+                        escrita_centralizada("VOCE PASSOU DE NIVEL!", 2);
+                        prox = true;
+                        ppu_on_all();
+                        espera(300);
+                    }
                     // *** Captar possíveis interações
                     // *************** Falta, bolada, cartão, pegou bônus
                     // *** Rotinas aleatórias
@@ -346,9 +355,6 @@ void main(void)
                     // Atualização do quadro
                     oam_clear();
                     atualizaPlacar();
-                    //dinheiro = pos(y);
-                    //dinheiro = direcao(x - advs[9].x + 4, y - advs[9].y + 4);//TESTE
-                    
                     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
                     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                     for (k = 0; k < N_ADVS; k++)

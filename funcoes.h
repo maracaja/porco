@@ -6,8 +6,6 @@
 // Macros
 #define reset_pulo(void) pulo = false
 
-extern char abertura[];
-
 // Variável de controle para escapar de introduções
 static bool pulo;
 

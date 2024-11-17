@@ -218,12 +218,28 @@ void historinha()
 void entrada_nivel(byte nivel)
 {
     byte q;
+    limpa_tela(NAMETABLE_A);
     ppu_off();
+    vram_adr(NTADR_A(12, 13));
+    vram_write("NIVEL", 5);
+    vram_adr(NTADR_A(18, 13));
+    vram_put(ZERO + nivel / 10);
+    vram_adr(NTADR_A(19, 13));
+    vram_put(ZERO + nivel % 10);
     if (nivel % DIVISOR == 0)
     {
         q = nivel / DIVISOR;
-        
+        switch (q)
+        {
+            case 0: escrita_centralizada("AQUECIMENTO", 15); break;
+            case 1: escrita_centralizada("EL TIGRE", 15); break;
+            case 2: escrita_centralizada("EDISON", 15); break;
+            default: escrita_centralizada("A GRANDE FINAL", 15);
+        }
     }
+    ppu_on_all();
+    espera(120);
+    limpa_tela(NAMETABLE_A);
 }
 
 void game_over()
