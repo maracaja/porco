@@ -60,7 +60,7 @@
 #define BDIN 0x08
 #define TEM_CARTAO 0x10
 #define CARD_VERM 0x20
+#define CARD_ATIVO 0x40
 #define TEM_TACA 0x40
 
 #endif
-
