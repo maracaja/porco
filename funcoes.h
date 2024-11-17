@@ -5,11 +5,14 @@
 
 // CONSTANTES
 #define NIVEIS 51
+#define DIVISOR 17  	// 51 níveis -> Divide o jogo em 3 grandes blocos
 #define ZERO 0x30	// Sprite '0'
 #define CARD 0x01	// Sprite cartão
 #define BOLA 0x0A	// Sprite bola
-#define JADV 0x1A	// Sprite adversário parado
 #define LUVA 0x62	// Sprite luva
+// Sprites adversário parado
+#define JADV1 0x1A
+#define JADV2 0x1D
 // Endereços OAM
 #define CAIM 0x00
 #define ENERG 0x08
@@ -62,6 +65,9 @@ void limpa_tela(unsigned int adr);
 // Abertura do jogo
 void apresentacao(void);
 
+// Abertura do nível
+void entrada_nivel(byte nivel);
+
 // História inicial do jogo
 void historinha(void);
 
@@ -75,5 +81,8 @@ byte carrega_arena(byte nivel);
 void placar(byte n, byte col, byte dig);
 void contaLuvas(byte n);
 void corCartao(bool verm);
+
+// Define o sprite do adversário a ser usado
+byte spr_adv(byte nivel);
 
 #endif

@@ -23,19 +23,27 @@
 // Importação dos recursos de áudio
 //#link "abertura.s"
 //#link "trilha.s"
+extern char abertura[];
+extern char trilha[];
 
-// Macros
+// MACROS
+// Trigonometria
 #define SEN(x) senos[(x) & 0x1F]
 #define COS(x) SEN((x) + 8)
+// Bônus
 #define temCartao bonus & TEM_CARTAO
 #define cVermelho bonus & CARD_VERM
 #define temTaca bonus & TEM_TACA
+// Movimento do jogador
 #define jogador_dir move & 0x1F
 #define jogador_mov move & 0x20
+// Condições para surgir bônus na arena
+#define nrg_disponivel energia < 67
+#define arb_disponivel !(temCartao && cVermelho)
+#define gol_disponivel luvas < 3
+// Tipo de nível
 #define nivel_comum nivel == 0 || nivel % DIVISOR != 0
 
-extern char abertura[];
-extern char trilha[];
 
 // Tabela de senos normalizados em 8 bits (x2)
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -152,7 +160,7 @@ void ganhaDinheiro()
 bool pegou_taca()
 {
     byte i = pos(x), j = pos(y);
-    return temTaca && i >= XTACA - 9 && i <= XTACA + 5 && j >= y_taca - 21 && j <= y_taca + 13;
+    return i >= XTACA - 9 && i <= XTACA + 5 && j >= y_taca - 21 && j <= y_taca + 13 && temTaca;
 }
 
 // Inicializações
@@ -198,6 +206,19 @@ bool nao_bate_parede(word x, word y)
     return true;
 }
 
+void troca_paleta(byte cor)
+{
+    byte i;
+    for (i = 0; i < 4; i++) pal_col(24 + i, PAL_EXTRA[(cor << 2) | i]);
+}
+
+// Alternância de paleta conforme o nível
+void pal_adv()
+{
+    pal_spr(PALETTE);
+    troca_paleta(nivel & 0x03);
+}
+
 // Atualização do placar a cada quadro
 void atualizaPlacar()
 {
@@ -212,7 +233,7 @@ void main(void)
 {
     char pad;	// Leitura do controle
     bool lado = false;	// Flags de animação
-    byte move;
+    byte move, adv;
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
@@ -260,17 +281,24 @@ void main(void)
                 advs[k].y = (60 + 4 * k) << 8;
                 advs[k].energia = 100;
             }
-            // ******************** Quais sprites e paletas usar?
-            // Define parâmetro da taça (peça de fim de nível)
+            
+            
+            // Define parâmetros de nível
             if (nivel_comum)
             {
-              	bonus |= TEM_TACA;
+                adv = spr_adv(nivel); // Adversários
+            	pal_adv();
+              	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
             }
-            else y_taca = YTACA + 32;
+            else
+            {
+                bonus &= ~TEM_TACA;
+                y_taca = YTACA + 32;
+                // ************** Aqui eu devo configurar os vilões 
+            }
             famitone_init(trilha);
             music_play(0);
-            
             ppu_off();
             arena = carrega_arena(nivel);
             scroll(0, 0);
@@ -323,7 +351,7 @@ void main(void)
                     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
                     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
                     for (k = 0; k < N_ADVS; k++)
-                      	if (advs[k].ativo) oam_spr(pos(advs[k].x), pos(advs[k].y) , JADV, 0, ADV + 4*k);
+                      	if (advs[k].ativo) oam_spr(pos(advs[k].x), pos(advs[k].y), adv, 2, ADV + 4*k);
                     ppu_wait_nmi();
                     if (pausa) espera(100);
                 }

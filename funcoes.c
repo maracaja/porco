@@ -1,4 +1,3 @@
-#include "neslib.h"
 #include <string.h>
 #include "vrambuf.h"
 #include "sprites.h"
@@ -215,6 +214,17 @@ void historinha()
     if (!pulo) conversa();
 }
 
+void entrada_nivel(byte nivel)
+{
+    byte q;
+    ppu_off();
+    if (nivel % DIVISOR == 0)
+    {
+        q = nivel / DIVISOR;
+        
+    }
+}
+
 void game_over()
 {
     ppu_off();
@@ -273,3 +283,6 @@ void contaLuvas(byte n)
 
 void corCartao(bool verm)
 { oam_spr(PLC, PL_LIN, CARD, verm ? 0 : 3, PL_CARD); }
+
+byte spr_adv(byte nivel)
+{  return nivel & 0x02 ? JADV2 : JADV1; }
