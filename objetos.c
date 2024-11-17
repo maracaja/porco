@@ -26,9 +26,9 @@ void levaCartao(Adversario* a, Cartao* c, unsigned char nivel)
     unsigned char bloco = nivel / DIVISOR;
     switch (bloco)
     {
-        case 0: a->energia -= vermelho(c->info) ? 100 : 50; break;
-        case 1: a->energia -= vermelho(c->info) ? 66 : 34; break;
-        default: a->energia -= vermelho(c->info) ? 50 : 25;
+        case 0: a->energia -= vermelho(*c) ? 100 : 50; break;
+        case 1: a->energia -= vermelho(*c) ? 66 : 34; break;
+        default: a->energia -= vermelho(*c) ? 50 : 25;
     }
     if (a->energia <= 0) a->ativo = false;
 }
@@ -46,7 +46,7 @@ byte direcao(short dx, short dy)
 
 byte movimento(char pad)
 {
-    byte dir, mov = 0x20;
+    byte dir;
     if (pad & PAD_LEFT)
     {
         dir = 16;
@@ -61,8 +61,8 @@ byte movimento(char pad)
     }
     else if (pad & PAD_UP) dir = 24;
     else if (pad & PAD_DOWN) dir = 8;
-    else mov = 0x00;
-    return mov |= dir;
+    else return 0x00;
+    return 0x20 | dir;
 }
 
 byte spr_adv(byte nivel)

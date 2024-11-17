@@ -4,8 +4,10 @@
 #include "neslib.h"
 
 // Macros
-#define pos(n) (n) >> 8
-#define vermelho(n) (n) & CARD_VERM
+#define pos(n) ((n) >> 8)
+#define real(n) ((n) << 8)
+#define vermelho(c) ((c).info & CARD_VERM)
+#define card_ativo(c) ((c).info & CARD_ATIVO)
 
 // Objetos 
 typedef struct {

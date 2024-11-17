@@ -29,22 +29,22 @@ extern char trilha[];
 
 // MACROS
 // Trigonometria
-#define SEN(x) senos[(x) & 0x1F]
+#define SEN(x) (senos[(x) & 0x1F])
 #define COS(x) SEN((x) + 8)
 // Bônus
-#define temCartao bonus & TEM_CARTAO
-#define cVermelho bonus & CARD_VERM
-#define temTaca bonus & TEM_TACA
+#define temCartao (bonus & TEM_CARTAO)
+#define cVermelho (bonus & CARD_VERM)
+#define temTaca (bonus & TEM_TACA)
 // Movimento do jogador
-#define jogador_dir move & 0x1F
-#define jogador_mov move & 0x20
+#define jogador_dir (move & 0x1F)
+#define jogador_mov (move & 0x20)
 // Condições para surgir bônus na arena
-#define nrg_disponivel energia < 67
+#define nrg_disponivel (energia < 67)
 #define arb_disponivel !(temCartao && cVermelho)
-#define gol_disponivel luvas < 3
-#define din_disponivel vidas < 9 || energia < 99
+#define gol_disponivel (luvas < 3)
+#define din_disponivel (vidas < 9 || energia < 99)
 // Tipo de nível
-#define nivel_comum nivel == 0 || nivel % DIVISOR != 0
+#define nivel_comum (nivel == 0 || nivel % DIVISOR != 0)
 
 // Tabela de senos normalizados em 8 bits (x2)
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -60,12 +60,15 @@ const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
 
 // Objetos
 static byte arena;
+static byte adv;
 Adversario advs[N_ADVS];
 Bola bolas[N_BOLAS];
 Cartao cards[N_CARDS];
 
 // Dados do jogo
+static char pad;  // Leitura do controle
 static byte nivel;
+static byte deb;  // Delay (em quadros) a cada tiro
 
 // Dados do jogador
 static word x, y;
@@ -74,6 +77,7 @@ static byte energia;
 static byte luvas;
 static byte vidas;
 static byte move;
+static bool lado = false;  // Flag de animação
 
 // Dados de presença dos bônus
 static byte bonus;
@@ -90,8 +94,8 @@ void setup_graphics()
 // Funções referentes ao jogador
 void posicionaJogador()
 {
-    x = CX << 8;
-    y = CY << 8;
+    x = real(CX);
+    y = real(CY);
 }
 
 void inicializaJogador()
@@ -102,6 +106,7 @@ void inicializaJogador()
     luvas = 0;
     vidas = 3;
     bonus = BGOL | BARB | BDIN;
+    bonus |= TEM_CARTAO & ~CARD_VERM; ///////////////////// TESTE
 }
 
 void levaBolada()
@@ -150,16 +155,39 @@ void ganhaDinheiro()
     bonus &= ~BDIN;
 }
 
-void ativaCartao()
+byte ativaCartao()
 {
     byte i;
     for (i = 0; i < N_CARDS; i++)
-        if (cards[i]->ativo)
+    {
+        if (!card_ativo(cards[i])) 
+        {
+            cards[i].info = CARD_ATIVO | (cVermelho ? CARD_VERM : 0);
+            return i;
+        }
+    }
+    return 0;
 }
 
 void atira()
 {
-    if (jogador_dir > 16) ;
+    byte i = ativaCartao();
+    if (jogador_mov && jogador_dir == 8)
+    {
+        cards[i].y = y;
+        if (pos(x) > 126)
+        {
+            cards[i].x = x - real(10);
+            cards[i].info |= 0x10;
+        }
+        else cards[i].x = x + real(10);
+    }
+    else
+    {
+        cards[i].x = x;
+        cards[i].y = y - real(16);
+        cards[i].info |= !jogador_mov || jogador_dir > 16 ? 24 : (jogador_dir < 8 ? 28 : 20);
+    }
 }
 
 bool pegou_taca()
@@ -196,11 +224,22 @@ void atualizaPlacar()
     if (temCartao) corCartao(cVermelho);
 }
 
+// Atualização dos sprites a cada quadro
+void atualizaSprites()
+{
+    byte i;
+    oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
+    if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
+    for (i = 0; i < N_ADVS; i++)
+    	if (advs[i].ativo) oam_spr(pos(advs[i].x), pos(advs[i].y), adv, 2, ADV + 4 * i);
+    for (i = 0; i < N_BOLAS; i++)
+        if (bolas[i].ativo) oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
+    for (i = 0; i < N_CARDS; i++)
+    	if (card_ativo(cards[i])) oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
+}
+
 void main(void)
 {
-    char pad;	// Leitura do controle
-    bool lado = false;	// Flags de animação
-    byte adv;
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
@@ -298,9 +337,10 @@ void main(void)
                         if (nao_bate_parede(arena, x, y + dy)) y += dy;
                     }
                     // Atira cartão ******************
-                    if (pad & PAD_A && temCartao)
+                    if (pad & PAD_A && temCartao && deb > DEBOUNCE)
                     {
-                    	
+                        atira();
+                        deb = 0;
                     }
                     if (pad & PAD_START)
                     {	// Pausa
@@ -328,10 +368,8 @@ void main(void)
                     // Atualização do quadro
                     oam_clear();
                     atualizaPlacar();
-                    if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
-                    oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
-                    for (k = 0; k < N_ADVS; k++)
-                      	if (advs[k].ativo) oam_spr(pos(advs[k].x), pos(advs[k].y), adv, 2, ADV + 4*k);
+                    atualizaSprites();
+                    if (deb <= DEBOUNCE) deb++;
                     ppu_wait_nmi();
                     if (pausa) espera(100);
                 }

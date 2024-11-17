@@ -2,15 +2,16 @@
 #define CONSTANTES_H
 
 #define NIVEIS 51
-#define DIVISOR 17  // 51 nÌveis -> Divide o jogo em 3 grandes blocos
+#define DIVISOR 17  // 51 n√≠veis -> Divide o jogo em 3 grandes blocos
+#define DEBOUNCE 60
 #define ZERO 0x30	// Sprite '0'
-#define CARD 0x01	// Sprite cart„o
+#define CARD 0x01	// Sprite cart√£o
 #define BOLA 0x0A	// Sprite bola
 #define LUVA 0x62	// Sprite luva
-// Sprites advers·rio parado
+// Sprites advers√°rio parado
 #define JADV1 0x1A
 #define JADV2 0x1D
-// EndereÁos OAM
+// Endere√ßos OAM
 #define CAIM 0x00
 #define ENERG 0x08
 #define JUIZ 0x10
@@ -26,7 +27,7 @@
 #define MOEDA 0xC0
 #define TACA 0xD0
 #define EXTRA 0xE8
-// PosiÁ„o da apresentaÁ„o do jogo
+// Posi√ß√£o da apresenta√ß√£o do jogo
 #define TTX 24
 #define TTY 32
 #define SPRX TTX - 4
@@ -38,22 +39,22 @@
 #define PLE 20
 #define PLL 23
 #define PLC 240
-// Quantidades m·ximas simult‚neas de sprites
+// Quantidades m√°ximas simult√¢neas de sprites
 #define N_ADVS  11
 #define N_BOLAS 12
 #define N_CARDS 6
-// PosiÁıes iniciais do jogador
+// Posi√ß√µes iniciais do jogador
 #define CX 124
 #define CY 200
-// Limites m·ximos de deslocamento na tela
+// Limites m√°ximos de deslocamento na tela
 #define XMIN 15
 #define XMAX 233 
 #define YMIN 30
 #define YMAX 224
-// PosiÁıes da taÁa
+// Posi√ß√µes da ta√ßa
 #define XTACA 128
 #define YTACA 44
-// IdentificaÁ„o dos bÙnus
+// Identifica√ß√£o dos b√¥nus
 #define BGOL 0x01
 #define BARB 0x02
 #define BNRG 0x04
