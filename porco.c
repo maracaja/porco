@@ -73,6 +73,7 @@ static byte dinheiro;
 static byte energia;
 static byte luvas;
 static byte vidas;
+static byte move;
 
 // Dados de presença dos bônus
 static byte bonus;
@@ -84,13 +85,6 @@ void setup_graphics()
     oam_clear();   // clear sprites
     pal_bg(PALETTE);	// set palette colors
     pal_spr(PALETTE);
-}
-
-// Seleciona modo de jogo
-void selecao(bool completo)
-{
-    oam_spr(52, 175 + (completo ? 24 : 0), CARD, completo ? 0 : 3, 4);
-    ppu_wait_nmi();
 }
 
 // Funções referentes ao jogador
@@ -156,7 +150,17 @@ void ganhaDinheiro()
     bonus &= ~BDIN;
 }
 
-// void atira(byte dir); // CRIAÇÃO DO PODER DE CARTÃO
+void ativaCartao()
+{
+    byte i;
+    for (i = 0; i < N_CARDS; i++)
+        if (cards[i]->ativo)
+}
+
+void atira()
+{
+    if (jogador_dir > 16) ;
+}
 
 bool pegou_taca()
 {
@@ -170,41 +174,6 @@ void inicializaAgentes()
     inicializaAdv(advs);
     inicializaBol(bolas);
     inicializaCar(cards);
-}
-
-// Verifica se objeto nao bate nos blocos
-bool nao_bate_parede(word x, word y)
-{
-    byte i = pos(x), j = pos(y);
-    if (i <= XMIN || i >= XMAX || j <= YMIN || j >= YMAX) return false;
-    // Valores adaptados dos desenhos criados (usa menos RAM)
-    if (arena <= 2)
-    {	// Casos comuns aos níveis normais
-        if (j <= YMIN + 16) return i >= XMIN + 81 && i <= XMAX - 81;
-      	if (j <= YMIN + 32) 
-            return i <= XMIN + 57 || i >= XMAX - 57 || i >= XMIN + 81 && i <= XMAX - 81;
-    }
-    switch (arena)	
-    {	// Casos específicos
-      	case 0:
-            if (j >= YMAX - 16) return false;
-            if (j >= 112 && j <= 142) return i <= XMIN + 73 || i >= XMAX - 73;
-            break;
-      	case 1:
-            if (j >= 128 && j <= 158) return i >= XMIN + 65 && i <= XMAX - 65;
-            break;
-        case 2:
-            if (j >= 80 && j <= 110 || j >= YMAX - 32 && j < YMAX - 16)
-              	return i >= XMIN + 17 && i <= XMAX - 17;
-            if (j >= 152 && j <= 182)
-                return i <= XMIN + 41 || i >= XMAX - 41 || i >= XMIN + 81 && i <= XMAX - 81;
-            if (j >= YMAX - 16) return i >= XMIN + 33 && i <= XMAX - 33;
-            break;
-      	default:
-            if (j <= YMIN + 16) return false;
-            if (j >= 160 && j <= 190) return i >= XMIN + 49 && i <= XMAX - 49;
-    }
-    return true;
 }
 
 // Alternância de paleta conforme o nível
@@ -231,7 +200,7 @@ void main(void)
 {
     char pad;	// Leitura do controle
     bool lado = false;	// Flags de animação
-    byte move, adv;
+    byte adv;
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
@@ -325,12 +294,14 @@ void main(void)
                     {
                         dx = COS(jogador_dir);
                       	dy = SEN(jogador_dir);
-                        if (nao_bate_parede(x + dx, y)) x += dx;
-                        if (nao_bate_parede(x, y + dy)) y += dy;
+                        if (nao_bate_parede(arena, x + dx, y)) x += dx;
+                        if (nao_bate_parede(arena, x, y + dy)) y += dy;
                     }
                     // Atira cartão ******************
                     if (pad & PAD_A && temCartao)
-                    {}
+                    {
+                    	
+                    }
                     if (pad & PAD_START)
                     {	// Pausa
                         pausa = true;
@@ -343,7 +314,9 @@ void main(void)
                     {
                         ppu_off();
                         music_stop();
-                        escrita_centralizada("VOCE PASSOU DE NIVEL!", 2);
+                        oam_clear();
+                        escrita_centralizada("PARABENS!", 8);
+                        escrita_centralizada("VOCE PASSOU DE NIVEL!", 10);
                         prox = true;
                         ppu_on_all();
                         espera(300);

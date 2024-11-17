@@ -36,6 +36,9 @@ void game_over(void);
 // Função que determina o cenário do jogo
 byte carrega_arena(byte nivel);
 
+// Seleciona modo de jogo
+void selecao(bool completo);
+
 // Funções de placar
 void placar(byte n, byte col, byte dig);
 void contaLuvas(byte n);

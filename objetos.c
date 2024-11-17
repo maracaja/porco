@@ -67,3 +67,37 @@ byte movimento(char pad)
 
 byte spr_adv(byte nivel)
 { return nivel & 0x02 ? JADV2 : JADV1; }
+
+bool nao_bate_parede(byte arena, word x, word y)
+{
+    byte i = pos(x), j = pos(y);
+    if (i <= XMIN || i >= XMAX || j <= YMIN || j >= YMAX) return false;
+    // Valores adaptados dos desenhos criados (usa menos RAM)
+    if (arena <= 2)
+    {	// Casos comuns aos níveis normais
+        if (j <= YMIN + 16) return i >= XMIN + 81 && i <= XMAX - 81;
+      	if (j <= YMIN + 32) 
+            return i <= XMIN + 57 || i >= XMAX - 57 || i >= XMIN + 81 && i <= XMAX - 81;
+    }
+    switch (arena)	
+    {	// Casos específicos
+      	case 0:
+            if (j >= YMAX - 16) return false;
+            if (j >= 112 && j <= 142) return i <= XMIN + 73 || i >= XMAX - 73;
+            break;
+      	case 1:
+            if (j >= 128 && j <= 158) return i >= XMIN + 65 && i <= XMAX - 65;
+            break;
+        case 2:
+            if (j >= 80 && j <= 110 || j >= YMAX - 32 && j < YMAX - 16)
+              	return i >= XMIN + 17 && i <= XMAX - 17;
+            if (j >= 152 && j <= 182)
+                return i <= XMIN + 41 || i >= XMAX - 41 || i >= XMIN + 81 && i <= XMAX - 81;
+            if (j >= YMAX - 16) return i >= XMIN + 33 && i <= XMAX - 33;
+            break;
+      	default:
+            if (j <= YMIN + 16) return false;
+            if (j >= 160 && j <= 190) return i >= XMIN + 49 && i <= XMAX - 49;
+    }
+    return true;
+}

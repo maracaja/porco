@@ -40,6 +40,9 @@ byte direcao(short dx, short dy);
 // Função que define o movimento do jogador
 byte movimento(char pad);
 
+// Verifica se objeto nao bate nos blocos
+bool nao_bate_parede(byte arena, word x, word y);
+
 // Define o sprite do adversário a ser usado
 byte spr_adv(byte nivel);
 
