@@ -1,3 +1,4 @@
+#include "constantes.h"
 #include "objetos.h"
 
 // Tabela normalizada de tangentes
@@ -63,3 +64,6 @@ byte movimento(char pad)
     else mov = 0x00;
     return mov |= dir;
 }
+
+byte spr_adv(byte nivel)
+{ return nivel & 0x02 ? JADV2 : JADV1; }

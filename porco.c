@@ -7,6 +7,7 @@
 #include "bcd.h"	// BCD arithmetic support
 //#link "bcd.c"
 //#link "famitone2.s"
+#include "constantes.h" // Constantes usadas
 #include "funcoes.h"	// Biblioteca de funções
 //#link "funcoes.c"
 #include "objetos.h"    // Definição dos atores do jogo e mais

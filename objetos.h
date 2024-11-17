@@ -3,31 +3,6 @@
 
 #include "neslib.h"
 
-// CONSTANTES
-// Quantidades máximas simultâneas de sprites
-#define N_ADVS  11
-#define N_BOLAS 12
-#define N_CARDS 6
-// Posições iniciais do jogador
-#define CX 124
-#define CY 200
-// Limites máximos de deslocamento na tela
-#define XMIN 15
-#define XMAX 233 
-#define YMIN 30
-#define YMAX 224
-// Posições da taça
-#define XTACA 128
-#define YTACA 44
-// Identificação dos bônus
-#define BGOL 0x01
-#define BARB 0x02
-#define BNRG 0x04
-#define BDIN 0x08
-#define TEM_CARTAO 0x10
-#define CARD_VERM 0x20
-#define TEM_TACA 0x40
-
 // Macros
 #define pos(n) (n) >> 8
 #define vermelho(n) (n) & CARD_VERM
@@ -64,5 +39,8 @@ byte direcao(short dx, short dy);
 
 // Função que define o movimento do jogador
 byte movimento(char pad);
+
+// Define o sprite do adversário a ser usado
+byte spr_adv(byte nivel);
 
 #endif

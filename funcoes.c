@@ -3,6 +3,7 @@
 #include "sprites.h"
 #include "titulo.h"
 #include "niveis.h"
+#include "constantes.h"
 #include "funcoes.h"
 
 #define desenha_tia(void) oam_meta_spr(TTX, TTY, EXTRA, spr_titia)
@@ -283,6 +284,3 @@ void contaLuvas(byte n)
 
 void corCartao(bool verm)
 { oam_spr(PLC, PL_LIN, CARD, verm ? 0 : 3, PL_CARD); }
-
-byte spr_adv(byte nivel)
-{  return nivel & 0x02 ? JADV2 : JADV1; }
