@@ -68,7 +68,7 @@ Cartao cards[N_CARDS];
 static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
-static byte dec;  // Delay (em quadros) a cada chute	
+static byte dec;  // Delay (em quadros) a cada chute
 
 // Dados do jogador
 static word x, y;
@@ -208,24 +208,17 @@ byte ativaBola()
 }
 
 void chuta(byte a)
-{	// DEFINIR DIREÇÃO
+{
     byte i = ativaBola();
     bolas[i].x = advs[a].x;
     bolas[i].y = advs[a].y + real(10);
+    bolas[i].dir = direcao(x - bolas[i].x, y - bolas[i].y);
 }
 
 bool pegou_taca()
 {
     byte i = pos(x), j = pos(y);
     return i >= XTACA - 9 && i <= XTACA + 5 && j >= y_taca - 21 && j <= y_taca + 13 && temTaca;
-}
-
-// Inicializações
-void inicializaAgentes()
-{
-    inicializaAdv(advs);
-    inicializaBol(bolas);
-    inicializaCar(cards);
 }
 
 // Alternância de paleta conforme o nível
@@ -268,24 +261,38 @@ void atualizaSprites()
     word dx, dy;
     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
+    for (i = 0; i < N_BOLAS; i++)
+    {
+        if (bolas[i].ativo)
+	{
+	    dx = COS(bolas[i].dir) << 1;
+	    dy = SEN(bolas[i].dir) << 1;
+	    if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy))
+	    {
+		bolas[i].x += dx;
+                bolas[i].y += dy;
+	    }
+	    else bolas[i].ativo = false;
+	    oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
+	}
+    }
     for (i = 0; i < N_ADVS; i++)
     {
     	if (advs[i].ativo)
         {
+	    // Jogador tenta se posicionar entre o jogador e a taça
+	    // DEFINIR ÁREAS DE ATUAÇÃO ANTES
+	    // direcao(x - real(XTACA), y - real(y_taca)) <> direcao(advs[i].x - real(XTACA), advs[i].y - real(y_taca))
             oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
             if (dec > DELAY_CHUTE) chuta(i);
         }
-    }
-    for (i = 0; i < N_BOLAS; i++)
-    {
-        if (bolas[i].ativo) oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
     }
     for (i = 0; i < N_CARDS; i++)
     {
     	if (card_ativo(cards[i]))
         {
-            dx = 2 * COS(card_dir(cards[i]));
-            dy = 2 * SEN(card_dir(cards[i]));
+            dx = COS(card_dir(cards[i])) << 1;
+            dy = SEN(card_dir(cards[i])) << 1;
             if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy))
             {
                 cards[i].x += dx;
@@ -297,13 +304,20 @@ void atualizaSprites()
     }
 }
 
+// Inicializações
+void inicializaAgentes()
+{
+    inicializaAdv(advs);
+    inicializaBol(bolas);
+    inicializaCar(cards);
+}
+
 void main(void)
 {
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
-    // ********* Debounce do controle, rand, comandos de dificuldade
-    word dx, dy;	// Variáveis de deslocamento dos agentes
+    word dx, dy;	// Variáveis de deslocamento do jogador
     set_rand(nesclock());
     // Configurações iniciais de áudio
     famitone_init(abertura);
@@ -350,7 +364,6 @@ void main(void)
             // Define parâmetros de nível
             if (nivel_comum)
             {
-                //adv = spr_adv(nivel, lado); // Adversários
             	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
@@ -398,7 +411,7 @@ void main(void)
                         if (nao_bate_parede(arena, x + dx, y)) x += dx;
                         if (nao_bate_parede(arena, x, y + dy)) y += dy;
                     }
-                    // Atira cartão ******************
+                    // Atira cartão (se tiver esse poder)
                     if (pad & PAD_A && temCartao && deb > DEBOUNCE)
                     {
                         atira();
@@ -426,7 +439,7 @@ void main(void)
                     // *** Captar possíveis interações
                     // *************** Falta, bolada, cartão, pegou bônus
                     // *** Rotinas aleatórias
-                    // **************** Chute, movimentação do inimigo, bônus
+                    // **************** , movimentação do inimigo (em campo próprio), bônus
                     // Atualização do quadro
                     oam_clear();
                     atualizaPlacar();
