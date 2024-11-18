@@ -45,4 +45,7 @@ byte movimento(char pad);
 // Verifica se objeto nao bate nos blocos
 bool nao_bate_parede(byte arena, word x, word y);
 
+// Define, dada uma probabilidade, se o adversário pode chutar ou não uma bola
+bool pode_chutar(byte nivel);
+
 #endif

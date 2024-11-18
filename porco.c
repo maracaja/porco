@@ -68,6 +68,7 @@ Cartao cards[N_CARDS];
 static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
+static byte dec;  // Delay (em quadros) a cada chute	
 
 // Dados do jogador
 static word x, y;
@@ -192,6 +193,27 @@ void atira()
     }
 }
 
+byte ativaBola()
+{
+    byte i;
+    for (i = 0; i < N_BOLAS; i++)
+    {
+        if (!bolas[i].ativo)
+        {
+            bolas[i].ativo = true;
+            return i;
+        }
+    }
+    return 0;
+}
+
+void chuta(byte a)
+{	// DEFINIR DIREÇÃO
+    byte i = ativaBola();
+    bolas[i].x = advs[a].x;
+    bolas[i].y = advs[a].y + real(10);
+}
+
 bool pegou_taca()
 {
     byte i = pos(x), j = pos(y);
@@ -247,9 +269,17 @@ void atualizaSprites()
     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
     for (i = 0; i < N_ADVS; i++)
-    	if (advs[i].ativo) oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
+    {
+    	if (advs[i].ativo)
+        {
+            oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
+            if (dec > DELAY_CHUTE) chuta(i);
+        }
+    }
     for (i = 0; i < N_BOLAS; i++)
+    {
         if (bolas[i].ativo) oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
+    }
     for (i = 0; i < N_CARDS; i++)
     {
     	if (card_ativo(cards[i]))
@@ -402,6 +432,7 @@ void main(void)
                     atualizaPlacar();
                     atualizaSprites();
                     if (deb <= DEBOUNCE) deb++;
+                    if (dec <= DELAY_CHUTE) dec++;
                     ppu_wait_nmi();
                     if (pausa) espera(100);
                 }

@@ -97,3 +97,10 @@ bool nao_bate_parede(byte arena, word x, word y)
     }
     return true;
 }
+
+bool pode_chutar(byte nivel)
+{
+    byte mascara = 0x00;
+    for (i = 0; i < 7 - (nivel >> 3); i++) mascara |= 1 << i;
+    return !(rand8() & mascara);
+}

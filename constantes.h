@@ -4,6 +4,7 @@
 #define NIVEIS 51
 #define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
 #define DEBOUNCE 30
+#define DELAY_CHUTE 20
 // Sprites
 #define ZERO 0x30
 #define CARD 0x01
