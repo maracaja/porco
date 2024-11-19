@@ -266,7 +266,8 @@ byte carrega_arena(byte nivel)
             vram_unrle(nivel_v);
             return 3;
       	default:
-            switch (nivel % 3)
+            c = nivel % 3;
+            switch (c)
             {
              	case 0: vram_unrle(nivel_a); break;
               	case 1: vram_unrle(nivel_b); break;

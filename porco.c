@@ -183,7 +183,7 @@ void atira()
             cards[i].x = x - real(10);
             cards[i].info |= 0x10;
         }
-        else  cards[i].x = x + real(10);
+        else cards[i].x = x + real(10);
     }
     else
     {
@@ -191,6 +191,7 @@ void atira()
         cards[i].y = y - real(16);
         cards[i].info |= !jogador_mov || jogador_dir > 16 ? 24 : (jogador_dir < 8 ? 28 : 20);
     }
+    deb = 0;
 }
 
 byte ativaBola()
@@ -209,10 +210,14 @@ byte ativaBola()
 
 void chuta(byte a)
 {
-    byte i = ativaBola();
-    bolas[i].x = advs[a].x;
-    bolas[i].y = advs[a].y + real(10);
-    bolas[i].dir = direcao(x - bolas[i].x, y - bolas[i].y);
+    if (pode_chutar(nivel))
+    {
+        byte i = ativaBola();
+        bolas[i].x = advs[a].x;
+        bolas[i].y = advs[a].y + real(8);
+        bolas[i].dir = direcao(DIV2(x) - DIV2(bolas[i].x), DIV2(y) - DIV2(bolas[i].y));  
+    }
+    dec = 0;
 }
 
 bool pegou_taca()
@@ -258,7 +263,7 @@ void atualizaPlacar()
 void atualizaSprites()
 {
     byte i;
-    word dx, dy;
+    short dx, dy;
     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
     for (i = 0; i < N_BOLAS; i++)
@@ -267,7 +272,7 @@ void atualizaSprites()
 	{
 	    dx = COS(bolas[i].dir) << 1;
 	    dy = SEN(bolas[i].dir) << 1;
-	    if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy))
+	    if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
 	    {
 		bolas[i].x += dx;
                 bolas[i].y += dy;
@@ -291,9 +296,9 @@ void atualizaSprites()
     {
     	if (card_ativo(cards[i]))
         {
-            dx = COS(card_dir(cards[i])) << 1;
-            dy = SEN(card_dir(cards[i])) << 1;
-            if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy))
+            dx = 3 * COS(card_dir(cards[i]));
+            dy = 3 * SEN(card_dir(cards[i]));
+            if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
             {
                 cards[i].x += dx;
                 cards[i].y += dy;
@@ -317,8 +322,7 @@ void main(void)
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
-    word dx, dy;	// Variáveis de deslocamento do jogador
-    set_rand(nesclock());
+    short dx, dy;	// Variáveis de deslocamento do jogador
     // Configurações iniciais de áudio
     famitone_init(abertura);
     sfx_init(NULL);
@@ -348,15 +352,16 @@ void main(void)
         while (vidas > 0 && nivel <= NIVEIS)
         {   // Loop do jogo
             // Início do nível
+            set_rand(nesclock());
             entrada_nivel(nivel);
             posicionaJogador();
             inicializaAgentes();
             // *************** Posicionar adversários (algo como abaixo)
             for (k = 0; k < N_ADVS; k++) // ************* LAÇO DE TESTE
             {
-                if (k == 9) advs[k].ativo = true;
+                if (k % 3 == 0) advs[k].ativo = true;
                 advs[k].x = (40 + 8 * k) << 8;
-                advs[k].y = (60 + 4 * k) << 8;
+                advs[k].y = (100 + 4 * k) << 8;
                 advs[k].energia = 100;
             }
             
@@ -397,7 +402,7 @@ void main(void)
                 {   // Regime normal do jogo
                     // Comando de animação
                     i++;
-                    if (i == 5)
+                    if (i >= 5)
                     {
                         i = 0;
                     	lado = !lado;
@@ -408,15 +413,11 @@ void main(void)
                     {
                         dx = COS(jogador_dir);
                       	dy = SEN(jogador_dir);
-                        if (nao_bate_parede(arena, x + dx, y)) x += dx;
-                        if (nao_bate_parede(arena, x, y + dy)) y += dy;
+                        if (nao_bate_parede(arena, x + dx, y, true)) x += dx;
+                        if (nao_bate_parede(arena, x, y + dy, true)) y += dy;
                     }
                     // Atira cartão (se tiver esse poder)
-                    if (pad & PAD_A && temCartao && deb > DEBOUNCE)
-                    {
-                        atira();
-                        deb = 0;
-                    }
+                    if (pad & PAD_A && temCartao && deb > DEBOUNCE) atira();
                     if (pad & PAD_START)
                     {	// Pausa
                         pausa = true;
@@ -458,7 +459,7 @@ void main(void)
             }
             else // Passou de nível
             {
-                nivel = completo ? nivel + 1 : demo[++j];
+                nivel = (completo ? nivel + 1 : demo[++j]);
                 prox = false;
             }
         }
