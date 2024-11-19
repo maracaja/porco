@@ -45,6 +45,7 @@ extern char trilha[];
 #define din_disponivel (vidas < 9 || energia < 99)
 // Tipo de nível
 #define nivel_comum (nivel == 0 || nivel % DIVISOR != 0)
+#define veloc (nivel > 25 ? 3 : 2)
 
 // Tabela de senos normalizados em 8 bits (x2)
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -270,8 +271,8 @@ void atualizaSprites()
     {
         if (bolas[i].ativo)
 	{
-	    dx = COS(bolas[i].dir) << 1;
-	    dy = SEN(bolas[i].dir) << 1;
+	    dx = veloc * COS(bolas[i].dir);
+	    dy = veloc * SEN(bolas[i].dir);
 	    if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
 	    {
 		bolas[i].x += dx;
