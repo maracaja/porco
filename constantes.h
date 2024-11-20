@@ -3,7 +3,7 @@
 
 #define NIVEIS 51
 #define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
-#define DEBOUNCE 30
+#define DEBOUNCE 20
 #define DELAY_CHUTE 20
 // Sprites
 #define ZERO 0x30
@@ -39,8 +39,8 @@
 #define PLL 23
 #define PLC 240
 // Quantidades máximas simultâneas de sprites
-#define N_ADVS  11
-#define N_BOLAS 12
+#define N_ADVS  6
+#define N_BOLAS 11
 #define N_CARDS 6
 // Posições iniciais do jogador
 #define CX 124

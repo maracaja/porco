@@ -45,6 +45,7 @@ extern char trilha[];
 #define din_disponivel (vidas < 9 || energia < 99)
 // Tipo de nível
 #define nivel_comum (nivel == 0 || nivel % DIVISOR != 0)
+#define veloc (nivel > 25 ? 3 : 2)
 
 // Tabela de senos normalizados em 8 bits (x2)
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -68,7 +69,7 @@ Cartao cards[N_CARDS];
 static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
-static byte dec;  // Delay (em quadros) a cada chute	
+static byte dec;  // Delay (em quadros) a cada chute
 
 // Dados do jogador
 static word x, y;
@@ -183,7 +184,7 @@ void atira()
             cards[i].x = x - real(10);
             cards[i].info |= 0x10;
         }
-        else  cards[i].x = x + real(10);
+        else cards[i].x = x + real(10);
     }
     else
     {
@@ -191,6 +192,7 @@ void atira()
         cards[i].y = y - real(16);
         cards[i].info |= !jogador_mov || jogador_dir > 16 ? 24 : (jogador_dir < 8 ? 28 : 20);
     }
+    deb = 0;
 }
 
 byte ativaBola()
@@ -208,24 +210,21 @@ byte ativaBola()
 }
 
 void chuta(byte a)
-{	// DEFINIR DIREÇÃO
-    byte i = ativaBola();
-    bolas[i].x = advs[a].x;
-    bolas[i].y = advs[a].y + real(10);
+{
+    if (pode_chutar(nivel))
+    {
+        byte i = ativaBola();
+        bolas[i].x = advs[a].x;
+        bolas[i].y = advs[a].y + real(8);
+        bolas[i].dir = direcao(DIV2(x) - DIV2(bolas[i].x), DIV2(y) - DIV2(bolas[i].y));  
+    }
+    dec = 0;
 }
 
 bool pegou_taca()
 {
     byte i = pos(x), j = pos(y);
     return i >= XTACA - 9 && i <= XTACA + 5 && j >= y_taca - 21 && j <= y_taca + 13 && temTaca;
-}
-
-// Inicializações
-void inicializaAgentes()
-{
-    inicializaAdv(advs);
-    inicializaBol(bolas);
-    inicializaCar(cards);
 }
 
 // Alternância de paleta conforme o nível
@@ -265,28 +264,42 @@ void atualizaPlacar()
 void atualizaSprites()
 {
     byte i;
-    word dx, dy;
+    short dx, dy;
     oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
+    for (i = 0; i < N_BOLAS; i++)
+    {
+        if (bolas[i].ativo)
+	{
+	    dx = veloc * COS(bolas[i].dir);
+	    dy = veloc * SEN(bolas[i].dir);
+	    if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
+	    {
+		bolas[i].x += dx;
+                bolas[i].y += dy;
+	    }
+	    else bolas[i].ativo = false;
+	    oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
+	}
+    }
     for (i = 0; i < N_ADVS; i++)
     {
     	if (advs[i].ativo)
         {
+	    // Jogador tenta se posicionar entre o jogador e a taça
+	    // DEFINIR ÁREAS DE ATUAÇÃO ANTES
+	    // direcao(x - real(XTACA), y - real(y_taca)) <> direcao(advs[i].x - real(XTACA), advs[i].y - real(y_taca))
             oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
             if (dec > DELAY_CHUTE) chuta(i);
         }
-    }
-    for (i = 0; i < N_BOLAS; i++)
-    {
-        if (bolas[i].ativo) oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
     }
     for (i = 0; i < N_CARDS; i++)
     {
     	if (card_ativo(cards[i]))
         {
-            dx = 2 * COS(card_dir(cards[i]));
-            dy = 2 * SEN(card_dir(cards[i]));
-            if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy))
+            dx = 3 * COS(card_dir(cards[i]));
+            dy = 3 * SEN(card_dir(cards[i]));
+            if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
             {
                 cards[i].x += dx;
                 cards[i].y += dy;
@@ -297,14 +310,20 @@ void atualizaSprites()
     }
 }
 
+// Inicializações
+void inicializaAgentes()
+{
+    inicializaAdv(advs);
+    inicializaBol(bolas);
+    inicializaCar(cards);
+}
+
 void main(void)
 {
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
-    // ********* Debounce do controle, rand, comandos de dificuldade
-    word dx, dy;	// Variáveis de deslocamento dos agentes
-    set_rand(nesclock());
+    short dx, dy;	// Variáveis de deslocamento do jogador
     // Configurações iniciais de áudio
     famitone_init(abertura);
     sfx_init(NULL);
@@ -334,15 +353,16 @@ void main(void)
         while (vidas > 0 && nivel <= NIVEIS)
         {   // Loop do jogo
             // Início do nível
+            set_rand(nesclock());
             entrada_nivel(nivel);
             posicionaJogador();
             inicializaAgentes();
             // *************** Posicionar adversários (algo como abaixo)
             for (k = 0; k < N_ADVS; k++) // ************* LAÇO DE TESTE
             {
-                if (k == 9) advs[k].ativo = true;
+                if (k % 3 == 0) advs[k].ativo = true;
                 advs[k].x = (40 + 8 * k) << 8;
-                advs[k].y = (60 + 4 * k) << 8;
+                advs[k].y = (100 + 4 * k) << 8;
                 advs[k].energia = 100;
             }
             
@@ -350,7 +370,6 @@ void main(void)
             // Define parâmetros de nível
             if (nivel_comum)
             {
-                //adv = spr_adv(nivel, lado); // Adversários
             	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
@@ -384,7 +403,7 @@ void main(void)
                 {   // Regime normal do jogo
                     // Comando de animação
                     i++;
-                    if (i == 5)
+                    if (i >= 5)
                     {
                         i = 0;
                     	lado = !lado;
@@ -395,15 +414,11 @@ void main(void)
                     {
                         dx = COS(jogador_dir);
                       	dy = SEN(jogador_dir);
-                        if (nao_bate_parede(arena, x + dx, y)) x += dx;
-                        if (nao_bate_parede(arena, x, y + dy)) y += dy;
+                        if (nao_bate_parede(arena, x + dx, y, true)) x += dx;
+                        if (nao_bate_parede(arena, x, y + dy, true)) y += dy;
                     }
-                    // Atira cartão ******************
-                    if (pad & PAD_A && temCartao && deb > DEBOUNCE)
-                    {
-                        atira();
-                        deb = 0;
-                    }
+                    // Atira cartão (se tiver esse poder)
+                    if (pad & PAD_A && temCartao && deb > DEBOUNCE) atira();
                     if (pad & PAD_START)
                     {	// Pausa
                         pausa = true;
@@ -426,7 +441,7 @@ void main(void)
                     // *** Captar possíveis interações
                     // *************** Falta, bolada, cartão, pegou bônus
                     // *** Rotinas aleatórias
-                    // **************** Chute, movimentação do inimigo, bônus
+                    // **************** , movimentação do inimigo (em campo próprio), bônus
                     // Atualização do quadro
                     oam_clear();
                     atualizaPlacar();
@@ -445,7 +460,7 @@ void main(void)
             }
             else // Passou de nível
             {
-                nivel = completo ? nivel + 1 : demo[++j];
+                nivel = (completo ? nivel + 1 : demo[++j]);
                 prox = false;
             }
         }
