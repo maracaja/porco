@@ -27,6 +27,14 @@ typedef struct {
     byte info;	// Ativo + cor + direção
     word x, y;
 } Cartao;
+  
+typedef enum {TIGRE, EDISON, DIABITO} Nome;
+
+typedef struct {
+    Nome nome;
+    word x, y;
+    char energia;
+} Vilao;
 
 // Inicializações 
 void inicializaAdv(Adversario* a);
@@ -44,6 +52,9 @@ byte movimento(char pad);
 
 // Verifica se objeto nao bate nos blocos
 bool nao_bate_parede(byte arena, word x, word y, bool jog);
+
+// Seleciona um número aleatório entre 0 e 255 e muda a semente
+byte aleatorio(void);
 
 // Define, dada uma probabilidade, se o adversário pode chutar ou não uma bola
 bool pode_chutar(byte nivel);

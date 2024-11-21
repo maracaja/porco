@@ -70,6 +70,7 @@ static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
 static byte dec;  // Delay (em quadros) a cada chute
+//static byte rec;  // Delay (em quadros) da falta
 
 // Dados do jogador
 static word x, y;
@@ -313,16 +314,25 @@ void atualizaSprites()
 // Inicializações
 void inicializaAgentes()
 {
+    byte i;
     inicializaAdv(advs);
     inicializaBol(bolas);
     inicializaCar(cards);
+    // Posicionamento inicial dos adversários
+    for (i = 0; i < N_ADVS; i++)
+    {
+        advs[i].ativo = true;
+      	advs[i].energia = 100;
+      	advs[i].x = real(64 + 60 * (i % 3));
+      	advs[i].y = real(YMIN + (i < 3 ? 40 + 5 * arena : 70 + 15 * arena));
+    }
 }
 
 void main(void)
 {
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
-    byte i = 0, j, k;	// Variáveis para uso em laços
+    byte i = 0, j;	// Variáveis para uso em laços
     short dx, dy;	// Variáveis de deslocamento do jogador
     // Configurações iniciais de áudio
     famitone_init(abertura);
@@ -356,20 +366,10 @@ void main(void)
             set_rand(nesclock());
             entrada_nivel(nivel);
             posicionaJogador();
-            inicializaAgentes();
-            // *************** Posicionar adversários (algo como abaixo)
-            for (k = 0; k < N_ADVS; k++) // ************* LAÇO DE TESTE
-            {
-                if (k % 3 == 0) advs[k].ativo = true;
-                advs[k].x = (40 + 8 * k) << 8;
-                advs[k].y = (100 + 4 * k) << 8;
-                advs[k].energia = 100;
-            }
-            
-            
             // Define parâmetros de nível
             if (nivel_comum)
             {
+                inicializaAgentes();
             	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
