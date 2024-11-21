@@ -98,5 +98,11 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
     return true;
 }
 
+byte aleatorio(void) 
+{
+    set_rand(rand16());
+    return rand8();
+}
+
 bool pode_chutar(byte nivel)
-{ return rand8() / (nivel + 1) < 2; }
+{ return aleatorio() / (nivel + 1) < 2; }
