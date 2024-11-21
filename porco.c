@@ -53,8 +53,7 @@ const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,1
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
 const byte PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x19,0x36,0x30,0x0C,0x04,0x36,0x07,0x0C,0x27,0x10,0x38 };
-const byte PAL_EXTRA[16] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f };
-// MAN-COR-TIG-SAN
+const byte PAL_EXTRA[20] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f,0x0c,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
 const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
@@ -236,18 +235,19 @@ void troca_paleta(byte cor)
 }
 
 void pal_adv()
-{  troca_paleta(nivel & 0x03); }
+{  troca_paleta(nivel % 5); }
 
 // Define o metasprite do adversário a ser usado
 byte* spr_adv(byte nivel, bool lado)
 {
-    switch (nivel % 4)
+    switch (nivel % 5)
     {
         case 0:
       	case 1:
             return spr_adv1(lado);
-        case 2: return spr_adv2(lado);
-        default: return spr_adv3(lado);
+      	case 3:
+            return spr_adv3(lado);
+        default: return spr_adv2(lado);
     }
 }
 
@@ -366,6 +366,11 @@ void main(void)
             set_rand(nesclock());
             entrada_nivel(nivel);
             posicionaJogador();
+            famitone_init(trilha);
+            music_play(0);
+            ppu_off();
+            arena = carrega_arena(nivel);
+            scroll(0, 0);
             // Define parâmetros de nível
             if (nivel_comum)
             {
@@ -380,11 +385,6 @@ void main(void)
                 y_taca = YTACA + 32;
                 // ************** Aqui eu devo configurar os vilões 
             }
-            famitone_init(trilha);
-            music_play(0);
-            ppu_off();
-            arena = carrega_arena(nivel);
-            scroll(0, 0);
             oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
             ppu_on_all();
             while (prox == false && energia > 0)
