@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "constantes.h"
 #include "objetos.h"
 
@@ -98,11 +99,5 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
     return true;
 }
 
-byte aleatorio(void) 
-{
-    set_rand(rand16());
-    return rand8();
-}
-
 bool pode_chutar(byte nivel)
-{ return aleatorio() / (nivel + 1) < 2; }
+{ return rand() / (nivel + 1) <= 256; }

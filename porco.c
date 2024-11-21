@@ -70,6 +70,7 @@ static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
 static byte dec;  // Delay (em quadros) a cada chute
 //static byte rec;  // Delay (em quadros) da falta
+static byte ata;
 
 // Dados do jogador
 static word x, y;
@@ -291,7 +292,7 @@ void atualizaSprites()
 	    // DEFINIR ÁREAS DE ATUAÇÃO ANTES
 	    // direcao(x - real(XTACA), y - real(y_taca)) <> direcao(advs[i].x - real(XTACA), advs[i].y - real(y_taca))
             oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
-            if (dec > DELAY_CHUTE) chuta(i);
+            
         }
     }
     for (i = 0; i < N_CARDS; i++)
@@ -309,12 +310,15 @@ void atualizaSprites()
             oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
         }
     }
+    if (advs[ata].ativo && dec > DELAY_CHUTE) chuta(ata);
+    else ata = (ata >= N_ADVS) ? 0 : ata + 1;
 }
 
 // Inicializações
 void inicializaAgentes()
 {
     byte i;
+    ata = 0;
     inicializaAdv(advs);
     inicializaBol(bolas);
     inicializaCar(cards);
@@ -352,7 +356,11 @@ void main(void)
             pad = pad_poll(0);
             if (pad & PAD_DOWN && !completo) selecao(completo = true);
             if (pad & PAD_UP && completo) selecao(completo = false);
-            if (pad & PAD_A) menu = false;
+            if (pad & PAD_A)
+            {
+                menu = false;
+                srand(nesclock());
+            }
         }
         // Início da história
         setup_graphics();
@@ -363,12 +371,11 @@ void main(void)
         while (vidas > 0 && nivel <= NIVEIS)
         {   // Loop do jogo
             // Início do nível
-            set_rand(nesclock());
             entrada_nivel(nivel);
-            posicionaJogador();
             famitone_init(trilha);
             music_play(0);
             ppu_off();
+            posicionaJogador();
             arena = carrega_arena(nivel);
             scroll(0, 0);
             // Define parâmetros de nível
