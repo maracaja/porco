@@ -41,9 +41,6 @@ void inicializaAdv(Adversario* a);
 void inicializaBol(Bola* b);
 void inicializaCar(Cartao* c);
 
-// Funções aplicadas a objetos 
-void levaCartao(Adversario* a, Cartao* c, byte nivel);
-
 // Encontra a direção para o adversário chutar
 byte direcao(short dx, short dy);
 
