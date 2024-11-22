@@ -59,4 +59,8 @@ byte aleatorio(void);
 // Define, dada uma probabilidade, se o adversário pode chutar ou não uma bola
 bool pode_chutar(byte nivel);
 
+// Define, aleatoriamente, as posições para o surgimento de um bônus
+byte x_bonus(byte arena);
+byte y_bonus(byte arena);
+
 #endif

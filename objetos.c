@@ -101,3 +101,22 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
 
 bool pode_chutar(byte nivel)
 { return rand() / (nivel + 1) <= 256; }
+
+byte x_bonus(byte arena)
+{
+    switch (arena)
+    {
+      	case 3: return 61 + rand() % 134;
+      	default: return 25 + rand() % 206;
+    }
+}
+
+byte y_bonus(byte arena)
+{
+    switch (arena)
+    {
+      	case 0: return YMAX - 68 + rand() % 41;
+      	case 1: return YMAX - 30 + rand() % 41;
+      	default: return YMAX - 30 + rand() % 31;
+    }
+}

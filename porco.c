@@ -39,7 +39,7 @@ extern char trilha[];
 #define jogador_dir (move & 0x1F)
 #define jogador_mov (move & 0x20)
 // Condições para surgir bônus na arena
-#define nrg_disponivel (energia < 67)
+#define nrg_disponivel (energia < 60)
 #define arb_disponivel !(temCartao && cVermelho)
 #define gol_disponivel (luvas < 3)
 #define din_disponivel (vidas < 9 || energia < 99)
@@ -70,7 +70,8 @@ static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
 static byte dec;  // Delay (em quadros) a cada chute
 //static byte rec;  // Delay (em quadros) da falta
-static byte ata;
+static byte ata;   // Jogador que vai chutar (estava sendo o mesmo)
+static byte poup;  // Quantidade de moedas que podem aparecer
 
 // Dados do jogador
 static word x, y;
@@ -84,6 +85,9 @@ static bool lado = false;  // Flag de animação
 // Dados de presença dos bônus
 static byte bonus;
 static byte y_taca;
+// Posições onde se localizarão (ordem de definição das respectivas constantes)
+static byte xb[4] = {91, 157, 128, 128};	
+static byte yb[4] = {150, 150, 150, 150};
 
 // setup PPU and tables
 void setup_graphics() 
@@ -108,7 +112,7 @@ void inicializaJogador()
     luvas = 0;
     vidas = 3;
     bonus = BGOL | BARB | BDIN;
-    bonus |= TEM_CARTAO & ~CARD_VERM; ///////////////////// TESTE
+    poup = 0;
 }
 
 void levaBolada()
@@ -265,17 +269,23 @@ void atualizaPlacar()
 // Atualização dos sprites a cada quadro
 void atualizaSprites()
 {
-    byte i;
+    byte i, xj = pos(x), yj = pos(y);
     short dx, dy;
-    oam_meta_spr(pos(x), pos(y), CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado);
-    if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta);
+    oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
+    if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
+    // Disparos inimigos
     for (i = 0; i < N_BOLAS; i++)
     {
         if (bolas[i].ativo)
 	{
 	    dx = veloc * COS(bolas[i].dir);
 	    dy = veloc * SEN(bolas[i].dir);
-	    if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
+            if (ABS(xj - pos(bolas[i].x)) <= 8 && (yj - pos(bolas[i].y) <= 16 || pos(bolas[i].y) - yj <= 8))
+            {
+                levaBolada();
+                bolas[i].ativo = false;
+            }
+	    else if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
 	    {
 		bolas[i].x += dx;
                 bolas[i].y += dy;
@@ -284,6 +294,7 @@ void atualizaSprites()
 	    oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
 	}
     }
+    // Adversários
     for (i = 0; i < N_ADVS; i++)
     {
     	if (advs[i].ativo)
@@ -295,6 +306,7 @@ void atualizaSprites()
             
         }
     }
+    // Cartões
     for (i = 0; i < N_CARDS; i++)
     {
     	if (card_ativo(cards[i]))
@@ -310,6 +322,16 @@ void atualizaSprites()
             oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
         }
     }
+    // Bônus a coletar
+    if (bonus & BGOL)
+      	oam_meta_spr(xb[0], yb[0], GOLEIRO, spr_goleiro);
+    if (bonus & BARB)
+      	oam_meta_spr(xb[1], yb[1], JUIZ, spr_arbitro);
+    if (bonus & BNRG)
+      	oam_meta_spr(xb[2], yb[2], ENERG, spr_nrg);
+    if (bonus & BDIN)
+      	oam_meta_spr(xb[3], yb[3], MOEDA, spr_moeda);
+    // Prepara novo chute
     if (advs[ata].ativo && dec > DELAY_CHUTE) chuta(ata);
     else ata = (ata >= N_ADVS) ? 0 : ata + 1;
 }
