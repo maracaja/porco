@@ -232,6 +232,18 @@ bool pegou_taca()
     return i >= XTACA - 9 && i <= XTACA + 5 && j >= y_taca - 21 && j <= y_taca + 13 && temTaca;
 }
 
+// Efeito do tiro sobre o adversário
+void levaCartao(byte a, byte c, unsigned char nivel)
+{
+    switch (nivel / DIVISOR)
+    {
+        case 0: advs[a].energia -= (vermelho(cards[c]) ? 100 : 50); break;
+        case 1: advs[a].energia -= (vermelho(cards[c]) ? 66 : 34); break;
+        default: advs[a].energia -= (vermelho(cards[c]) ? 50 : 25);
+    }
+    if (advs[a].energia <= 0) advs[a].ativo = false;
+}
+
 // Alternância de paleta conforme o nível
 void troca_paleta(byte cor)
 {
@@ -269,7 +281,7 @@ void atualizaPlacar()
 // Atualização dos sprites a cada quadro
 void atualizaSprites()
 {
-    byte i, xj = pos(x), yj = pos(y);
+    byte i, j, xj = pos(x), yj = pos(y);
     short dx, dy;
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
@@ -293,6 +305,36 @@ void atualizaSprites()
 	    else bolas[i].ativo = false;
 	    oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
 	}
+    }    
+    // Cartões
+    for (i = 0; i < N_CARDS; i++)
+    {
+	byte xa, ya;
+    	if (card_ativo(cards[i]))
+        {
+            dx = 3 * COS(card_dir(cards[i]));
+            dy = 3 * SEN(card_dir(cards[i]));
+	    for (j = 0; j < N_ADVS; j++)
+	    {
+		if (advs[j].ativo)
+		{
+		    xa = pos(advs[j].x);
+		    ya = pos(advs[j].y);
+		    if (ABS(xa - pos(cards[i].x)) <= 4 && (ya - pos(cards[i].y) <= 12 || pos(cards[i].y) - ya <= 4)))
+		    {
+			levaCartao(advs[j], cards[i], nivel);
+			cards[i].ativo = false;
+		    }
+		}	
+	    }
+            if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
+            {
+                cards[i].x += dx;
+                cards[i].y += dy;
+            }
+            else desativaCartao(i);
+            oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
+        }
     }
     // Adversários
     for (i = 0; i < N_ADVS; i++)
@@ -304,22 +346,6 @@ void atualizaSprites()
 	    // direcao(x - real(XTACA), y - real(y_taca)) <> direcao(advs[i].x - real(XTACA), advs[i].y - real(y_taca))
             oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
             
-        }
-    }
-    // Cartões
-    for (i = 0; i < N_CARDS; i++)
-    {
-    	if (card_ativo(cards[i]))
-        {
-            dx = 3 * COS(card_dir(cards[i]));
-            dy = 3 * SEN(card_dir(cards[i]));
-            if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
-            {
-                cards[i].x += dx;
-                cards[i].y += dy;
-            }
-            else desativaCartao(i);
-            oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
         }
     }
     // Bônus a coletar
