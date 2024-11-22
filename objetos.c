@@ -22,17 +22,6 @@ void inicializaBol(Bola* b)
 void inicializaCar(Cartao* c)
 {  for (i = 0; i < N_CARDS; i++) c[i].info = 0x00; }
 
-void levaCartao(Adversario* a, Cartao* c, unsigned char nivel)
-{
-    switch (nivel / DIVISOR)
-    {
-        case 0: a->energia -= vermelho(*c) ? 100 : 50; break;
-        case 1: a->energia -= vermelho(*c) ? 66 : 34; break;
-        default: a->energia -= vermelho(*c) ? 50 : 25;
-    }
-    if (a->energia <= 0) a->ativo = false;
-}
-
 byte direcao(short dx, short dy)
 {
     short delta = pos(dx), tan;
