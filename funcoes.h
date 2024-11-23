@@ -5,11 +5,13 @@
 
 // Macros
 #define reset_pulo(void) pulo = false
-#define ABS(x) ((x) > 0 ? (x) : -(x))
 #define DIV2(x) ((x) >> 1)
 
 // Variável de controle para escapar de introduções
 static bool pulo;
+
+// Valor absoluto
+int vabs(int x);
 
 // Delay sem travar processador
 void espera(word n);
