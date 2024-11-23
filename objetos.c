@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "constantes.h"
 #include "objetos.h"
 
@@ -20,17 +21,6 @@ void inicializaBol(Bola* b)
 
 void inicializaCar(Cartao* c)
 {  for (i = 0; i < N_CARDS; i++) c[i].info = 0x00; }
-
-void levaCartao(Adversario* a, Cartao* c, unsigned char nivel)
-{
-    switch (nivel / DIVISOR)
-    {
-        case 0: a->energia -= vermelho(*c) ? 100 : 50; break;
-        case 1: a->energia -= vermelho(*c) ? 66 : 34; break;
-        default: a->energia -= vermelho(*c) ? 50 : 25;
-    }
-    if (a->energia <= 0) a->ativo = false;
-}
 
 byte direcao(short dx, short dy)
 {
@@ -98,11 +88,24 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
     return true;
 }
 
-byte aleatorio(void) 
+bool pode_chutar(byte nivel)
+{ return rand() / (nivel + 1) <= 256; }
+
+byte x_bonus(byte arena)
 {
-    set_rand(rand16());
-    return rand8();
+    switch (arena)
+    {
+      	case 3: return 61 + rand() % 134;
+      	default: return 25 + rand() % 206;
+    }
 }
 
-bool pode_chutar(byte nivel)
-{ return aleatorio() / (nivel + 1) < 2; }
+byte y_bonus(byte arena)
+{
+    switch (arena)
+    {
+      	case 0: return YMAX - 68 + rand() % 41;
+      	case 1: return YMAX - 30 + rand() % 41;
+      	default: return YMAX - 30 + rand() % 31;
+    }
+}

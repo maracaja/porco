@@ -41,9 +41,6 @@ void inicializaAdv(Adversario* a);
 void inicializaBol(Bola* b);
 void inicializaCar(Cartao* c);
 
-// Funções aplicadas a objetos 
-void levaCartao(Adversario* a, Cartao* c, byte nivel);
-
 // Encontra a direção para o adversário chutar
 byte direcao(short dx, short dy);
 
@@ -58,5 +55,9 @@ byte aleatorio(void);
 
 // Define, dada uma probabilidade, se o adversário pode chutar ou não uma bola
 bool pode_chutar(byte nivel);
+
+// Define, aleatoriamente, as posições para o surgimento de um bônus
+byte x_bonus(byte arena);
+byte y_bonus(byte arena);
 
 #endif
