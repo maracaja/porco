@@ -242,7 +242,7 @@ void levaCartao(byte a, byte c, unsigned char nivel)
         default: advs[a].energia -= (vermelho(cards[c]) ? 50 : 25);
     }
     if (advs[a].energia <= 0) advs[a].ativo = false;
-    cards[c].info &= ~CARD_ATIVO;
+    desativaCartao(c);
 }
 
 // Alternância de paleta conforme o nível
@@ -282,8 +282,8 @@ void atualizaPlacar()
 // Atualização dos sprites a cada quadro
 void atualizaSprites()
 {
-    byte i, j, xa, ya, xj = pos(x), yj = pos(y);
-    short dx, dy;
+    byte i, j;
+    short dx, dy, xa, ya, xj = pos(x), yj = pos(y);
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
     // Disparos inimigos
@@ -293,7 +293,7 @@ void atualizaSprites()
 	{
 	    dx = veloc * COS(bolas[i].dir);
 	    dy = veloc * SEN(bolas[i].dir);
-            if (ABS(xj - pos(bolas[i].x)) < 8 && pos(bolas[i].y) > yj - 16 && pos(bolas[i].y) < yj + 8)
+            if (vabs(xj - pos(bolas[i].x)) < 8 && pos(bolas[i].y) > yj - 16 && pos(bolas[i].y) < yj + 8)
             {
                 levaBolada();
                 bolas[i].ativo = false;
@@ -318,12 +318,10 @@ void atualizaSprites()
 	    {
 		if (advs[j].ativo)
 		{
-		    xa = pos(advs[j].x);
-		    ya = pos(advs[j].y);
-		    if (ABS(xa - pos(cards[i].x)) <= 6 && pos(cards[i].y) > ya - 14 && pos(cards[i].y) < ya + 6)
-		    {
-			levaCartao(j, i, nivel);
-		    }
+		    xa = (short) pos(advs[j].x);
+		    ya = (short) pos(advs[j].y);
+		    if (vabs(xa - pos(cards[i].x)) < 6 && pos(cards[i].y) > ya - 14 && pos(cards[i].y) < ya + 7)
+		    	levaCartao(j, i, nivel);
 		}	
 	    }
             if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
@@ -350,7 +348,7 @@ void atualizaSprites()
     // Bônus a coletar
     if (bonus & BGOL)
     {
-        if (ABS(xj - xb[0]) < 8 && ABS(yj - yb[0]) < 16)
+        if (vabs(xj - xb[0]) < 8 && vabs(yj - yb[0]) < 16)
         {
             escalaGoleiro();
             bonus &= ~BGOL;
@@ -359,7 +357,7 @@ void atualizaSprites()
     }
     if (bonus & BARB)
     {
-      	if (ABS(xj - xb[1]) < 8 && ABS(yj - yb[1]) < 16)
+      	if (vabs(xj - xb[1]) < 8 && vabs(yj - yb[1]) < 16)
         {
             compraArbitro();
             bonus &= ~BARB;
@@ -368,7 +366,7 @@ void atualizaSprites()
     }
     if (bonus & BNRG)
     {
-      	if (ABS(xj - xb[2]) < 7 && ABS(yj - yb[2]) < 15)
+      	if (vabs(xj - xb[2]) < 7 && vabs(yj - yb[2]) < 15)
         {
             tomaEnergetico();
             bonus &= ~BNRG;
@@ -377,7 +375,7 @@ void atualizaSprites()
     }
     if (bonus & BDIN)
     {
-        if(xj - xb[3] < 7 && xb[3] - xj < 15 && ABS(yj - yb[3]) < 15)
+        if(xj - xb[3] < 7 && xb[3] - xj < 15 && vabs(yj - yb[3]) < 15)
         {
             ganhaDinheiro();
             bonus &= ~BDIN;

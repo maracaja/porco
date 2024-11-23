@@ -12,6 +12,9 @@
 #define COL_INTRO 5
 #define BOTAO_PULO PAD_A
 
+int vabs(int x)
+{ return x >= 0 ? x : -x; }
+
 void espera(word n)
 {	
     word i;
