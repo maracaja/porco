@@ -69,7 +69,7 @@ static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
 static byte dec;  // Delay (em quadros) a cada chute
-//static byte rec;  // Delay (em quadros) da falta
+static byte rec;  // Delay (em quadros) da falta
 static byte ata;   // Jogador que vai chutar (estava sendo o mesmo)
 static byte poup;  // Quantidade de moedas que podem aparecer
 
@@ -338,6 +338,13 @@ void atualizaSprites()
     {
     	if (advs[i].ativo)
         {
+            xa = (short) pos(advs[i].x);
+            ya = (short) pos(advs[i].y);
+            if (rec > RECUPERACAO && vabs(xj - xa) < 8 && vabs(yj - ya) < 16)
+            {
+                sofreFalta();
+                rec = 0;
+            }
 	    // Jogador tenta se posicionar entre o jogador e a taça
 	    // DEFINIR ÁREAS DE ATUAÇÃO ANTES
 	    // direcao(x - real(XTACA), y - real(y_taca)) <> direcao(advs[i].x - real(XTACA), advs[i].y - real(y_taca))
@@ -392,6 +399,9 @@ void inicializaAgentes()
 {
     byte i;
     ata = 0;
+    deb = DEBOUNCE;
+    dec = DELAY_CHUTE;
+    rec = RECUPERACAO;
     inicializaAdv(advs);
     inicializaBol(bolas);
     inicializaCar(cards);
@@ -528,6 +538,7 @@ void main(void)
                     atualizaSprites();
                     if (deb <= DEBOUNCE) deb++;
                     if (dec <= DELAY_CHUTE) dec++;
+                    if (rec <= RECUPERACAO) rec++;
                     ppu_wait_nmi();
                     if (pausa) espera(100);
                 }
