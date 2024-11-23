@@ -44,8 +44,7 @@ extern char trilha[];
 #define gol_disponivel (luvas < 3)
 #define din_disponivel (vidas < 9 || energia < 99)
 // Tipo de nível
-#define nivel_comum (nivel == 0 || nivel % DIVISOR != 0)
-#define veloc (nivel > 25 ? 3 : 2)
+#define veloc (nivel > 25 ? 2 : 1)
 
 // Tabela de senos normalizados em 8 bits (x2)
 const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -69,7 +68,6 @@ static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
 static byte dec;  // Delay (em quadros) a cada chute
-static byte rec;  // Delay (em quadros) da falta
 static byte ata;   // Jogador que vai chutar (estava sendo o mesmo)
 static byte poup;  // Quantidade de moedas que podem aparecer
 
@@ -129,6 +127,7 @@ void sofreFalta()
         else bonus &= ~TEM_CARTAO;
     }
     else energia = MAX(0, energia - 50);
+    posicionaJogador();
 }
 
 void tomaEnergetico()
@@ -291,8 +290,8 @@ void atualizaSprites()
     {
         if (bolas[i].ativo)
 	{
-	    dx = veloc * COS(bolas[i].dir);
-	    dy = veloc * SEN(bolas[i].dir);
+	    dx = COS(bolas[i].dir) << veloc;
+	    dy = SEN(bolas[i].dir) << veloc;
             if (vabs(xj - pos(bolas[i].x)) < 8 && pos(bolas[i].y) > yj - 16 && pos(bolas[i].y) < yj + 8)
             {
                 levaBolada();
@@ -312,8 +311,8 @@ void atualizaSprites()
     {
     	if (card_ativo(cards[i]))
         {
-            dx = 3 * COS(card_dir(cards[i]));
-            dy = 3 * SEN(card_dir(cards[i]));
+            dx = COS(card_dir(cards[i])) << 2;
+            dy = SEN(card_dir(cards[i])) << 2;
 	    for (j = 0; j < N_ADVS; j++)
 	    {
 		if (advs[j].ativo)
@@ -340,11 +339,7 @@ void atualizaSprites()
         {
             xa = (short) pos(advs[i].x);
             ya = (short) pos(advs[i].y);
-            if (rec > RECUPERACAO && vabs(xj - xa) < 8 && vabs(yj - ya) < 16)
-            {
-                sofreFalta();
-                rec = 0;
-            }
+            if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofreFalta();
 	    // Jogador tenta se posicionar entre o jogador e a taça
 	    // DEFINIR ÁREAS DE ATUAÇÃO ANTES
 	    // direcao(x - real(XTACA), y - real(y_taca)) <> direcao(advs[i].x - real(XTACA), advs[i].y - real(y_taca))
@@ -397,15 +392,18 @@ void atualizaSprites()
 // Inicializações
 void inicializaAgentes()
 {
-    byte i;
     ata = 0;
     deb = DEBOUNCE;
     dec = DELAY_CHUTE;
-    rec = RECUPERACAO;
     inicializaAdv(advs);
     inicializaBol(bolas);
     inicializaCar(cards);
-    // Posicionamento inicial dos adversários
+}
+
+// Posicionamento inicial dos adversários
+void posicionaAgentes()
+{
+    byte i;
     for (i = 0; i < N_ADVS; i++)
     {
         advs[i].ativo = true;
@@ -461,10 +459,11 @@ void main(void)
             posicionaJogador();
             arena = carrega_arena(nivel);
             scroll(0, 0);
+            inicializaAgentes();
             // Define parâmetros de nível
-            if (nivel_comum)
+            if (nivel % DIVISOR != 0 || nivel == 0)
             {
-                inicializaAgentes();
+                posicionaAgentes();
             	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
@@ -528,8 +527,6 @@ void main(void)
                         ppu_on_all();
                         espera(300);
                     }
-                    // *** Captar possíveis interações
-                    // *************** Falta, bolada, cartão, pegou bônus
                     // *** Rotinas aleatórias
                     // **************** , movimentação do inimigo (em campo próprio), bônus
                     // Atualização do quadro
@@ -538,7 +535,6 @@ void main(void)
                     atualizaSprites();
                     if (deb <= DEBOUNCE) deb++;
                     if (dec <= DELAY_CHUTE) dec++;
-                    if (rec <= RECUPERACAO) rec++;
                     ppu_wait_nmi();
                     if (pausa) espera(100);
                 }
