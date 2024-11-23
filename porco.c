@@ -275,7 +275,7 @@ void atualizaPlacar()
     placar(vidas, PLV, 1);
     placar(dinheiro, PLD, 2);
     placar(energia, PLE, 2);
-    contaLuvas(luvas);
+    placar(luvas, PLL, 1);
     if (temCartao) corCartao(cVermelho);
 }
 

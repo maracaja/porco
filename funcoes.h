@@ -45,7 +45,6 @@ void selecao(bool completo);
 
 // Funções de placar
 void placar(byte n, byte col, byte dig);
-void contaLuvas(byte n);
 void corCartao(bool verm);
 
 #endif

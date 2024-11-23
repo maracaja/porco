@@ -21,9 +21,9 @@
 #define PL_NRG 0x54
 #define PL_DIN 0x5C
 #define PL_LUVA 0x64
-#define PL_CARD 0x78
-#define CARTAO 0x7C
-#define TIRO 0x94
+#define PL_CARD 0x70
+#define CARTAO 0x74
+#define TIRO 0x90
 #define MOEDA 0xC0
 #define TACA 0xD0
 #define EXTRA 0xE8
@@ -37,12 +37,12 @@
 #define PLV 6
 #define PLD 10
 #define PLE 20
-#define PLL 23
-#define PLC 232
+#define PLL 27
+#define PLC 240
 // Quantidades máximas simultâneas de sprites
 #define N_ADVS  6
-#define N_BOLAS 11
-#define N_CARDS 6
+#define N_BOLAS 12
+#define N_CARDS 7
 // Posições iniciais do jogador
 #define CX 124
 #define CY 200

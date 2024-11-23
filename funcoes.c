@@ -252,7 +252,7 @@ void entrada_nivel(byte nivel)
 void game_over()
 {
     ppu_off();
-    escrita_centralizada("GAME OVER", 13);
+    escrita_centralizada("ELIMINADO", 13);
     escrita_centralizada("A PIADA CONTINUA", 15);
     ppu_on_all();
 }
@@ -286,23 +286,17 @@ void placar(byte n, byte col, byte dig)
     sbyte i;
     switch (col)
     {
-        case 6: sprid = PL_VIDA; break;
-      	case 10: sprid = PL_DIN; break;
-      	case 20: sprid = PL_NRG; break;
-      	default: sprid = 32;
+        case PLV: sprid = PL_VIDA; break;
+      	case PLD: sprid = PL_DIN; break;
+      	case PLE: sprid = PL_NRG; break;
+        case PLL: sprid = PL_LUVA; break;
+        default: sprid = PL_LUVA + 4;
     }
     for (i = dig - 1; i >= 0; i--)
     {
       	oam_spr((col + i) << 3, PL_LIN, ZERO + n % 10, 0, sprid + 4 * i);
         n /= 10;
     }
-}
-
-void contaLuvas(byte n)
-{
-    byte i;
-    for(i = 1; i <= n; i++)
-   	oam_spr((i + PLL) << 3, PL_LIN, LUVA, 3, PL_LUVA + 4 * (i - 1));
 }
 
 void corCartao(bool verm)
