@@ -33,6 +33,9 @@ byte direcao(short dx, short dy)
     return i & 0x1F;
 }
 
+byte direcao2(word x1, word x2, word y1, word y2)
+{ return direcao(DIV2(x1) - DIV2(x2), DIV2(y1) - DIV2(y2)); }
+
 byte movimento(char pad)
 {
     byte dir;

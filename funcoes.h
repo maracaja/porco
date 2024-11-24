@@ -5,7 +5,6 @@
 
 // Macros
 #define reset_pulo(void) pulo = false
-#define DIV2(x) ((x) >> 1)
 
 // Variável de controle para escapar de introduções
 static bool pulo;

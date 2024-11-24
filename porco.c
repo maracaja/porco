@@ -24,8 +24,12 @@
 // Importação dos recursos de áudio
 //#link "abertura.s"
 //#link "trilha.s"
+//#link "trilha_viloes.s"
+//#link "game_over_1.s"
 extern char abertura[];
 extern char trilha[];
+extern char trilha_fifa[];
+extern char tema_fim[];
 
 // MACROS
 // Trigonometria
@@ -55,7 +59,7 @@ const byte PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x19,0x36,0x30,0x0C,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f,0x0c,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
+const byte const demo[7] = {0, 10, 25, 33, 50, 51, 99};
 
 // Objetos
 static byte arena;
@@ -79,6 +83,7 @@ static byte luvas;
 static byte vidas;
 static byte move;
 static bool lado = false;  // Flag de animação
+static bool corre = false;
 
 // Dados de presença dos bônus
 static byte bonus;
@@ -194,7 +199,7 @@ void atira()
     {
         cards[i].x = x;
         cards[i].y = y - real(16);
-        cards[i].info |= !jogador_mov || jogador_dir > 16 ? 24 : (jogador_dir < 8 ? 28 : 20);
+        cards[i].info |= (!jogador_mov || jogador_dir > 16) ? 24 : (jogador_dir < 8 ? 28 : 20);
     }
     deb = 0;
 }
@@ -220,7 +225,7 @@ void chuta(byte a)
         byte i = ativaBola();
         bolas[i].x = advs[a].x;
         bolas[i].y = advs[a].y + real(8);
-        bolas[i].dir = direcao(DIV2(x) - DIV2(bolas[i].x), DIV2(y) - DIV2(bolas[i].y));  
+        bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);  
     }
     dec = 0;
 }
@@ -268,6 +273,18 @@ byte* spr_adv(byte nivel, bool lado)
     }
 }
 
+// Função para adversário correr atrás do jogador
+void correAtras(byte i)
+{
+    if (advs[i].ativo)
+    {
+        byte da = direcao2(x, advs[i].x, y, advs[i].y);
+        short dx = COS(da), dy = SEN(da); 
+        if (nao_bate_parede(arena, advs[i].x + dx, advs[i].y, true)) advs[i].x += dx;
+        if (nao_bate_parede(arena, advs[i].x, advs[i].y + dy, true)) advs[i].y += dy;
+    }
+}
+
 // Atualização do placar a cada quadro
 void atualizaPlacar()
 {
@@ -285,27 +302,24 @@ void atualizaSprites()
     short dx, dy, xa, ya, xj = pos(x), yj = pos(y);
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
-    // Disparos inimigos
-    for (i = 0; i < N_BOLAS; i++)
+    // Adversários
+    for (i = 0; i < N_ADVS; i++)
     {
-        if (bolas[i].ativo)
-	{
-	    dx = COS(bolas[i].dir) << veloc;
-	    dy = SEN(bolas[i].dir) << veloc;
-            if (vabs(xj - pos(bolas[i].x)) < 8 && pos(bolas[i].y) > yj - 16 && pos(bolas[i].y) < yj + 8)
-            {
-                levaBolada();
-                bolas[i].ativo = false;
-            }
-	    else if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
-	    {
-		bolas[i].x += dx;
-                bolas[i].y += dy;
-	    }
-	    else bolas[i].ativo = false;
-	    oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
-	}
-    }    
+    	if (advs[i].ativo)
+        {
+            xa = (short) pos(advs[i].x);
+            ya = (short) pos(advs[i].y);
+            if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofreFalta();
+            oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
+        }
+    }
+    if (corre)
+    {
+      	corre = false;
+        correAtras(4);
+        if (nivel > 17) correAtras(5);
+        if (nivel > 34) correAtras(3);
+    }
     // Cartões
     for (i = 0; i < N_CARDS; i++)
     {
@@ -332,21 +346,27 @@ void atualizaSprites()
             oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
         }
     }
-    // Adversários
-    for (i = 0; i < N_ADVS; i++)
+    // Disparos inimigos
+    for (i = 0; i < N_BOLAS; i++)
     {
-    	if (advs[i].ativo)
-        {
-            xa = (short) pos(advs[i].x);
-            ya = (short) pos(advs[i].y);
-            if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofreFalta();
-	    // Jogador tenta se posicionar entre o jogador e a taça
-	    // DEFINIR ÁREAS DE ATUAÇÃO ANTES
-	    // direcao(x - real(XTACA), y - real(y_taca)) <> direcao(advs[i].x - real(XTACA), advs[i].y - real(y_taca))
-            oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
-            
-        }
-    }
+        if (bolas[i].ativo)
+	{
+	    dx = COS(bolas[i].dir) << veloc;
+	    dy = SEN(bolas[i].dir) << veloc;
+            if (vabs(xj - pos(bolas[i].x)) < 8 && pos(bolas[i].y) > yj - 16 && pos(bolas[i].y) < yj + 8)
+            {
+                levaBolada();
+                bolas[i].ativo = false;
+            }
+	    else if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
+	    {
+		bolas[i].x += dx;
+                bolas[i].y += dy;
+	    }
+	    else bolas[i].ativo = false;
+	    oam_spr(pos(bolas[i].x), pos(bolas[i].y), BOLA, 0, TIRO + 4 * i);
+	}
+    }    
     // Bônus a coletar
     if (bonus & BGOL)
     {
@@ -400,17 +420,20 @@ void inicializaAgentes()
     inicializaCar(cards);
 }
 
+// Cria um novo adversário na tela
+void novoAdversario(byte i)
+{
+    advs[i].ativo = true;
+    advs[i].energia = 100;
+    advs[i].x = i < 3 ? real(100 + 24 * (i % 3)) : real(64 + 60 * (i % 3));
+    advs[i].y = real(YMIN + (i < 3 ? 40 : 70 + 15 * arena));
+}
+
 // Posicionamento inicial dos adversários
-void posicionaAgentes()
+void posicionaAdvs()
 {
     byte i;
-    for (i = 0; i < N_ADVS; i++)
-    {
-        advs[i].ativo = true;
-      	advs[i].energia = 100;
-      	advs[i].x = real(64 + 60 * (i % 3));
-      	advs[i].y = real(YMIN + (i < 3 ? 40 + 5 * arena : 70 + 15 * arena));
-    }
+    for (i = 0; i < N_ADVS; i++) novoAdversario(i);
 }
 
 void main(void)
@@ -453,8 +476,6 @@ void main(void)
         {   // Loop do jogo
             // Início do nível
             entrada_nivel(nivel);
-            famitone_init(trilha);
-            music_play(0);
             ppu_off();
             posicionaJogador();
             arena = carrega_arena(nivel);
@@ -463,16 +484,20 @@ void main(void)
             // Define parâmetros de nível
             if (nivel % DIVISOR != 0 || nivel == 0)
             {
-                posicionaAgentes();
+                posicionaAdvs();
             	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
+                // ************famitone_init(trilha);
+            	// ************music_play(0);
             }
             else
             {
                 bonus &= ~TEM_TACA;
                 y_taca = YTACA + 32;
                 // ************** Aqui eu devo configurar os vilões 
+                //********famitone_init(trilha_fifa);
+            	//***********music_play(0);
             }
             oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
             ppu_on_all();
@@ -486,16 +511,17 @@ void main(void)
                     escrita_centralizada("       ", 2);
                     ppu_on_all();
                     espera(5);
-                    music_pause(0);
+                    //**********music_pause(0);
                 } 
                 else if (!pausa)
                 {   // Regime normal do jogo
                     // Comando de animação
                     i++;
-                    if (i >= 5)
+                    if (i > 4)
                     {
                         i = 0;
                     	lado = !lado;
+                        corre = true;
                     }
                     // Controle do deslocamento do jogador na tela
                     move = movimento(pad);
@@ -513,7 +539,7 @@ void main(void)
                         pausa = true;
                         ppu_off();
                         escrita_centralizada("PAUSADO", 2);
-                        music_pause(*trilha);
+                        //*********music_pause(*trilha);
                         ppu_on_all();
                     }
                     if (pegou_taca())
@@ -521,8 +547,8 @@ void main(void)
                         ppu_off();
                         music_stop();
                         oam_clear();
-                        escrita_centralizada("PARABENS!", 8);
-                        escrita_centralizada("VOCE PASSOU DE NIVEL!", 10);
+                        escrita_centralizada(" PARABENS!", 8);
+                        escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
                         prox = true;
                         ppu_on_all();
                         espera(300);
@@ -540,7 +566,7 @@ void main(void)
                 }
             }
             music_stop();
-            if (energia <= 0)	// Morreu
+            if (energia <= 0) // Morreu
             {	
             	vidas--;
                 energia = 99;

@@ -4,6 +4,7 @@
 #include "neslib.h"
 
 // Macros
+#define DIV2(x) ((x) >> 1)
 #define pos(n) ((n) >> 8)
 #define real(n) ((n) << 8)
 #define vermelho(c) ((c).info & CARD_VERM)
@@ -14,7 +15,7 @@
 typedef struct {
     bool ativo;
     word x, y;
-    char energia;
+    sbyte energia;
 } Adversario;
 
 typedef struct {
@@ -33,7 +34,7 @@ typedef enum {TIGRE, EDISON, DIABITO} Nome;
 typedef struct {
     Nome nome;
     word x, y;
-    char energia;
+    sbyte energia;
 } Vilao;
 
 // Inicializações 
@@ -43,6 +44,9 @@ void inicializaCar(Cartao* c);
 
 // Encontra a direção para o adversário chutar
 byte direcao(short dx, short dy);
+
+// Encontra a direção, mas dividindo os termos por 2
+byte direcao2(word x1, word x2, word y1, word y2);
 
 // Função que define o movimento do jogador
 byte movimento(char pad);
