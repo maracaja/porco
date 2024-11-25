@@ -33,6 +33,12 @@ void entrada_nivel(byte nivel);
 // História inicial do jogo
 void historinha(void);
 
+// Início dos níveis especiais do jogo
+void inicio_conversa_vilao(void);
+void conversa_tigre(void);
+void conversa_edson(void);
+void conversa_devil(void);
+
 // Tela de derrota
 void game_over(void);
 
