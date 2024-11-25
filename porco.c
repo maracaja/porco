@@ -450,7 +450,6 @@ void main(void)
     {	// Loop infinito
         setup_graphics();
         menu = true;
-        reset_pulo();
         music_play(0);
         apresentacao();
         music_stop();
@@ -469,6 +468,7 @@ void main(void)
         // Início da história
         setup_graphics();
         historinha();
+	reset_pulo();
         limpa_tela(NAMETABLE_A);
         nivel = completo ? 0 : demo[j = 0];
         inicializaJogador();
@@ -495,9 +495,23 @@ void main(void)
             {
                 bonus &= ~TEM_TACA;
                 y_taca = YTACA + 32;
-                // ************** Aqui eu devo configurar os vilões 
-                //********famitone_init(trilha_fifa);
-            	//***********music_play(0);
+		famitone_init(trilha_fifa);
+		inicio_conversa_vilao();
+		music_play(0);
+		switch (nivel)
+		{
+		   case 17: 
+			oam_meta_spr(VLX, VLY, EXTRA, spr_tigre_parado);
+			conversa_tigre();
+			break;
+		   case 34: 
+			oam_meta_spr(VLX, VLY, EXTRA, spr_edson_parado);
+			conversa_edson();
+			break;
+		   case 51: 
+			oam_meta_spr(VLX, VLY, EXTRA, spr_diabito_parado);
+			conversa_devil();
+		}
             }
             oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
             ppu_on_all();
