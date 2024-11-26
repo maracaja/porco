@@ -59,7 +59,7 @@ const byte PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x19,0x36,0x30,0x0C,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f,0x0c,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {0, 10, 25, 33, 50, 51, 99};
+const byte const demo[7] = {/*0, 10, 25,*/ 34, 50, 51, 99};
 
 // Objetos
 static byte arena;
@@ -237,7 +237,7 @@ bool pegou_taca()
 }
 
 // Efeito do tiro sobre o adversário
-void levaCartao(byte a, byte c, unsigned char nivel)
+void levaCartao(byte a, byte c)
 {
     switch (nivel / DIVISOR)
     {
@@ -257,7 +257,15 @@ void troca_paleta(byte cor)
 }
 
 void pal_adv()
-{  troca_paleta(nivel % 5); }
+{
+    switch (nivel)
+    {
+      	case 17: troca_paleta(2);
+        case 34: troca_paleta(3);
+        case 51: troca_paleta(0);
+      	default: troca_paleta(nivel % 5);
+    }
+}
 
 // Define o metasprite do adversário a ser usado
 byte* spr_adv(byte nivel, bool lado)
@@ -279,7 +287,7 @@ void correAtras(byte i)
     if (advs[i].ativo)
     {
         byte da = direcao2(x, advs[i].x, y, advs[i].y);
-        short dx = COS(da), dy = SEN(da); 
+        short dx = COS(da) << 1, dy = SEN(da) << 1; 
         if (nao_bate_parede(arena, advs[i].x + dx, advs[i].y, true)) advs[i].x += dx;
         if (nao_bate_parede(arena, advs[i].x, advs[i].y + dy, true)) advs[i].y += dy;
     }
@@ -310,15 +318,20 @@ void atualizaSprites()
             xa = (short) pos(advs[i].x);
             ya = (short) pos(advs[i].y);
             if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofreFalta();
+            
             oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv(nivel, lado));
         }
     }
     if (corre)
     {
       	corre = false;
-        correAtras(4);
-        if (nivel > 17) correAtras(5);
-        if (nivel > 34) correAtras(3);
+        if (nivel < 17 || nivel > 34) correAtras(4);
+        if (nivel > 17)
+        {
+            correAtras(5);
+            correAtras(3);
+        }
+        for (i = 0; i < 3; i++) advs[i].x += real(lado ? 4 : -4);
     }
     // Cartões
     for (i = 0; i < N_CARDS; i++)
@@ -334,7 +347,7 @@ void atualizaSprites()
 		    xa = (short) pos(advs[j].x);
 		    ya = (short) pos(advs[j].y);
 		    if (vabs(xa - pos(cards[i].x)) < 6 && pos(cards[i].y) > ya - 14 && pos(cards[i].y) < ya + 7)
-		    	levaCartao(j, i, nivel);
+		    	levaCartao(j, i);
 		}	
 	    }
             if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
@@ -425,7 +438,7 @@ void novoAdversario(byte i)
 {
     advs[i].ativo = true;
     advs[i].energia = 100;
-    advs[i].x = i < 3 ? real(100 + 24 * (i % 3)) : real(64 + 60 * (i % 3));
+    advs[i].x = i < 3 ? real(98 + 24 * (i % 3)) : real(64 + 60 * (i % 3));
     advs[i].y = real(YMIN + (i < 3 ? 40 : 70 + 15 * arena));
 }
 
@@ -476,45 +489,56 @@ void main(void)
         {   // Loop do jogo
             // Início do nível
             entrada_nivel(nivel);
-            ppu_off();
-            posicionaJogador();
-            arena = carrega_arena(nivel);
-            scroll(0, 0);
-            inicializaAgentes();
+            
             // Define parâmetros de nível
             if (nivel % DIVISOR != 0 || nivel == 0)
             {
+                ppu_off();
+                posicionaJogador();
+                arena = carrega_arena(nivel);
+                scroll(0, 0);
+                inicializaAgentes();
                 posicionaAdvs();
             	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
                 // ************famitone_init(trilha);
             	// ************music_play(0);
+                oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
+            	ppu_on_all();
             }
             else
             {
+              	ppu_off();
                 bonus &= ~TEM_TACA;
                 y_taca = YTACA + 32;
-		famitone_init(trilha_fifa);
-		inicio_conversa_vilao();
+                famitone_init(trilha_fifa);
+              	pal_adv();
+                scroll(0, 0);
+                ppu_on_all();
+              	inicio_conversa_vilao();
 		music_play(0);
 		switch (nivel)
 		{
-		   case 17: 
-			oam_meta_spr(VLX, VLY, EXTRA, spr_tigre_parado);
+		   case 17:
+			oam_meta_spr(VLX, TTY, EXTRA, spr_tigre_parado);
 			conversa_tigre();
 			break;
 		   case 34: 
-			oam_meta_spr(VLX, VLY, EXTRA, spr_edson_parado);
+			oam_meta_spr(VLX, TTY, EXTRA, spr_edson_parado);
 			conversa_edson();
 			break;
-		   case 51: 
-			oam_meta_spr(VLX, VLY, EXTRA, spr_diabito_parado);
+		   default: 
+			oam_meta_spr(VLX, TTY, EXTRA, spr_diabito_parado);
 			conversa_devil();
 		}
+                ppu_off();
+                posicionaJogador();
+                arena = carrega_arena(nivel);
+                scroll(0, 0);
+                ppu_on_all();
+                
             }
-            oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
-            ppu_on_all();
             while (prox == false && energia > 0)
             {	// Loop do nível antes de passar ou perder vida
                 pad = pad_poll(0);
