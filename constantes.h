@@ -26,9 +26,11 @@
 #define MOEDA 0xC0
 #define TACA 0xD0
 #define EXTRA 0xE8
-// Posição da apresentação do jogo
+// Posição das apresentações no jogo
 #define TTX 24
 #define TTY 32
+#define VLX 128
+#define VLY 100
 #define SPRX TTX - 4
 #define SPRY TTY + 60
 // Placar

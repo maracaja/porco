@@ -176,10 +176,56 @@ void conversa()
         escreve_mensagem(trechos[i], 2 * i - 42, COL_INTRO);
 }
 
+void inicio_conversa_vilao()
+{
+    limpa_tela(NAMETABLE_A);
+    ppu_off();
+    oam_clear();
+    oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
+    ppu_on_all();
+}
+
+void conversa_tigre()
+{
+    byte i;
+    const char* const trechos[] = { "TU NO LLEGARAS A LA FINAL.",
+                                    "@QUIEN MANDA ACA SOY YO!",
+                                    "@JAJAJAJAJA!" };
+    for (i = 0; i < 3; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
+}
+
+void conversa_edson()
+{
+    byte i;
+    const char* const trechos[] = { "INVENTEI UM JEITO DE TE",
+                                    "DERROTAR, ENTENDE?",
+                                    "POSSO FAZER MAIS DE 1000",
+                                    "GOLS, VOCE NAO VAI VENCER.",
+                                    "CAIU NA REDE, e PEIXE!" };
+    for (i = 0; i < 5; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
+}
+
+void conversa_devil()
+{
+    byte i;
+    const char* const trechos[] = { "AH SHIT, HERE WE GO AGAIN!",
+                                    "PLEASE ALLOW ME TO INTRODUCE",
+                                    "MYSELF, I*M A MAN... VOCE",
+                                    "JA SABE! TITIA TE MANDOU",
+                                    "IR ATRAS DE FUTEBOWSER, MAS",
+                                    "NAO DISSE QUE TENHO VARIOS",
+                                    "NOMES, NEM QUE SEU GOLEIRO",
+                                    "VAI FALHAR CONTRA MIM.",
+                                    "QUE O JOGO COMECE, QUERO",
+                                    "TOMAR MEU CHA LOGO MAIS!" };
+    // Acho que terei que recolocar o Caim ...
+    for (i = 0; i < 10; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
+}
+
 void historinha()
 {
     byte i;
-    byte caim_x, caim_y; // Coordenadas do personagem principal
+    byte caim_x = 100, caim_y = 210; // Coordenadas do personagem principal
     char pad;
     limpa_tela(NAMETABLE_C);
     limpa_tela(NAMETABLE_A);
@@ -197,7 +243,6 @@ void historinha()
     }
     limpa_tela(NAMETABLE_A);
     ppu_off();
-    caim_x = 100; caim_y = 210;
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
     ppu_on_all();
