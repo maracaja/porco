@@ -179,10 +179,9 @@ void conversa()
 void inicio_conversa_vilao()
 {
     limpa_tela(NAMETABLE_A);
-    ppu_off();
+    reset_pulo();
     oam_clear();
     oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
-    ppu_on_all();
 }
 
 void conversa_tigre()
@@ -297,7 +296,7 @@ void entrada_nivel(byte nivel)
 void game_over()
 {
     ppu_off();
-    escrita_centralizada("ELIMINADO", 13);
+    escrita_centralizada("ELIMINADO!", 13);
     escrita_centralizada("A PIADA CONTINUA", 15);
     ppu_on_all();
 }

@@ -25,9 +25,9 @@ void inicializaCar(Cartao* c)
 byte direcao(short dx, short dy)
 {
     short delta = pos(dx), tan;
-    i = 0;
     if (delta == 0) return dy >= 0 ? 8 : 24;
     tan = dy / delta;
+    i = tan > 0 ? 8 : 0;
     while (tan >= TG[i] && i < 15) i++;
     i += (dx > 0 ? 24 : 8);
     return i & 0x1F;
