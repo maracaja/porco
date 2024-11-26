@@ -107,8 +107,8 @@ byte y_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 0: return YMAX - 68 + rand() % 41;
-      	case 1: return YMAX - 30 + rand() % 41;
-      	default: return YMAX - 30 + rand() % 31;
+      	case 0: return YMAX - 77 + rand() % 40;
+      	case 1: return YMAX - 40 + rand() % 40;
+      	default: return YMAX - 40 + rand() % 30;
     }
 }
