@@ -32,6 +32,7 @@ typedef struct {
 typedef enum {TIGRE, EDISON, DIABITO} Nome;
 
 typedef struct {
+    bool ativo;
     Nome nome;
     word x, y;
     sbyte energia;

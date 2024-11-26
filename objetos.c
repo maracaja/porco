@@ -85,7 +85,7 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
             if (j >= YMAX - (jog ? 16 : 24)) return i >= XMIN + 33 && i <= XMAX - 33;
             break;
       	default:
-            if (j <= (jog ? 16 : 8)) return false;
+            if (j <= YMIN + (jog ? 16 : 8)) return false;
             if (j >= 160 && j <= (jog ? 190 : 182)) return i >= XMIN + 49 && i <= XMAX - 49;
     }
     return true;

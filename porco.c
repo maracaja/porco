@@ -60,7 +60,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
+const byte const demo[7] = {/*0, 10, 25, */34, 50, 51, 99};
 
 // Objetos
 static byte arena;
@@ -267,6 +267,17 @@ void levaCartao(byte a, byte c)
     desativaCartao(c);
 }
 
+void levaCartaoVilao(byte c)
+{
+    v.energia -= vermelho(cards[c]) ? 2 : 1;
+    if (v.energia <= 0)
+    {
+        v.ativo = false;
+        bonus |= TEM_TACA;
+    }
+    desativaCartao(c);
+}
+
 // Alternância de paleta conforme o nível
 void troca_paleta(byte cor)
 {
@@ -338,7 +349,7 @@ void atualizaPlacar()
 void atualizaSprites()
 {
     byte i, j;
-    short dx, dy, xa, ya, xj = pos(x), yj = pos(y);
+    short dx, dy, xa, ya, xc, yc, xj = pos(x), yj = pos(y);
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
     // Adversários
@@ -379,6 +390,8 @@ void atualizaSprites()
         {
             dx = COS(card_dir(cards[i])) << 2;
             dy = SEN(card_dir(cards[i])) << 2;
+            xc = (short) pos(cards[i].x);
+            yc = (short) pos(cards[i].y);
             if (nivel_comum)
             {
                 for (j = 0; j < N_ADVS; j++)
@@ -387,13 +400,17 @@ void atualizaSprites()
                     {
                         xa = (short) pos(advs[j].x);
                         ya = (short) pos(advs[j].y);
-                        if (vabs(xa - pos(cards[i].x)) < 6 && pos(cards[i].y) > ya - 14 && pos(cards[i].y) < ya + 7)
+                        if (vabs(xa - xc) < 6 && yc > ya - 14 && yc < ya + 7)
                             levaCartao(j, i);
                     }	
                 }
             }
-            else
-            {  /// LOCALIZAR IMPACTO COM VILÃO AQUI
+            else if (v.ativo)
+            {
+                xa = (short) pos(v.x);
+                ya = (short) pos(v.y);
+                if (xa >= xc - 4 && xa <= xc + 8 && ya >= yc - 16 && ya <= yc + 14)
+                    levaCartaoVilao(i);
             }
             if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
             {
@@ -544,9 +561,10 @@ void inicializaAgentes()
 
 void inicializaVilao()
 {
+    v.ativo = true;
     v.energia = 100;
-    v.x = real(XTACA);
-    v.y = real(y_taca);
+    v.x = real(VLX);
+    v.y = real(VLY);
     switch (nivel)
     {
       	case 17: v.nome = TIGRE; break;
@@ -707,21 +725,24 @@ void main(void)
                         oam_clear();
                         escrita_centralizada(" PARABENS!", 8);
                         escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
-                        prox = true;
                         ppu_on_all();
+                        prox = true;
                         espera(300);
                     }
                     // *** Rotinas aleatórias
-                    // **************** , movimentação do inimigo (em campo próprio), bônus
+                    // **************** , movimentação do inimigo (em campo próprio)
                     // Atualização do quadro
-                    oam_clear();
-                    atualizaPlacar();
-                    atualizaSprites();
-                    atualizaBonus();
-                    if (deb <= DEBOUNCE) deb++;
-                    if (dec <= DELAY_CHUTE) dec++;
-                    if (res <= RESERVA) res++;
-                    if (rec <= RECUPERACAO) rec++;
+                    else
+                    {
+                        oam_clear();
+                        atualizaPlacar();
+                        atualizaSprites();
+                        atualizaBonus();
+                        if (deb <= DEBOUNCE) deb++;
+                        if (dec <= DELAY_CHUTE) dec++;
+                        if (res <= RESERVA) res++;
+                        if (rec <= RECUPERACAO) rec++;
+                    }
                     ppu_wait_nmi();
                     if (pausa) espera(100);
                 }
