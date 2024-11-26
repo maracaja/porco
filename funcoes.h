@@ -3,9 +3,6 @@
 
 #include "neslib.h"
 
-// Macros
-#define reset_pulo(void) pulo = false
-
 // Variável de controle para escapar de introduções
 static bool pulo;
 
@@ -34,7 +31,6 @@ void entrada_nivel(byte nivel);
 void historinha(void);
 
 // Início dos níveis especiais do jogo
-void inicio_conversa_vilao(void);
 void conversa_tigre(void);
 void conversa_edson(void);
 void conversa_devil(void);

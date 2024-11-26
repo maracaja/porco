@@ -48,6 +48,7 @@ extern char tema_fim[];
 #define gol_disponivel (luvas < 3)
 #define din_disponivel (vidas < 9 || energia < 99)
 // Tipo de nível
+#define nivel_comum (nivel % DIVISOR != 0 || nivel == 0)
 #define veloc (nivel > 25 ? 2 : 1)
 
 // Tabela de senos normalizados em 8 bits (x2)
@@ -59,7 +60,7 @@ const byte PALETTE[16] = { 0x0C,0x0F,0x30,0x16,0x0C,0x19,0x36,0x30,0x0C,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x0c,0x16,0x36,0x30,0x0c,0x30,0x17,0x0f,0x0c,0x38,0x27,0x21,0x0c,0x30,0x06,0x0f,0x0c,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {/*0, 10, 25,*/ 34, 50, 51, 99};
+const byte const demo[7] = {/*0, 10, 25,*/ 51, 50, 51, 99};
 
 // Objetos
 static byte arena;
@@ -260,9 +261,9 @@ void pal_adv()
 {
     switch (nivel)
     {
-      	case 17: troca_paleta(2);
-        case 34: troca_paleta(3);
-        case 51: troca_paleta(0);
+      	case 17: troca_paleta(2); break;
+        case 34: troca_paleta(3); break;
+        case 51: troca_paleta(0); break;
       	default: troca_paleta(nivel % 5);
     }
 }
@@ -481,7 +482,6 @@ void main(void)
         // Início da história
         setup_graphics();
         historinha();
-	reset_pulo();
         limpa_tela(NAMETABLE_A);
         nivel = completo ? 0 : demo[j = 0];
         inicializaJogador();
@@ -489,9 +489,9 @@ void main(void)
         {   // Loop do jogo
             // Início do nível
             entrada_nivel(nivel);
-            
+            pal_adv();
             // Define parâmetros de nível
-            if (nivel % DIVISOR != 0 || nivel == 0)
+            if (nivel_comum)
             {
                 ppu_off();
                 posicionaJogador();
@@ -499,7 +499,6 @@ void main(void)
                 scroll(0, 0);
                 inicializaAgentes();
                 posicionaAdvs();
-            	pal_adv();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
                 // ************famitone_init(trilha);
@@ -510,28 +509,30 @@ void main(void)
             else
             {
               	ppu_off();
+                pulo = false;
                 bonus &= ~TEM_TACA;
                 y_taca = YTACA + 32;
-                famitone_init(trilha_fifa);
-              	pal_adv();
-                scroll(0, 0);
-                ppu_on_all();
-              	inicio_conversa_vilao();
-		music_play(0);
-		switch (nivel)
+                //*****************famitone_init(trilha_fifa);
+                oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
+                //*******************music_play(0);
+		switch (nivel / DIVISOR)
 		{
-		   case 17:
-			oam_meta_spr(VLX, TTY, EXTRA, spr_tigre_parado);
+		   case 1:
+			oam_meta_spr(VLX, VLYI, EXTRA, spr_tigre_parado);
+                        ppu_on_all();
 			conversa_tigre();
 			break;
-		   case 34: 
-			oam_meta_spr(VLX, TTY, EXTRA, spr_edson_parado);
+		   case 2: 
+			oam_meta_spr(VLX, VLYI, EXTRA, spr_edson_parado);
+                        ppu_on_all();
 			conversa_edson();
 			break;
 		   default: 
-			oam_meta_spr(VLX, TTY, EXTRA, spr_diabito_parado);
+			oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
+                        ppu_on_all();
 			conversa_devil();
 		}
+                espera(120);
                 ppu_off();
                 posicionaJogador();
                 arena = carrega_arena(nivel);

@@ -30,6 +30,7 @@
 #define TTX 24
 #define TTY 32
 #define VLX 128
+#define VLYI 24
 #define VLY 100
 #define SPRX TTX - 4
 #define SPRY TTY + 60

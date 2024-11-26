@@ -176,20 +176,13 @@ void conversa()
         escreve_mensagem(trechos[i], 2 * i - 42, COL_INTRO);
 }
 
-void inicio_conversa_vilao()
-{
-    limpa_tela(NAMETABLE_A);
-    reset_pulo();
-    oam_clear();
-    oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
-}
-
 void conversa_tigre()
 {
     byte i;
     const char* const trechos[] = { "TU NO LLEGARAS A LA FINAL.",
                                     "@QUIEN MANDA ACA SOY YO!",
                                     "@JAJAJAJAJA!" };
+    pulo = false;
     for (i = 0; i < 3; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
 }
 
@@ -201,6 +194,7 @@ void conversa_edson()
                                     "POSSO FAZER MAIS DE 1000",
                                     "GOLS, VOCE NAO VAI VENCER.",
                                     "CAIU NA REDE, e PEIXE!" };
+    pulo = false;
     for (i = 0; i < 5; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
 }
 
@@ -208,7 +202,7 @@ void conversa_devil()
 {
     byte i;
     const char* const trechos[] = { "AH SHIT, HERE WE GO AGAIN!",
-                                    "PLEASE ALLOW ME TO INTRODUCE",
+                                    "PLEASE ALLOW ME 2 INTRODUCE",
                                     "MYSELF, I*M A MAN... VOCE",
                                     "JA SABE! TITIA TE MANDOU",
                                     "IR ATRAS DE FUTEBOWSER, MAS",
@@ -217,7 +211,8 @@ void conversa_devil()
                                     "VAI FALHAR CONTRA MIM.",
                                     "QUE O JOGO COMECE, QUERO",
                                     "TOMAR MEU CHA LOGO MAIS!" };
-    // Acho que terei que recolocar o Caim ...
+    oam_meta_spr(CX, CY + 10, CAIM, spr_jogador_parado);
+    pulo = false;
     for (i = 0; i < 10; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
 }
 
