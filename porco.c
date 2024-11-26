@@ -481,7 +481,11 @@ void atualizaSprites()
 
 void atualizaBonus()
 {
-    if (tbo[0] >= DELAY_BONUS) bonus &= ~BGOL;
+    if (tbo[0] >= DELAY_BONUS)
+    {
+        bonus &= ~BGOL;
+        tbo[0] = 0;
+    }
     else if (gol_disponivel && dbo[0] >= DELAY_BONUS)
     {
       	bonus |= BGOL;
@@ -489,7 +493,11 @@ void atualizaBonus()
         yb[0] = y_bonus(arena);
         dbo[0] = 0; tbo[0] = 0;
     }
-    if (tbo[1] >= DELAY_BONUS) bonus &= ~BARB;
+    if (tbo[1] >= DELAY_BONUS)
+    {
+        bonus &= ~BARB;
+        tbo[1] = 0;
+    }
     else if (arb_disponivel && dbo[1] >= DELAY_BONUS)
     {
         bonus |= BARB;
@@ -497,7 +505,11 @@ void atualizaBonus()
         yb[1] = y_bonus(arena);
         dbo[1] = 0; tbo[1] = 0;
     }
-    if (tbo[2] >= DELAY_BONUS) bonus &= ~BNRG;
+    if (tbo[2] >= DELAY_BONUS)
+    {
+        bonus &= ~BNRG;
+        tbo[2] = 0;
+    }
     else if (nrg_disponivel && dbo[2] >= DELAY_BONUS)
     {
         bonus |= BNRG;
@@ -505,7 +517,11 @@ void atualizaBonus()
         yb[2] = y_bonus(arena);
         dbo[2] = 0; tbo[2] = 0;
     }
-    if (tbo[3] >= DELAY_BONUS) bonus &= ~BDIN;
+    if (tbo[3] >= DELAY_BONUS)
+    {
+      	bonus &= ~BDIN;
+        tbo[3] = 0;
+    }
     else if (din_disponivel && poup > 0 && dbo[3] >= DELAY_BONUS)
     {
         bonus |= BDIN;
@@ -652,7 +668,7 @@ void main(void)
                     ppu_off();
                     escrita_centralizada("       ", 2);
                     ppu_on_all();
-                    espera(5);
+                    espera(15);
                     //**********music_pause(0);
                 } 
                 else if (!pausa)
