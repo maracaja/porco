@@ -39,9 +39,9 @@ typedef struct {
 } Vilao;
 
 // Inicializações 
-void inicializaAdv(Adversario* a);
-void inicializaBol(Bola* b);
-void inicializaCar(Cartao* c);
+void inicializa_adv(Adversario* a);
+void inicializa_bol(Bola* b);
+void inicializa_car(Cartao* c);
 
 // Encontra a direção para o adversário chutar
 byte direcao(short dx, short dy);

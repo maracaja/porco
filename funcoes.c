@@ -338,5 +338,5 @@ void placar(byte n, byte col, byte dig)
     }
 }
 
-void corCartao(bool verm)
+void cor_cartao(bool verm)
 { oam_spr(PLC, PL_LIN, CARD, verm ? 0 : 3, PL_CARD); }
