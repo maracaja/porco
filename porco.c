@@ -241,6 +241,7 @@ void vilao_chuta()
     bolas[i].x = v.x - real(4);
     bolas[i].y = v.y + real(16);
     bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);
+    dec = 0;
 }
 
 bool pegou_taca()
@@ -521,7 +522,17 @@ void atualiza_sprites()
         if (advs[ata].ativo && dec > DELAY_CHUTE) chuta(ata);
         else ata = (ata >= N_ADVS) ? 0 : ata + 1;
     }
-    
+    else if (v.ativo && dec > DELAY_CHUTE)
+    {
+	switch (nivel)
+	{
+	     case 17:
+	     case 34:
+		  if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
+		  break;
+	     default: vilao_chuta(); 
+	}
+    }
 }
 
 void atualiza_bonus()
@@ -771,7 +782,6 @@ void main(void)
                         prox = true;
                         espera(300);
                     }
-                    // **************** , movimentação do inimigo (em campo próprio)
                     // Atualização do quadro
                     else
                     {
