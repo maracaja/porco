@@ -134,9 +134,9 @@ void sofre_falta()
                     else bonus &= ~TEM_CARTAO;
                 }
                 else energia = MAX(0, energia - 50);
-                posiciona_jogador();
                 rec = 0;
         }
+	posiciona_jogador();
         dbo[1] = 0; dbo[2] = 0;
     }
 }
