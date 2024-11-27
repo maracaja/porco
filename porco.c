@@ -720,7 +720,7 @@ void main(void)
                     ppu_on_all();
                     conversa_devil();
                 }
-                espera(120);
+                if (!pulo) espera(120);
                 ppu_off();
                 posiciona_jogador();
                 arena = carrega_arena(nivel);
