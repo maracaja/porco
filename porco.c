@@ -529,11 +529,10 @@ void atualiza_sprites()
         {
             switch (nivel)
             {
-                 case 17:
-                 case 34:
-                      if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
-                      break;
-                 default: vilao_chuta(); 
+                 case 34: vilao_chuta(); break;     
+                 default: 
+		     if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
+                     break;
             }
         }
     }
