@@ -155,7 +155,7 @@ void escala_goleiro()
 
 void compra_arbitro()
 {
-    if (tem_cartao) bonus |= CARD_VERM;
+    if (temCartao) bonus |= CARD_VERM;
     else bonus |= TEM_CARTAO & ~CARD_VERM;
     bonus &= ~BARB;
 }
@@ -344,7 +344,7 @@ void atualiza_placar()
     placar(dinheiro, PLD, 2);
     placar(energia, PLE, 2);
     placar(luvas, PLL, 1);
-    if (tem_cartao) cor_cartao(cVermelho);
+    if (temCartao) cor_cartao(cVermelho);
 }
 
 // Atualização dos sprites a cada quadro
@@ -518,21 +518,24 @@ void atualiza_sprites()
     }
     else dbo[3]++;
     // Prepara novo chute
-    if (nivel_comum)
+    if (dec > DELAY_CHUTE)
     {
-        if (advs[ata].ativo && dec > DELAY_CHUTE) chuta(ata);
-        else ata = (ata >= N_ADVS) ? 0 : ata + 1;
-    }
-    else if (v.ativo && dec > DELAY_CHUTE)
-    {
-	switch (nivel)
-	{
-	     case 17:
-	     case 34:
-		  if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
-		  break;
-	     default: vilao_chuta(); 
-	}
+        if (nivel_comum)
+        {
+            if (advs[ata].ativo) chuta(ata);
+            else ata = (ata >= N_ADVS) ? 0 : ata + 1;
+        }
+        else if (v.ativo)
+        {
+            switch (nivel)
+            {
+                 case 17:
+                 case 34:
+                      if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
+                      break;
+                 default: vilao_chuta(); 
+            }
+        }
     }
 }
 
@@ -760,7 +763,7 @@ void main(void)
                         if (nao_bate_parede(arena, x, y + dy, true)) y += dy;
                     }
                     // Atira cartão (se tiver esse poder)
-                    if (pad & PAD_A && tem_cartao && deb > DEBOUNCE) atira();
+                    if (pad & PAD_A && temCartao && deb > DEBOUNCE) atira();
                     if (pad & PAD_START)
                     {	// Pausa
                         pausa = true;
