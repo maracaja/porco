@@ -12,10 +12,11 @@
 //#link "objetos.c"
 
 // Importação dos recursos gráficos
-//#resource "titulo.h"
-//#resource "niveis.h"
 //#resource "chr_porco.chr"
 //#link "tileset.s"
+//#resource "titulo.h"
+//#resource "niveis.h"
+#include "tela_fim.h"
 #include "sprites.h"
 //#link "sprites.c"
 
@@ -810,20 +811,27 @@ void main(void)
                 prox = false;
             }
         }
+	limpa_tela(NAMETABLE_A);
         if (vidas <= 0) // Game Over
         {
-            limpa_tela(NAMETABLE_A);
-	        game_over();
+	    game_over();
             sfx_play(0, 0);
-            pad = pad_poll(0);
-            while (!(pad & PAD_START))
-            {
-              	pad = pad_poll(0);
-                ppu_wait_nmi();
-            }
-            limpa_tela(NAMETABLE_A);
-            limpa_tela(NAMETABLE_C);
         } 
-        else ; // Vitória
+        else // Vitória
+	{
+	    ppu_off();
+	    setup_graphics();
+	    vram_unrle(tela_fim);
+	    ppu_on_all();
+	}
+	// Espera START para voltar ao início da aplicação
+	pad = pad_poll(0);
+	while (!(pad & PAD_START))
+	{
+	    pad = pad_poll(0);
+	    ppu_wait_nmi();
+	}
+	limpa_tela(NAMETABLE_A);
+        limpa_tela(NAMETABLE_C);
     }
 }
