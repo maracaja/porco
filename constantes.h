@@ -5,6 +5,9 @@
 #define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
 #define DEBOUNCE 15
 #define DELAY_CHUTE 15
+#define DELAY_BONUS 500
+#define RECUPERACAO 60
+#define RESERVA 120
 // Sprites
 #define ZERO 0x30
 #define CARD 0x01
@@ -30,6 +33,7 @@
 #define TTX 24
 #define TTY 32
 #define VLX 128
+#define VLYI 24
 #define VLY 100
 #define SPRX TTX - 4
 #define SPRY TTY + 60

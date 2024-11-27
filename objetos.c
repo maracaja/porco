@@ -85,7 +85,7 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
             if (j >= YMAX - (jog ? 16 : 24)) return i >= XMIN + 33 && i <= XMAX - 33;
             break;
       	default:
-            if (j <= (jog ? 16 : 8)) return false;
+            if (j <= YMIN + (jog ? 16 : 8)) return false;
             if (j >= 160 && j <= (jog ? 190 : 182)) return i >= XMIN + 49 && i <= XMAX - 49;
     }
     return true;
@@ -107,8 +107,8 @@ byte y_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 0: return YMAX - 68 + rand() % 41;
-      	case 1: return YMAX - 30 + rand() % 41;
-      	default: return YMAX - 30 + rand() % 31;
+      	case 0: return YMAX - 77 + rand() % 40;
+      	case 1: return YMAX - 40 + rand() % 40;
+      	default: return YMAX - 40 + rand() % 30;
     }
 }
