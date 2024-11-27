@@ -4,8 +4,6 @@
 #include "neslib.h"
 #include "vrambuf.h"	// VRAM update buffer
 //#link "vrambuf.c"
-#include "bcd.h"	// BCD arithmetic support
-//#link "bcd.c"
 //#link "famitone2.s"
 #include "constantes.h" // Constantes usadas
 #include "funcoes.h"	// Biblioteca de funções
@@ -144,6 +142,27 @@ void sofreFalta()
         else energia = MAX(0, energia - 50);
         posicionaJogador();
         rec = 0;
+        dbo[1] = 0; dbo[2] = 0;
+    }
+}
+
+void sofreFaltaVilao()
+{
+    if (rec > RECUPERACAO)
+    {
+        switch (nivel)
+        {
+            case 34: energia = 0; break;
+            default:
+            	if (bonus & TEM_CARTAO)
+                {
+                    if (cVermelho) bonus &= ~CARD_VERM;
+                    else bonus &= ~TEM_CARTAO;
+                }
+                else energia = MAX(0, energia - 50);
+                posicionaJogador();
+                rec = 0;
+        }
         dbo[1] = 0; dbo[2] = 0;
     }
 }
@@ -380,7 +399,12 @@ void atualizaSprites()
     }
     else
     {
-        ////// AÇÕES DO VILÃO
+        // SOFRE FALTA...
+        switch (nivel)
+        {
+            // Movimentação e ações...
+            default: break;
+        }
         oam_meta_spr(pos(v.x), pos(v.y), EXTRA, v.nome == TIGRE ? spr_tigre(lado) : (v.nome == EDISON ? spr_edson(lado) : spr_diabito(lado)));
     }
     // Cartões
@@ -588,7 +612,7 @@ void main(void)
     short dx, dy;	// Variáveis de deslocamento do jogador
     // Configurações iniciais de áudio
     famitone_init(abertura);
-    sfx_init(NULL);
+    sfx_init(tema_fim);
     nmi_set_callback(famitone_update);
     while (1)
     {	// Loop infinito
@@ -629,7 +653,7 @@ void main(void)
             {
                 ppu_off();
                 res = RESERVA;
-                banco = 10 + nivel % DIVISOR;
+                banco = 11 + nivel % DIVISOR;
                 posicionaJogador();
                 arena = carrega_arena(nivel);
                 scroll(0, 0);
@@ -647,7 +671,7 @@ void main(void)
               	ppu_off();
                 pulo = false;
                 bonus &= ~TEM_TACA;
-                y_taca = YTACA + 32;
+                y_taca = YTACA + 16;
                 //*****************famitone_init(trilha_fifa);
                 oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
                 //*******************music_play(0);
@@ -720,12 +744,15 @@ void main(void)
                     }
                     if (pegou_taca())
                     {
-                        ppu_off();
-                        music_stop();
-                        oam_clear();
-                        escrita_centralizada(" PARABENS!", 8);
-                        escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
-                        ppu_on_all();
+                        if (nivel_comum)
+                        {
+                            ppu_off();
+                            music_stop();
+                            oam_clear();
+                            escrita_centralizada(" PARABENS!", 8);
+                            escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
+                            ppu_on_all();
+                        }
                         prox = true;
                         espera(300);
                     }
@@ -763,6 +790,7 @@ void main(void)
         {
             limpa_tela(NAMETABLE_A);
 	    game_over();
+            sfx_play(0, 0);
             pad = pad_poll(0);
             while (!(pad & PAD_START))
             {
