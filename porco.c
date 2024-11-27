@@ -79,6 +79,8 @@ static byte res;   // Tempo (em quadros) para aparecer o reserva
 static byte poup;  // Quantidade de moedas que podem aparecer
 static word tbo[4];  // Conta o tempo que o bônus aparece na tela
 static word dbo[4];  // Tempo sem bônus na tela
+static bool lado = false;  // Flag de animação
+static bool corre = false;
 
 // Dados do jogador
 static word x, y;
@@ -87,8 +89,6 @@ static byte energia;
 static byte luvas;
 static byte vidas;
 static byte move;
-static bool lado = false;  // Flag de animação
-static bool corre = false;
 
 // Dados de presença dos bônus
 static byte bonus;
@@ -235,6 +235,14 @@ void chuta(byte a)
     dec = 0;
 }
 
+void vilao_chuta()
+{
+    byte i = ativa_bola();
+    bolas[i].x = v.x - real(4);
+    bolas[i].y = v.y + real(16);
+    bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);
+}
+
 bool pegou_taca()
 {
     byte i = pos(x), j = pos(y);
@@ -367,16 +375,37 @@ void atualiza_sprites()
                 corre_atras(5);
                 corre_atras(3);
             }
-            for (i = 0; i < 3; i++) advs[i].x += real(lado ? 4 : -4);
+            for (i = 0; i < 3; i++) advs[i].x += real(lado ? 5 : -5);
         }
     }
-    else
+    else if (v.ativo)
     {
-        // SOFRE FALTA...
+        xa = (short) pos(v.x);
+        ya = (short) pos(v.y);
+        if (xa > x - 4 && xa < x + 12 && ya > y - 24 && ya < y + 16) sofre_falta();
         switch (nivel)
         {
-            // Movimentação e ações...
-            default: break;
+            case 17: 
+                dx = rand() & 0x01 ? 2 : -2;
+                dy = rand() & 0x01 ? -2 : 2;
+                if (xa + dx >= 58 && xa + dx <= 198) v.x += real(dx);
+                if (ya + dy >= 50 && ya + dy <= 100) v.y += real(dy);
+                break;
+            case 34:
+                v.x = real(MAX(50, MIN(200, 255 - xj)));
+                v.y = (xa == 50 || xa == 200) ? real(MAX(50, ya - 2)) : real(MIN(120, ya + 2));
+                break;
+            default:
+                if (ya > 144 && (xj < 80 || xj > 176)) v.y = real(144);
+                else if (xj < 80) v.x = real(60);
+                else if (xj > 176) v.x = real(176);
+                else if (xj >= 100 && xj <= 156)
+                {
+                    byte da = direcao2(x, v.x, y, v.y);
+                    v.x += (COS(da) << 3);
+                    v.y += (SEN(da) << 3); 
+                }
+                else y.x += real(lado ? 7 : -7);
         }
         oam_meta_spr(pos(v.x), pos(v.y), EXTRA, v.nome == TIGRE ? spr_tigre(lado) : (v.nome == EDISON ? spr_edson(lado) : spr_diabito(lado)));
     }
@@ -404,9 +433,7 @@ void atualiza_sprites()
             }
             else if (v.ativo)
             {
-                xa = (short) pos(v.x);
-                ya = (short) pos(v.y);
-                if (xa >= xc - 4 && xa <= xc + 8 && ya >= yc - 16 && ya <= yc + 14)
+                if (xa > xc - 4 && xa < xc + 8 && ya > yc - 16 && ya < yc + 14)
                     leva_cartao_vilao(i);
             }
             if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
@@ -489,8 +516,12 @@ void atualiza_sprites()
     }
     else dbo[3]++;
     // Prepara novo chute
-    if (advs[ata].ativo && dec > DELAY_CHUTE) chuta(ata);
-    else ata = (ata >= N_ADVS) ? 0 : ata + 1;
+    if (nivel_comum)
+    {
+        if (advs[ata].ativo && dec > DELAY_CHUTE) chuta(ata);
+        else ata = (ata >= N_ADVS) ? 0 : ata + 1;
+    }
+    
 }
 
 void atualiza_bonus()
