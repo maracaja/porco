@@ -23,6 +23,7 @@ Com a evolução da partida, moedas aparecerão. Juntando 100, é possível soma
 
 Os grandes vilões do jogo aparecerão em três momentos do início até o glorioso nível 51: você vai precisar derrotá-los para que a taça apareça!
 
+### Controles:
 - **Setas:** movem o jogador pelo terreno. O jogador também pode correr pelas diagonais.
 - **A:** atira cartões contra os oponentes, se o poder estiver ativado. Em trechos de conversas, pula direto para o jogo.
 - **Start:** Pausa o jogo.
