@@ -233,7 +233,6 @@ void chuta(byte a)
         bolas[i].y = advs[a].y + real(8);
         bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);  
     }
-    dec = 0;
 }
 
 void vilao_chuta()
@@ -242,7 +241,6 @@ void vilao_chuta()
     bolas[i].x = v.x - real(4);
     bolas[i].y = v.y + real(16);
     bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);
-    dec = 0;
 }
 
 bool pegou_taca()
@@ -532,9 +530,9 @@ void atualiza_sprites()
                  case 34: vilao_chuta(); break;     
                  default: 
 		     if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
-                     break;
             }
         }
+        dec = 0;
     }
 }
 
@@ -823,7 +821,7 @@ void main(void)
 	{
 	    ppu_off();
 	    setup_graphics();
-	    vram_unrle(completo ? tela_fim : tela_fim_demo);
+	    vram_unrle(completo ? tela_fim_completo : tela_fim_demo);
 	    ppu_on_all();
 	}
 	// Espera START para voltar ao início da aplicação
