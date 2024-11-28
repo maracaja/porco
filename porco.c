@@ -16,7 +16,7 @@
 //#link "tileset.s"
 //#resource "titulo.h"
 //#resource "niveis.h"
-#include "telafinal.h"
+#include "tela_fim.h"
 #include "sprites.h"
 //#link "sprites.c"
 
