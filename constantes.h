@@ -68,5 +68,15 @@
 #define CARD_VERM 0x20
 #define CARD_ATIVO 0x40
 #define TEM_TACA 0x40
+// Localizações dos efeitos de áudio
+#define SFX_CHUTE 0
+#define SFX_ATIRA 1
+#define SFX_JUIZ 2
+#define SFX_FALTA 3
+#define SFX_ACERTO 4
+#define SFX_BONUS 5
+#define SFX_BOLADA 6
+#define SFX_FIM0 7
+#define SFX_FIM1 999
 
 #endif

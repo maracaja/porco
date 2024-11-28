@@ -24,11 +24,11 @@
 //#link "abertura.s"
 //#link "trilha.s"
 //#link "trilha_viloes.s"
-//#link "game_over_1.s"
+//#link "sons.s"
 extern char abertura[];
 extern char trilha[];
 extern char trilha_fifa[];
-extern char tema_fim[];
+extern char sons[];
 
 // MACROS
 // Trigonometria
@@ -59,7 +59,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
+const byte const demo[7] = {/*0, 10, 25, 34, 50, */51, 99};
 
 // Objetos
 static byte arena;
@@ -180,6 +180,7 @@ void leva_bolada()
     if (luvas > 0) luvas--;
     else energia = MAX(0, energia - 19);
     if (gol_disponivel) dbo[0] = 0;
+    sfx_play(SFX_BOLADA, 0);
 }
 
 void sofre_falta()
@@ -200,6 +201,7 @@ void sofre_falta()
         }
 	posiciona_jogador();
         dbo[1] = 0; dbo[2] = 0;
+        sfx_play(SFX_FALTA, 0);
     }
 }
 
@@ -207,12 +209,14 @@ void toma_energetico()
 {
     energia = MIN(energia + 51, 99);
     bonus &= ~BNRG;
+    sfx_play(SFX_BONUS, 0);
 }
 
 void escala_goleiro()
 {
     luvas = nivel < 51 ? 5 : 2;
     bonus &= ~BGOL;
+    sfx_play(SFX_BONUS, 0);
 }
 
 void compra_arbitro()
@@ -220,6 +224,7 @@ void compra_arbitro()
     if (temCartao) bonus |= CARD_VERM;
     else bonus |= TEM_CARTAO & ~CARD_VERM;
     bonus &= ~BARB;
+    sfx_play(SFX_JUIZ, 0);
 }
 
 void ganha_dinheiro()
@@ -231,6 +236,7 @@ void ganha_dinheiro()
         dinheiro = 0;
     }
     bonus &= ~BDIN;
+    sfx_play(SFX_BONUS, 0);
 }
 
 byte ativa_cartao()
@@ -269,6 +275,7 @@ void atira()
         cards[i].y = y - real(16);
         cards[i].info |= (!jogador_mov || jogador_dir > 16) ? 24 : (jogador_dir < 8 ? 28 : 20);
     }
+    sfx_play(SFX_ATIRA, 0);
     deb = 0;
 }
 
@@ -294,7 +301,8 @@ void chuta(byte a)
         byte i = ativa_bola();
         bolas[i].x = advs[a].x;
         bolas[i].y = advs[a].y + real(8);
-        bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);  
+        bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);
+        sfx_play(SFX_CHUTE, 0);
     }
 }
 
@@ -304,6 +312,7 @@ void vilao_chuta()
     bolas[i].x = v.x - real(4);
     bolas[i].y = v.y + real(16);
     bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);
+    sfx_play(SFX_CHUTE, 0);
 }
 
 bool pegou_taca()
@@ -328,6 +337,7 @@ void leva_cartao(byte a, byte c)
         poup++;
     }
     desativa_cartao(c);
+    sfx_play(SFX_ACERTO, 0);
 }
 
 void leva_cartao_vilao(byte c)
@@ -339,6 +349,7 @@ void leva_cartao_vilao(byte c)
         bonus |= TEM_TACA;
     }
     desativa_cartao(c);
+    sfx_play(SFX_ACERTO, 0);
 }
 
 // Alternância de paleta conforme o nível
@@ -588,7 +599,7 @@ void atualiza_sprites()
             if (advs[ata].ativo) chuta(ata);
             else ata = (ata >= N_ADVS) ? 0 : ata + 1;
         }
-        else if (v.ativo && !(rand() & (nivel == 17 ? 0x03 : 0x01)))
+        else if (v.ativo && !(rand() & (nivel == 34 ? 0x01 : 0x03)))
             vilao_chuta();
         dec = 0;
     }
@@ -654,7 +665,7 @@ void main(void)
     int dx, dy;	// Variáveis de deslocamento do jogador
     // Configurações iniciais de áudio
     famitone_init(abertura);
-    sfx_init(tema_fim);
+    sfx_init(sons);
     nmi_set_callback(famitone_update);
     while (1)
     {	// Loop infinito
@@ -828,7 +839,7 @@ void main(void)
         if (vidas <= 0) // Game Over
         {
 	    game_over();
-            sfx_play(0, 0);
+            sfx_play(nivel & 0x01 ? SFX_FIM1 : SFX_FIM0, 0);
         } 
         else // Vitória
 	{
