@@ -16,7 +16,7 @@
 //#link "tileset.s"
 //#resource "titulo.h"
 //#resource "niveis.h"
-#include "tela_fim.h"
+#include "telafinal.h"
 #include "sprites.h"
 //#link "sprites.c"
 
@@ -51,7 +51,7 @@ extern char tema_fim[];
 #define veloc (nivel > 25 ? 2 : 1)
 
 // Tabela de senos normalizados em 8 bits (x2)
-const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
+const int const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
 
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
@@ -329,7 +329,7 @@ void corre_atras(byte i)
     if (advs[i].ativo)
     {
         byte da = direcao2(x, advs[i].x, y, advs[i].y);
-        short dx = COS(da) << 1, dy = SEN(da) << 1; 
+        int dx = COS(da) << 1, dy = SEN(da) << 1; 
         if (nao_bate_parede(arena, advs[i].x + dx, advs[i].y, true)) advs[i].x += dx;
         if (nao_bate_parede(arena, advs[i].x, advs[i].y + dy, true)) advs[i].y += dy;
     }
@@ -348,8 +348,8 @@ void atualiza_placar()
 // Atualização dos sprites a cada quadro
 void atualiza_sprites()
 {
-    byte i, j;
-    short dx, dy, xa, ya, xc, yc, xj = pos(x), yj = pos(y);
+    byte i, j, m, n, da;
+    int dx, dy, xa, ya, xc, yc, xj = pos(x), yj = pos(y);
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
     // Adversários
@@ -359,8 +359,8 @@ void atualiza_sprites()
         {
             if (advs[i].ativo)
             {
-                xa = (short) pos(advs[i].x);
-                ya = (short) pos(advs[i].y);
+                xa = (int) pos(advs[i].x);
+                ya = (int) pos(advs[i].y);
                 if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofre_falta();
                 oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv());
             }
@@ -380,16 +380,19 @@ void atualiza_sprites()
     }
     else if (v.ativo)
     {
-        xa = (short) pos(v.x);
-        ya = (short) pos(v.y);
-        if (xa > x - 4 && xa < x + 12 && ya > y - 24 && ya < y + 16) sofre_falta();
+        xa = (int) pos(v.x);
+        ya = (int) pos(v.y);
+        if (xa > xj - 4 && xa < xj + 12 && ya > yj - 24 && ya < yj + 16) sofre_falta();
         switch (nivel)
         {
             case 17: 
-                dx = rand() & 0x01 ? 2 : -2;
-                dy = rand() & 0x01 ? -2 : 2;
-                if (xa + dx >= 58 && xa + dx <= 198) v.x += real(dx);
-                if (ya + dy >= 50 && ya + dy <= 100) v.y += real(dy);
+                da = rand() & 0x1F;
+                dx = COS(da) << 1;
+                dy = SEN(da) << 1;
+                m = pos(v.x + dx);
+                n = pos(v.y + dy);
+                if (m >= 58 && m <= 198) v.x += dx;
+                if (n >= 50 && n <= 100) v.y += dy;
                 break;
             case 34:
                 v.x = real(MAX(50, MIN(200, 255 - xj)));
@@ -398,14 +401,14 @@ void atualiza_sprites()
             default:
                 if (ya > 144 && (xj < 80 || xj > 176)) v.y = real(144);
                 else if (xj < 80) v.x = real(60);
-                else if (xj > 176) v.x = real(176);
+                else if (xj > 176) v.x = real(196);
                 else if (xj >= 100 && xj <= 156)
                 {
-                    byte da = direcao2(x, v.x, y, v.y);
+                    da = direcao2(x, v.x, y, v.y);
                     v.x += (COS(da) << 3);
                     v.y += (SEN(da) << 3); 
                 }
-                else y.x += real(lado ? 7 : -7);
+                else v.x += real(lado ? 7 : -7);
         }
         oam_meta_spr(pos(v.x), pos(v.y), EXTRA, v.nome == TIGRE ? spr_tigre(lado) : (v.nome == EDISON ? spr_edson(lado) : spr_diabito(lado)));
     }
@@ -416,16 +419,16 @@ void atualiza_sprites()
         {
             dx = COS(card_dir(cards[i])) << 2;
             dy = SEN(card_dir(cards[i])) << 2;
-            xc = (short) pos(cards[i].x);
-            yc = (short) pos(cards[i].y);
+            xc = (int) pos(cards[i].x);
+            yc = (int) pos(cards[i].y);
             if (nivel_comum)
             {
                 for (j = 0; j < N_ADVS; j++)
                 {
                     if (advs[j].ativo)
                     {
-                        xa = (short) pos(advs[j].x);
-                        ya = (short) pos(advs[j].y);
+                        xa = (int) pos(advs[j].x);
+                        ya = (int) pos(advs[j].y);
                         if (vabs(xa - xc) < 6 && yc > ya - 14 && yc < ya + 7)
                             leva_cartao(j, i);
                     }	
@@ -637,7 +640,7 @@ void main(void)
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
-    short dx, dy;	// Variáveis de deslocamento do jogador
+    int dx, dy;	// Variáveis de deslocamento do jogador
     // Configurações iniciais de áudio
     famitone_init(abertura);
     sfx_init(tema_fim);

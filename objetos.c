@@ -3,7 +3,7 @@
 #include "objetos.h"
 
 // Tabela normalizada de tangentes
-const short const TG[16] = {-2599, -844, -479, -312, -210, -137, -78, -25, 25, 78, 137, 210, 312, 479, 844, 2599};
+const int const TG[16] = {-2599, -844, -479, -312, -210, -137, -78, -25, 25, 78, 137, 210, 312, 479, 844, 2599};
 
 byte i;	// Variável para iteração
 
@@ -22,9 +22,9 @@ void inicializa_bol(Bola* b)
 void inicializa_car(Cartao* c)
 {  for (i = 0; i < N_CARDS; i++) c[i].info = 0x00; }
 
-byte direcao(short dx, short dy)
+byte direcao(int dx, int dy)
 {
-    short delta = pos(dx), tan;
+    int delta = pos(dx), tan;
     if (delta == 0) return dy >= 0 ? 8 : 24;
     tan = dy / delta;
     i = tan > 0 ? 8 : 0;
