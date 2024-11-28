@@ -106,13 +106,75 @@ void setup_graphics()
     pal_spr(PALETTE);
 }
 
-// Funções referentes ao jogador
+// Cria um novo adversário na tela
+void novo_adversario(byte i)
+{
+    if (res >= RESERVA) 
+    {
+        advs[i].ativo = true;
+        advs[i].energia = 100;
+        advs[i].x = i < 3 ? real(98 + 24 * (i % 3)) : real(64 + 60 * (i % 3));
+        advs[i].y = real(YMIN + (i < 3 ? 40 : 70 + 15 * arena));
+        banco--;
+    }
+}
+
 void posiciona_jogador()
 {
     x = real(CX);
     y = real(CY);
 }
 
+// Inicializações
+void inicializa_jogador()
+{
+    posiciona_jogador();
+    dinheiro = 0;
+    energia = 99;
+    luvas = 0;
+    vidas = 3;
+    bonus = BGOL | BARB | BDIN;
+    poup = 0;
+}
+
+void posiciona_vilao()
+{
+    v.x = real(VLX);
+    v.y = real(VLY);
+}
+
+void inicializa_vilao()
+{
+    v.ativo = true;
+    v.energia = 100;
+    posiciona_vilao();
+    switch (nivel)
+    {
+      	case 17: v.nome = TIGRE; break;
+      	case 34: v.nome = EDISON; break;
+      	case 51: v.nome = DIABITO;
+    }
+}
+
+void inicializa_agentes()
+{
+    ata = 0;
+    deb = DEBOUNCE;
+    dec = DELAY_CHUTE;
+    if (nivel_comum) inicializa_adv(advs);
+    else inicializa_vilao();
+    inicializa_bol(bolas);
+    inicializa_car(cards);
+}
+
+// Posicionamento inicial dos adversários
+void posiciona_advs()
+{
+    byte i;
+    for (i = 0; i < N_ADVS; i++) novo_adversario(i);
+}
+
+// Funções referentes ao jogador
 void leva_bolada()
 {
     if (luvas > 0) luvas--;
@@ -210,6 +272,7 @@ void atira()
     deb = 0;
 }
 
+// Funções referentes às ações dos rivais
 byte ativa_bola()
 {
     byte i;
@@ -310,19 +373,6 @@ byte* spr_adv()
     }
 }
 
-// Cria um novo adversário na tela
-void novo_adversario(byte i)
-{
-    if (res >= RESERVA) 
-    {
-        advs[i].ativo = true;
-        advs[i].energia = 100;
-        advs[i].x = i < 3 ? real(98 + 24 * (i % 3)) : real(64 + 60 * (i % 3));
-        advs[i].y = real(YMIN + (i < 3 ? 40 : 70 + 15 * arena));
-        banco--;
-    }
-}
-
 // Função para adversário correr atrás do jogador
 void corre_atras(byte i)
 {
@@ -382,7 +432,11 @@ void atualiza_sprites()
     {
         xa = (int) pos(v.x);
         ya = (int) pos(v.y);
-        if (xa > xj - 4 && xa < xj + 12 && ya > yj - 24 && ya < yj + 16) sofre_falta();
+        if (xa > xj - 4 && xa < xj + 12 && ya > yj - 24 && ya < yj + 16) 
+        {
+            sofre_falta();
+            if (nivel == 51) posiciona_vilao();
+        }
         switch (nivel)
         {
             case 17: 
@@ -400,13 +454,21 @@ void atualiza_sprites()
                 break;
             default:
                 if (ya > 144 && (xj < 80 || xj > 176)) v.y = real(144);
-                else if (xj < 80) v.x = real(60);
-                else if (xj > 176) v.x = real(196);
+                else if (xj < 80)
+                {
+                    v.x = real(60);
+                    v.y = real(MAX(50, ya - 1));
+                }
+                else if (xj > 176)
+                {
+                    v.x = real(196);
+                    v.y = real(MAX(50, ya - 1));
+                }
                 else if (xj >= 100 && xj <= 156)
                 {
                     da = direcao2(x, v.x, y, v.y);
-                    v.x += (COS(da) << 3);
-                    v.y += (SEN(da) << 3); 
+                    v.x += COS(da) << 1;
+                    v.y += SEN(da) << 1; 
                 }
                 else v.x += real(lado ? 7 : -7);
         }
@@ -526,15 +588,8 @@ void atualiza_sprites()
             if (advs[ata].ativo) chuta(ata);
             else ata = (ata >= N_ADVS) ? 0 : ata + 1;
         }
-        else if (v.ativo)
-        {
-            switch (nivel)
-            {
-                 case 34: vilao_chuta(); break;     
-                 default: 
-		     if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
-            }
-        }
+        else if (v.ativo && !(rand() & (nivel == 17 ? 0x03 : 0x01)))
+            vilao_chuta();
         dec = 0;
     }
 }
@@ -589,50 +644,6 @@ void atualiza_bonus()
         yb[3] = y_bonus(arena);
         dbo[3] = 0; tbo[3] = 0;
     }
-}
-
-// Inicializações
-void inicializa_jogador()
-{
-    posiciona_jogador();
-    dinheiro = 0;
-    energia = 99;
-    luvas = 0;
-    vidas = 3;
-    bonus = BGOL | BARB | BDIN;
-    poup = 0;
-}
-
-void inicializa_vilao()
-{
-    v.ativo = true;
-    v.energia = 100;
-    v.x = real(VLX);
-    v.y = real(VLY);
-    switch (nivel)
-    {
-      	case 17: v.nome = TIGRE; break;
-      	case 34: v.nome = EDISON; break;
-      	case 51: v.nome = DIABITO;
-    }
-}
-
-void inicializa_agentes()
-{
-    ata = 0;
-    deb = DEBOUNCE;
-    dec = DELAY_CHUTE;
-    if (nivel_comum) inicializa_adv(advs);
-    else inicializa_vilao();
-    inicializa_bol(bolas);
-    inicializa_car(cards);
-}
-
-// Posicionamento inicial dos adversários
-void posiciona_advs()
-{
-    byte i;
-    for (i = 0; i < N_ADVS; i++) novo_adversario(i);
 }
 
 void main(void)
@@ -700,7 +711,6 @@ void main(void)
             else
             {
               	ppu_off();
-                pulo = false;
                 bonus &= ~TEM_TACA;
                 y_taca = YTACA + 16;
                 //*****************famitone_init(trilha_fifa);
@@ -728,8 +738,7 @@ void main(void)
                 posiciona_jogador();
                 arena = carrega_arena(nivel);
                 scroll(0, 0);
-                ppu_on_all();
-                
+                ppu_on_all();               
             }
             while (prox == false && energia > 0)
             {	// Loop do nível antes de passar ou perder vida
@@ -807,6 +816,7 @@ void main(void)
             {	
             	vidas--;
                 energia = 99;
+                pulo = false;
             }
             else // Passou de nível
             {
@@ -824,6 +834,7 @@ void main(void)
 	{
 	    ppu_off();
 	    setup_graphics();
+            vram_adr(NAMETABLE_A);
 	    vram_unrle(completo ? tela_fim_completo : tela_fim_demo);
 	    ppu_on_all();
 	}
