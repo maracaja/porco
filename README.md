@@ -11,7 +11,7 @@ Será que você pode ajudá-lo?
 
 ## Como jogar:
 
-Consiga as taças para avançar de nível e encontrar os temidos rivais que fazem de tudo para impedir Caim de conseguir o Mundial.
+Consiga as taças para avançar de nível e encontrar os temidos rivais que fazem de tudo para impedir Caim de conseguir o título mundial.
 
 Atire cartões para eliminar os oponentes. Como no futebol, 2 cartões amarelos ou 1 vermelho bastam para expulsar um jogador, mas o jogo vai ficando mais difícil com o decorrer dos níveis! Encontre os árbitros (em preto) para ter os cartões em seu poder.
 Os adversários tentarão fazer faltas e lhe acertar boladas. Desvie delas. Goleiros (em cinza) lhe darão uma proteção para até 5
