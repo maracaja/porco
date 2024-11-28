@@ -12,10 +12,11 @@
 //#link "objetos.c"
 
 // Importação dos recursos gráficos
-//#resource "titulo.h"
-//#resource "niveis.h"
 //#resource "chr_porco.chr"
 //#link "tileset.s"
+//#resource "titulo.h"
+//#resource "niveis.h"
+#include "tela_fim.h"
 #include "sprites.h"
 //#link "sprites.c"
 
@@ -50,7 +51,7 @@ extern char tema_fim[];
 #define veloc (nivel > 25 ? 2 : 1)
 
 // Tabela de senos normalizados em 8 bits (x2)
-const short const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
+const int const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
 
 // Paleta padrão
 /*{pal:"nes",layout:"nes"}*/
@@ -58,7 +59,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {/*0, 10, 25, */34, 50, 51, 99};
+const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
 
 // Objetos
 static byte arena;
@@ -79,6 +80,8 @@ static byte res;   // Tempo (em quadros) para aparecer o reserva
 static byte poup;  // Quantidade de moedas que podem aparecer
 static word tbo[4];  // Conta o tempo que o bônus aparece na tela
 static word dbo[4];  // Tempo sem bônus na tela
+static bool lado = false;  // Flag de animação
+static bool corre = false;
 
 // Dados do jogador
 static word x, y;
@@ -87,8 +90,6 @@ static byte energia;
 static byte luvas;
 static byte vidas;
 static byte move;
-static bool lado = false;  // Flag de animação
-static bool corre = false;
 
 // Dados de presença dos bônus
 static byte bonus;
@@ -106,47 +107,20 @@ void setup_graphics()
 }
 
 // Funções referentes ao jogador
-void posicionaJogador()
+void posiciona_jogador()
 {
     x = real(CX);
     y = real(CY);
 }
 
-void inicializaJogador()
-{
-    posicionaJogador();
-    dinheiro = 0;
-    energia = 99;
-    luvas = 0;
-    vidas = 3;
-    bonus = BGOL | BARB | BDIN;
-    poup = 0;
-}
-
-void levaBolada()
+void leva_bolada()
 {
     if (luvas > 0) luvas--;
     else energia = MAX(0, energia - 19);
     if (gol_disponivel) dbo[0] = 0;
 }
 
-void sofreFalta()
-{
-    if (rec > RECUPERACAO)
-    {
-        if (bonus & TEM_CARTAO)
-        {
-            if (cVermelho) bonus &= ~CARD_VERM;
-            else bonus &= ~TEM_CARTAO;
-        }
-        else energia = MAX(0, energia - 50);
-        posicionaJogador();
-        rec = 0;
-        dbo[1] = 0; dbo[2] = 0;
-    }
-}
-
-void sofreFaltaVilao()
+void sofre_falta()
 {
     if (rec > RECUPERACAO)
     {
@@ -160,33 +134,33 @@ void sofreFaltaVilao()
                     else bonus &= ~TEM_CARTAO;
                 }
                 else energia = MAX(0, energia - 50);
-                posicionaJogador();
                 rec = 0;
         }
+	posiciona_jogador();
         dbo[1] = 0; dbo[2] = 0;
     }
 }
 
-void tomaEnergetico()
+void toma_energetico()
 {
     energia = MIN(energia + 51, 99);
     bonus &= ~BNRG;
 }
 
-void escalaGoleiro()
+void escala_goleiro()
 {
     luvas = nivel < 51 ? 5 : 2;
     bonus &= ~BGOL;
 }
 
-void compraArbitro()
+void compra_arbitro()
 {
     if (temCartao) bonus |= CARD_VERM;
     else bonus |= TEM_CARTAO & ~CARD_VERM;
     bonus &= ~BARB;
 }
 
-void ganhaDinheiro()
+void ganha_dinheiro()
 {
     dinheiro++;
     if (dinheiro > 99)
@@ -197,7 +171,7 @@ void ganhaDinheiro()
     bonus &= ~BDIN;
 }
 
-byte ativaCartao()
+byte ativa_cartao()
 {
     byte i;
     for (i = 0; i < N_CARDS; i++)
@@ -211,12 +185,12 @@ byte ativaCartao()
     return 0;
 }
 
-void desativaCartao(byte i)
+void desativa_cartao(byte i)
 { cards[i].info &= ~CARD_ATIVO; }
 
 void atira()
 {
-    byte i = ativaCartao();
+    byte i = ativa_cartao();
     if (jogador_mov && jogador_dir == 8)
     {
         cards[i].y = y;
@@ -236,7 +210,7 @@ void atira()
     deb = 0;
 }
 
-byte ativaBola()
+byte ativa_bola()
 {
     byte i;
     for (i = 0; i < N_BOLAS; i++)
@@ -254,12 +228,19 @@ void chuta(byte a)
 {
     if (pode_chutar(nivel))
     {
-        byte i = ativaBola();
+        byte i = ativa_bola();
         bolas[i].x = advs[a].x;
         bolas[i].y = advs[a].y + real(8);
         bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);  
     }
-    dec = 0;
+}
+
+void vilao_chuta()
+{
+    byte i = ativa_bola();
+    bolas[i].x = v.x - real(4);
+    bolas[i].y = v.y + real(16);
+    bolas[i].dir = direcao2(x, bolas[i].x, y, bolas[i].y);
 }
 
 bool pegou_taca()
@@ -269,7 +250,7 @@ bool pegou_taca()
 }
 
 // Efeito do tiro sobre o adversário
-void levaCartao(byte a, byte c)
+void leva_cartao(byte a, byte c)
 {
     switch (nivel / DIVISOR)
     {
@@ -283,10 +264,10 @@ void levaCartao(byte a, byte c)
         res = 0;
         poup++;
     }
-    desativaCartao(c);
+    desativa_cartao(c);
 }
 
-void levaCartaoVilao(byte c)
+void leva_cartao_vilao(byte c)
 {
     v.energia -= vermelho(cards[c]) ? 2 : 1;
     if (v.energia <= 0)
@@ -294,7 +275,7 @@ void levaCartaoVilao(byte c)
         v.ativo = false;
         bonus |= TEM_TACA;
     }
-    desativaCartao(c);
+    desativa_cartao(c);
 }
 
 // Alternância de paleta conforme o nível
@@ -330,7 +311,7 @@ byte* spr_adv()
 }
 
 // Cria um novo adversário na tela
-void novoAdversario(byte i)
+void novo_adversario(byte i)
 {
     if (res >= RESERVA) 
     {
@@ -343,32 +324,32 @@ void novoAdversario(byte i)
 }
 
 // Função para adversário correr atrás do jogador
-void correAtras(byte i)
+void corre_atras(byte i)
 {
     if (advs[i].ativo)
     {
         byte da = direcao2(x, advs[i].x, y, advs[i].y);
-        short dx = COS(da) << 1, dy = SEN(da) << 1; 
+        int dx = COS(da) << 1, dy = SEN(da) << 1; 
         if (nao_bate_parede(arena, advs[i].x + dx, advs[i].y, true)) advs[i].x += dx;
         if (nao_bate_parede(arena, advs[i].x, advs[i].y + dy, true)) advs[i].y += dy;
     }
 }
 
 // Atualização do placar a cada quadro
-void atualizaPlacar()
+void atualiza_placar()
 {
     placar(vidas, PLV, 1);
     placar(dinheiro, PLD, 2);
     placar(energia, PLE, 2);
     placar(luvas, PLL, 1);
-    if (temCartao) corCartao(cVermelho);
+    if (temCartao) cor_cartao(cVermelho);
 }
 
 // Atualização dos sprites a cada quadro
-void atualizaSprites()
+void atualiza_sprites()
 {
-    byte i, j;
-    short dx, dy, xa, ya, xc, yc, xj = pos(x), yj = pos(y);
+    byte i, j, m, n, da;
+    int dx, dy, xa, ya, xc, yc, xj = pos(x), yj = pos(y);
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
     // Adversários
@@ -378,32 +359,56 @@ void atualizaSprites()
         {
             if (advs[i].ativo)
             {
-                xa = (short) pos(advs[i].x);
-                ya = (short) pos(advs[i].y);
-                if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofreFalta();
+                xa = (int) pos(advs[i].x);
+                ya = (int) pos(advs[i].y);
+                if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofre_falta();
                 oam_meta_spr(pos(advs[i].x), pos(advs[i].y), ADV + 8 * i, spr_adv());
             }
-            else if (banco > 0) novoAdversario(i);
+            else if (banco > 0) novo_adversario(i);
         }
         if (corre)
         {
             corre = false;
-            if (nivel < 17 || nivel > 34) correAtras(4);
+            if (nivel < 17 || nivel > 34) corre_atras(4);
             if (nivel > 17)
             {
-                correAtras(5);
-                correAtras(3);
+                corre_atras(5);
+                corre_atras(3);
             }
-            for (i = 0; i < 3; i++) advs[i].x += real(lado ? 4 : -4);
+            for (i = 0; i < 3; i++) advs[i].x += real(lado ? 5 : -5);
         }
     }
-    else
+    else if (v.ativo)
     {
-        // SOFRE FALTA...
+        xa = (int) pos(v.x);
+        ya = (int) pos(v.y);
+        if (xa > xj - 4 && xa < xj + 12 && ya > yj - 24 && ya < yj + 16) sofre_falta();
         switch (nivel)
         {
-            // Movimentação e ações...
-            default: break;
+            case 17: 
+                da = rand() & 0x1F;
+                dx = COS(da) << 1;
+                dy = SEN(da) << 1;
+                m = pos(v.x + dx);
+                n = pos(v.y + dy);
+                if (m >= 58 && m <= 198) v.x += dx;
+                if (n >= 50 && n <= 100) v.y += dy;
+                break;
+            case 34:
+                v.x = real(MAX(50, MIN(200, 255 - xj)));
+                v.y = (xa == 50 || xa == 200) ? real(MAX(50, ya - 2)) : real(MIN(120, ya + 2));
+                break;
+            default:
+                if (ya > 144 && (xj < 80 || xj > 176)) v.y = real(144);
+                else if (xj < 80) v.x = real(60);
+                else if (xj > 176) v.x = real(196);
+                else if (xj >= 100 && xj <= 156)
+                {
+                    da = direcao2(x, v.x, y, v.y);
+                    v.x += (COS(da) << 3);
+                    v.y += (SEN(da) << 3); 
+                }
+                else v.x += real(lado ? 7 : -7);
         }
         oam_meta_spr(pos(v.x), pos(v.y), EXTRA, v.nome == TIGRE ? spr_tigre(lado) : (v.nome == EDISON ? spr_edson(lado) : spr_diabito(lado)));
     }
@@ -414,34 +419,32 @@ void atualizaSprites()
         {
             dx = COS(card_dir(cards[i])) << 2;
             dy = SEN(card_dir(cards[i])) << 2;
-            xc = (short) pos(cards[i].x);
-            yc = (short) pos(cards[i].y);
+            xc = (int) pos(cards[i].x);
+            yc = (int) pos(cards[i].y);
             if (nivel_comum)
             {
                 for (j = 0; j < N_ADVS; j++)
                 {
                     if (advs[j].ativo)
                     {
-                        xa = (short) pos(advs[j].x);
-                        ya = (short) pos(advs[j].y);
+                        xa = (int) pos(advs[j].x);
+                        ya = (int) pos(advs[j].y);
                         if (vabs(xa - xc) < 6 && yc > ya - 14 && yc < ya + 7)
-                            levaCartao(j, i);
+                            leva_cartao(j, i);
                     }	
                 }
             }
             else if (v.ativo)
             {
-                xa = (short) pos(v.x);
-                ya = (short) pos(v.y);
-                if (xa >= xc - 4 && xa <= xc + 8 && ya >= yc - 16 && ya <= yc + 14)
-                    levaCartaoVilao(i);
+                if (xa > xc - 4 && xa < xc + 8 && ya > yc - 16 && ya < yc + 14)
+                    leva_cartao_vilao(i);
             }
             if (nao_bate_parede(arena, cards[i].x + dx, cards[i].y + dy, false))
             {
                 cards[i].x += dx;
                 cards[i].y += dy;
             }
-            else desativaCartao(i);
+            else desativa_cartao(i);
             oam_spr(pos(cards[i].x), pos(cards[i].y), CARD, vermelho(cards[i]) ? 0 : 3, CARTAO + 4 * i);
         }
     }
@@ -454,7 +457,7 @@ void atualizaSprites()
 	    dy = SEN(bolas[i].dir) << veloc;
             if (vabs(xj - pos(bolas[i].x)) < 8 && pos(bolas[i].y) > yj - 16 && pos(bolas[i].y) < yj + 8)
             {
-                levaBolada();
+                leva_bolada();
                 bolas[i].ativo = false;
             }
 	    else if (nao_bate_parede(arena, bolas[i].x + dx, bolas[i].y + dy, false))
@@ -471,7 +474,7 @@ void atualizaSprites()
     {
         if (vabs(xj - xb[0]) < 8 && vabs(yj - yb[0]) < 16)
         {
-            escalaGoleiro();
+            escala_goleiro();
             bonus &= ~BGOL;
             dbo[0] = 0; tbo[0] = 0;
         }
@@ -483,7 +486,7 @@ void atualizaSprites()
     {
       	if (vabs(xj - xb[1]) < 8 && vabs(yj - yb[1]) < 16)
         {
-            compraArbitro();
+            compra_arbitro();
             bonus &= ~BARB;
             dbo[1] = 0; tbo[1] = 0;
         }
@@ -495,7 +498,7 @@ void atualizaSprites()
     {
       	if (vabs(xj - xb[2]) < 7 && vabs(yj - yb[2]) < 15)
         {
-            tomaEnergetico();
+            toma_energetico();
             bonus &= ~BNRG;
             dbo[2] = 0; tbo[2] = 0;
         }
@@ -507,7 +510,7 @@ void atualizaSprites()
     {
         if(xj - xb[3] < 7 && xb[3] - xj < 15 && vabs(yj - yb[3]) < 15)
         {
-            ganhaDinheiro();
+            ganha_dinheiro();
             bonus &= ~BDIN;
             dbo[3] = 0; tbo[3] = 0;
         }
@@ -516,11 +519,27 @@ void atualizaSprites()
     }
     else dbo[3]++;
     // Prepara novo chute
-    if (advs[ata].ativo && dec > DELAY_CHUTE) chuta(ata);
-    else ata = (ata >= N_ADVS) ? 0 : ata + 1;
+    if (dec > DELAY_CHUTE)
+    {
+        if (nivel_comum)
+        {
+            if (advs[ata].ativo) chuta(ata);
+            else ata = (ata >= N_ADVS) ? 0 : ata + 1;
+        }
+        else if (v.ativo)
+        {
+            switch (nivel)
+            {
+                 case 34: vilao_chuta(); break;     
+                 default: 
+		     if (!(rand() & (nivel == 17 ? 0x03 : 0x01))) vilao_chuta();
+            }
+        }
+        dec = 0;
+    }
 }
 
-void atualizaBonus()
+void atualiza_bonus()
 {
     if (tbo[0] >= DELAY_BONUS)
     {
@@ -573,17 +592,18 @@ void atualizaBonus()
 }
 
 // Inicializações
-void inicializaAgentes()
+void inicializa_jogador()
 {
-    ata = 0;
-    deb = DEBOUNCE;
-    dec = DELAY_CHUTE;
-    inicializaAdv(advs);
-    inicializaBol(bolas);
-    inicializaCar(cards);
+    posiciona_jogador();
+    dinheiro = 0;
+    energia = 99;
+    luvas = 0;
+    vidas = 3;
+    bonus = BGOL | BARB | BDIN;
+    poup = 0;
 }
 
-void inicializaVilao()
+void inicializa_vilao()
 {
     v.ativo = true;
     v.energia = 100;
@@ -597,11 +617,22 @@ void inicializaVilao()
     }
 }
 
+void inicializa_agentes()
+{
+    ata = 0;
+    deb = DEBOUNCE;
+    dec = DELAY_CHUTE;
+    if (nivel_comum) inicializa_adv(advs);
+    else inicializa_vilao();
+    inicializa_bol(bolas);
+    inicializa_car(cards);
+}
+
 // Posicionamento inicial dos adversários
-void posicionaAdvs()
+void posiciona_advs()
 {
     byte i;
-    for (i = 0; i < N_ADVS; i++) novoAdversario(i);
+    for (i = 0; i < N_ADVS; i++) novo_adversario(i);
 }
 
 void main(void)
@@ -609,7 +640,7 @@ void main(void)
     bool menu, completo = false, pausa = false;	// Modos de jogo
     byte prox;	// Variáveis de andamento do nível
     byte i = 0, j, k;	// Variáveis para uso em laços
-    short dx, dy;	// Variáveis de deslocamento do jogador
+    int dx, dy;	// Variáveis de deslocamento do jogador
     // Configurações iniciais de áudio
     famitone_init(abertura);
     sfx_init(tema_fim);
@@ -638,7 +669,7 @@ void main(void)
         historinha();
         limpa_tela(NAMETABLE_A);
         nivel = completo ? 0 : demo[j = 0];
-        inicializaJogador();
+        inicializa_jogador();
         while (vidas > 0 && nivel <= NIVEIS)
         {   // Loop do jogo
             // Início do nível
@@ -648,17 +679,17 @@ void main(void)
             dec = DELAY_CHUTE;
             rec = RECUPERACAO;
             for (k = 0; k < 4; k++) tbo[k] = 0;
+            inicializa_agentes();
             // Define parâmetros de nível
             if (nivel_comum)
             {
                 ppu_off();
                 res = RESERVA;
                 banco = 11 + nivel % DIVISOR;
-                posicionaJogador();
+                posiciona_jogador();
                 arena = carrega_arena(nivel);
-                scroll(0, 0);
-                inicializaAgentes();
-                posicionaAdvs();
+                scroll(0, 0);                
+                posiciona_advs();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
                 // ************famitone_init(trilha);
@@ -675,27 +706,26 @@ void main(void)
                 //*****************famitone_init(trilha_fifa);
                 oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
                 //*******************music_play(0);
-		switch (nivel)
-		{
-		   case 17:
-			oam_meta_spr(VLX, VLYI, EXTRA, spr_tigre_parado);
-                        ppu_on_all();
-			conversa_tigre();
-			break;
-		   case 34: 
-			oam_meta_spr(VLX, VLYI, EXTRA, spr_edson_parado);
-                        ppu_on_all();
-			conversa_edson();
-			break;
-		   default: 
-			oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
-                        ppu_on_all();
-			conversa_devil();
-		}
-                espera(120);
+                switch (nivel)
+                {
+                case 17:
+                    oam_meta_spr(VLX, VLYI, EXTRA, spr_tigre_parado);
+                    ppu_on_all();
+                    conversa_tigre();
+                    break;
+                case 34: 
+                    oam_meta_spr(VLX, VLYI, EXTRA, spr_edson_parado);
+                    ppu_on_all();
+                    conversa_edson();
+                    break;
+                default: 
+                    oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
+                    ppu_on_all();
+                    conversa_devil();
+                }
+                if (!pulo) espera(120);
                 ppu_off();
-                posicionaJogador();
-                inicializaVilao();
+                posiciona_jogador();
                 arena = carrega_arena(nivel);
                 scroll(0, 0);
                 ppu_on_all();
@@ -756,15 +786,13 @@ void main(void)
                         prox = true;
                         espera(300);
                     }
-                    // *** Rotinas aleatórias
-                    // **************** , movimentação do inimigo (em campo próprio)
                     // Atualização do quadro
                     else
                     {
                         oam_clear();
-                        atualizaPlacar();
-                        atualizaSprites();
-                        atualizaBonus();
+                        atualiza_placar();
+                        atualiza_sprites();
+                        atualiza_bonus();
                         if (deb <= DEBOUNCE) deb++;
                         if (dec <= DELAY_CHUTE) dec++;
                         if (res <= RESERVA) res++;
@@ -786,20 +814,27 @@ void main(void)
                 prox = false;
             }
         }
+	limpa_tela(NAMETABLE_A);
         if (vidas <= 0) // Game Over
         {
-            limpa_tela(NAMETABLE_A);
 	    game_over();
             sfx_play(0, 0);
-            pad = pad_poll(0);
-            while (!(pad & PAD_START))
-            {
-              	pad = pad_poll(0);
-                ppu_wait_nmi();
-            }
-            limpa_tela(NAMETABLE_A);
-            limpa_tela(NAMETABLE_C);
         } 
-        else ; // Vitória
+        else // Vitória
+	{
+	    ppu_off();
+	    setup_graphics();
+	    vram_unrle(completo ? tela_fim_completo : tela_fim_demo);
+	    ppu_on_all();
+	}
+	// Espera START para voltar ao início da aplicação
+	pad = pad_poll(0);
+	while (!(pad & PAD_START))
+	{
+	    pad = pad_poll(0);
+	    ppu_wait_nmi();
+	}
+	limpa_tela(NAMETABLE_A);
+        limpa_tela(NAMETABLE_C);
     }
 }
