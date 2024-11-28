@@ -76,7 +76,8 @@
 #define SFX_ACERTO 4
 #define SFX_BONUS 5
 #define SFX_BOLADA 6
-#define SFX_FIM0 7
-#define SFX_FIM1 999
+#define SFX_MORREU 7
+#define SFX_FIM0 8
+#define SFX_FIM1 9
 
 #endif

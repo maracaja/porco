@@ -724,9 +724,9 @@ void main(void)
               	ppu_off();
                 bonus &= ~TEM_TACA;
                 y_taca = YTACA + 16;
-                //*****************famitone_init(trilha_fifa);
+                famitone_init(trilha_fifa);
                 oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
-                //*******************music_play(0);
+                music_play(0);
                 switch (nivel)
                 {
                 case 17:
@@ -761,7 +761,7 @@ void main(void)
                     escrita_centralizada("       ", 2);
                     ppu_on_all();
                     espera(15);
-                    //**********music_pause(0);
+                    music_pause(0);
                 } 
                 else if (!pausa)
                 {   // Regime normal do jogo
@@ -789,7 +789,7 @@ void main(void)
                         pausa = true;
                         ppu_off();
                         escrita_centralizada("PAUSADO", 2);
-                        //*********music_pause(*trilha);
+                        music_pause(nivel_comum ? *trilha : *trilha_fifa);
                         ppu_on_all();
                     }
                     if (pegou_taca())
@@ -828,6 +828,8 @@ void main(void)
             	vidas--;
                 energia = 99;
                 pulo = false;
+                sfx_play(SFX_MORREU, 0);
+                espera(90);
             }
             else // Passou de nível
             {
