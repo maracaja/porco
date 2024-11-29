@@ -815,10 +815,10 @@ void main(void)
                                 escrita_centralizada(" PARABENS!", 8);
                                 escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
                                 ppu_on_all();
-                                sfx_play(SFX_PASSOU, 0);
-                                espera(400);
-                              	est_jogo = AVANCA;
                             }
+			    sfx_play(SFX_PASSOU, 0);
+			    espera(400);
+			    est_jogo = AVANCA;
                         }
                     	if (energia <= 0) est_jogo = PERDE;
                     	// Atualização do quadro
