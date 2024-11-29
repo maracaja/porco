@@ -77,7 +77,9 @@
 #define SFX_BONUS 5
 #define SFX_BOLADA 6
 #define SFX_MORREU 7
-#define SFX_FIM0 8
-#define SFX_FIM1 9
+#define SFX_VIDA 8
+#define SFX_PASSOU 9
+#define SFX_FIM0 10
+#define SFX_FIM1 11
 
 #endif

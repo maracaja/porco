@@ -59,7 +59,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {0, 10, 25, 34, 50, 51, 99};
+const byte const demo[7] = {0, 10, 25, 35, 49, 50, 99};
 
 // Objetos
 static byte arena;
@@ -234,9 +234,10 @@ void ganha_dinheiro()
     {
         vidas++;
         dinheiro = 0;
+        sfx_play(SFX_VIDA, 0);
     }
-    bonus &= ~BDIN;
-    sfx_play(SFX_BONUS, 0);
+    else sfx_play(SFX_BONUS, 0);
+    bonus &= ~BDIN;    
 }
 
 byte ativa_cartao()
@@ -714,8 +715,8 @@ void main(void)
                 posiciona_advs();
               	bonus |= TEM_TACA;   // Taça (fim de nível)
                 y_taca = YTACA;
-                // ************famitone_init(trilha);
-            	// ************music_play(0);
+                famitone_init(trilha_fifa);	// TEMPORÁRIO
+            	music_play(0);
                 oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
             	ppu_on_all();
             }
@@ -724,9 +725,7 @@ void main(void)
               	ppu_off();
                 bonus &= ~TEM_TACA;
                 y_taca = YTACA + 16;
-                famitone_init(trilha_fifa);
-                oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);
-                music_play(0);
+                oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);                
                 switch (nivel)
                 {
                 case 17:
@@ -749,7 +748,9 @@ void main(void)
                 posiciona_jogador();
                 arena = carrega_arena(nivel);
                 scroll(0, 0);
-                ppu_on_all();               
+                //famitone_init(trilha_fifa);
+                //music_play(0);
+                ppu_on_all();
             }
             while (prox == false && energia > 0)
             {	// Loop do nível antes de passar ou perder vida
@@ -789,7 +790,8 @@ void main(void)
                         pausa = true;
                         ppu_off();
                         escrita_centralizada("PAUSADO", 2);
-                        music_pause(nivel_comum ? *trilha : *trilha_fifa);
+                        if (nivel_comum) music_pause(*trilha_fifa);
+                        //nivel_comum ? *trilha : */ // FALTA TRILHA
                         ppu_on_all();
                     }
                     if (pegou_taca())
@@ -804,7 +806,8 @@ void main(void)
                             ppu_on_all();
                         }
                         prox = true;
-                        espera(300);
+                        sfx_play(SFX_PASSOU, 0);
+                        espera(400);
                     }
                     // Atualização do quadro
                     else
