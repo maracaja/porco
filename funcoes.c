@@ -291,6 +291,7 @@ void entrada_nivel(byte nivel)
 
 void game_over()
 {
+    limpa_tela(NAMETABLE_A);
     ppu_off();
     escrita_centralizada("ELIMINADO!", 13);
     escrita_centralizada("A PIADA CONTINUA", 15);

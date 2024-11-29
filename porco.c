@@ -50,6 +50,10 @@ extern char sons[];
 #define nivel_comum (nivel % DIVISOR != 0 || nivel == 0)
 #define veloc (nivel > 25 ? 2 : 1)
 
+// Máquinas de Estados
+typedef enum {INICIO, MENU, APRESENTA, JOGO, VITORIA, DERROTA} Estado;
+typedef enum {ENTRADA, LOOP, PAUSA, PERDE, AVANCA} EstadoJogo;
+
 // Tabela de senos normalizados em 8 bits (x2)
 const int const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
 
@@ -59,7 +63,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {0, 10, 25, 35, 49, 50, 99};
+const byte const demo[7] = {51, 99}; //{0, 10, 25, 35, 49, 50, 99};
 
 // Objetos
 static byte arena;
@@ -69,6 +73,8 @@ Cartao cards[N_CARDS];
 Vilao v;
 
 // Dados do jogo
+static Estado estado;
+static EstadoJogo est_jogo;
 static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
@@ -658,161 +664,165 @@ void atualiza_bonus()
     }
 }
 
+// Espera START para voltar ao início da aplicação
+void retorna()
+{
+    pad = pad_poll(0);
+    while (!(pad & PAD_START))
+    {
+      pad = pad_poll(0);
+      ppu_wait_nmi();
+    }
+    limpa_tela(NAMETABLE_A);
+    limpa_tela(NAMETABLE_C);
+    estado = INICIO;
+}
+
 void main(void)
 {
-    bool menu, completo = false, pausa = false;	// Modos de jogo
-    byte prox;	// Variáveis de andamento do nível
+    bool completo = false, pausa = false;	// Modos de jogo
     byte i = 0, j, k;	// Variáveis para uso em laços
     int dx, dy;	// Variáveis de deslocamento do jogador
-    // Configurações iniciais de áudio
-    famitone_init(abertura);
-    sfx_init(sons);
-    nmi_set_callback(famitone_update);
+    estado = INICIO;
     while (1)
     {	// Loop infinito
-        setup_graphics();
-        menu = true;
-        music_play(0);
-        apresentacao();
-        music_stop();
-        selecao(completo);
-        while (menu)
-        {   // Controle do menu de jogo
-            pad = pad_poll(0);
-            if (pad & PAD_DOWN && !completo) selecao(completo = true);
-            if (pad & PAD_UP && completo) selecao(completo = false);
-            if (pad & PAD_A)
-            {
-                menu = false;
-                srand(nesclock());
-            }
-        }
-        // Início da história
-        setup_graphics();
-        historinha();
-        limpa_tela(NAMETABLE_A);
-        nivel = completo ? 0 : demo[j = 0];
-        inicializa_jogador();
-        while (vidas > 0 && nivel <= NIVEIS)
-        {   // Loop do jogo
-            // Início do nível
-            entrada_nivel(nivel);
-            pal_adv();
-            deb = DEBOUNCE;
-            dec = DELAY_CHUTE;
-            rec = RECUPERACAO;
-            for (k = 0; k < 4; k++) tbo[k] = 0;
-            inicializa_agentes();
-            // Define parâmetros de nível
-            if (nivel_comum)
-            {
-                ppu_off();
-                res = RESERVA;
-                banco = 11 + nivel % DIVISOR;
-                posiciona_jogador();
-                arena = carrega_arena(nivel);
-                scroll(0, 0);                
-                posiciona_advs();
-              	bonus |= TEM_TACA;   // Taça (fim de nível)
-                y_taca = YTACA;
-                famitone_init(trilha_fifa);	// TEMPORÁRIO
-            	music_play(0);
-                oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
-            	ppu_on_all();
-            }
-            else
-            {
-              	ppu_off();
-                bonus &= ~TEM_TACA;
-                y_taca = YTACA + 16;
-                oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);                
-                switch (nivel)
+        switch (estado)
+        {   
+            // Configurações iniciais
+            case INICIO:
+                famitone_init(abertura);
+                sfx_init(sons);
+                nmi_set_callback(famitone_update);
+            	setup_graphics();
+                music_play(0);
+                apresentacao();
+                music_stop();
+                selecao(completo);
+                estado = MENU;
+                break;
+            // Controle do menu de jogo
+            case MENU:
+            	pad = pad_poll(0);
+                if (pad & PAD_DOWN && !completo) selecao(completo = true);
+                if (pad & PAD_UP && completo) selecao(completo = false);
+                if (pad & PAD_A)
                 {
-                case 17:
-                    oam_meta_spr(VLX, VLYI, EXTRA, spr_tigre_parado);
-                    ppu_on_all();
-                    conversa_tigre();
-                    break;
-                case 34: 
-                    oam_meta_spr(VLX, VLYI, EXTRA, spr_edson_parado);
-                    ppu_on_all();
-                    conversa_edson();
-                    break;
-                default: 
-                    oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
-                    ppu_on_all();
-                    conversa_devil();
+                    srand(nesclock());
+                    estado = APRESENTA;
                 }
-                if (!pulo) espera(120);
-                ppu_off();
-                posiciona_jogador();
-                arena = carrega_arena(nivel);
-                scroll(0, 0);
-                //famitone_init(trilha_fifa);
-                //music_play(0);
-                ppu_on_all();
-            }
-            while (prox == false && energia > 0)
-            {	// Loop do nível antes de passar ou perder vida
-                pad = pad_poll(0);
-                if (pausa && pad & PAD_START)
-                {   // Sai da pausa
-                    pausa = false;
-                    ppu_off();
-                    escrita_centralizada("       ", 2);
-                    ppu_on_all();
-                    espera(15);
-                    music_pause(0);
-                } 
-                else if (!pausa)
-                {   // Regime normal do jogo
-                    // Comando de animação
-                    i++;
-                    if (i > 4)
-                    {
-                        i = 0;
-                    	lado = !lado;
-                        corre = true;
-                    }
-                    // Controle do deslocamento do jogador na tela
-                    move = movimento(pad);
-                    if (jogador_mov)
-                    {
-                        dx = COS(jogador_dir);
-                      	dy = SEN(jogador_dir);
-                        if (nao_bate_parede(arena, x + dx, y, true)) x += dx;
-                        if (nao_bate_parede(arena, x, y + dy, true)) y += dy;
-                    }
-                    // Atira cartão (se tiver esse poder)
-                    if (pad & PAD_A && temCartao && deb > DEBOUNCE) atira();
-                    if (pad & PAD_START)
-                    {	// Pausa
-                        pausa = true;
+                break;
+            // Início da história
+            case APRESENTA:
+            	setup_graphics();
+                historinha();
+                limpa_tela(NAMETABLE_A);
+                nivel = completo ? 0 : demo[j = 0];
+                inicializa_jogador();           	
+                estado = JOGO;
+            	est_jogo = ENTRADA;
+            	break;
+            // Regime normal de jogo
+            case JOGO:
+            	pad = pad_poll(0);
+            	switch (est_jogo)
+                {
+                    case ENTRADA:
+                    	entrada_nivel(nivel);
+                        pal_adv();
+                        deb = DEBOUNCE;
+                        dec = DELAY_CHUTE;
+                        rec = RECUPERACAO;
+                        for (k = 0; k < 4; k++) tbo[k] = 0;
+            		inicializa_agentes();
+                    	if (!nivel_comum)
+                        {
+                            oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);                
+                            switch (nivel)
+                            {
+                                case 17:
+                                    oam_meta_spr(VLX, VLYI, EXTRA, spr_tigre_parado);
+                                    conversa_tigre();
+                                    break;
+                                case 34: 
+                                    oam_meta_spr(VLX, VLYI, EXTRA, spr_edson_parado);
+                                    conversa_edson();
+                                    break;
+                                default: 
+                                    oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
+                                    conversa_devil();
+                            }
+                            if (!pulo) espera(120);
+                            bonus &= ~TEM_TACA;
+                            y_taca = YTACA + 16;
+                            //famitone_init(trilha_fifa);
+                            //music_play(0);
+                        }
+                    	else
+                        {
+                            res = RESERVA;
+                            banco = 11 + nivel % DIVISOR;                                                                        
+                            posiciona_advs();
+                            bonus |= TEM_TACA;   // Taça (fim de nível)
+                            y_taca = YTACA;
+                            famitone_init(trilha_fifa);	// TEMPORÁRIO
+                            music_play(0);
+                            oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
+                        }
                         ppu_off();
-                        escrita_centralizada("PAUSADO", 2);
-                        if (nivel_comum) music_pause(*trilha_fifa);
-                        //nivel_comum ? *trilha : */ // FALTA TRILHA
-                        ppu_on_all();
-                    }
-                    if (pegou_taca())
-                    {
-                        if (nivel_comum)
+                    	posiciona_jogador();
+                    	arena = carrega_arena(nivel);
+                        scroll(0, 0);
+                    	ppu_on_all();
+                    	est_jogo = LOOP;
+                    	break;
+                    // Loop do jogo
+                    case LOOP:
+                    	// Comando de animação
+                        i++;
+                        if (i > 4)
+                        {
+                          i = 0;
+                          lado = !lado;
+                          corre = true;
+                        }
+                    	// Controle do deslocamento do jogador na tela
+                    	move = movimento(pad);
+                        if (jogador_mov)
+                        {
+                            dx = COS(jogador_dir);
+                            dy = SEN(jogador_dir);
+                            if (nao_bate_parede(arena, x + dx, y, true)) x += dx;
+                            if (nao_bate_parede(arena, x, y + dy, true)) y += dy;
+                        }
+                    	// Atira cartão (se tiver esse poder)
+                    	if (pad & PAD_A && temCartao && deb > DEBOUNCE) atira();
+                    	if (pad & PAD_START)
                         {
                             ppu_off();
-                            music_stop();
-                            oam_clear();
-                            escrita_centralizada(" PARABENS!", 8);
-                            escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
+                            escrita_centralizada("PAUSADO", 2);
+                            if (nivel_comum) music_pause(*trilha_fifa);
+                            //nivel_comum ? *trilha : */ // FALTA TRILHA
                             ppu_on_all();
+                            est_jogo = PAUSA;
                         }
-                        prox = true;
-                        sfx_play(SFX_PASSOU, 0);
-                        espera(400);
-                    }
-                    // Atualização do quadro
-                    else
-                    {
-                        oam_clear();
+                    	if (pegou_taca())
+                        {
+                            if (nivel_comum)
+                            {
+                                ppu_off();
+                                music_stop();
+                                oam_clear();
+                                escrita_centralizada(" PARABENS!", 8);
+                                escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
+                                ppu_on_all();
+                                sfx_play(SFX_PASSOU, 0);
+                                espera(400);
+                              	est_jogo = AVANCA;
+                            }
+                        }
+                    	if (energia <= 0) est_jogo = PERDE;
+                    	// Atualização do quadro
+                    	oam_clear();
                         atualiza_placar();
                         atualiza_sprites();
                         atualiza_bonus();
@@ -820,48 +830,56 @@ void main(void)
                         if (dec <= DELAY_CHUTE) dec++;
                         if (res <= RESERVA) res++;
                         if (rec <= RECUPERACAO) rec++;
-                    }
-                    ppu_wait_nmi();
-                    if (pausa) espera(100);
+                    	break;
+                    // Pausa
+                    case PAUSA:
+                    	if (pad & PAD_START)
+                        {
+                            ppu_off();
+                            escrita_centralizada("       ", 2);
+                            ppu_on_all();
+                            espera(15);
+                            music_pause(0);
+                            est_jogo = LOOP;
+                        }
+                    	else espera(100);
+                    	break;
+                    // Perde vida
+                    case PERDE:
+                    	music_stop();
+                    	vidas--;
+                        energia = 99;
+                        sfx_play(SFX_MORREU, 0);
+                        espera(90);
+                        if (vidas <= 0) estado = DERROTA;
+                        else est_jogo = ENTRADA;
+                    	break;
+                    // Avança nível
+                    case AVANCA:
+                    	music_stop();
+                    	nivel = (completo ? nivel + 1 : demo[++j]);
+                    	if (nivel > NIVEIS) estado = VITORIA;
+                    	else est_jogo = ENTRADA;
+                    	break;
+                    default: break;
                 }
-            }
-            music_stop();
-            if (energia <= 0) // Morreu
-            {	
-            	vidas--;
-                energia = 99;
-                pulo = false;
-                sfx_play(SFX_MORREU, 0);
-                espera(90);
-            }
-            else // Passou de nível
-            {
-                nivel = (completo ? nivel + 1 : demo[++j]);
-                prox = false;
-            }
+            	break;
+            // Vitória
+            case VITORIA:
+            	ppu_off();
+                setup_graphics();
+                vram_adr(NAMETABLE_A);
+                vram_unrle(completo ? tela_fim_completo : tela_fim_demo);
+                ppu_on_all();
+                retorna();
+            	break;
+            // Derrota
+            case DERROTA:
+            	game_over();
+            	sfx_play(nivel & 0x01 ? SFX_FIM1 : SFX_FIM0, 0);
+            	retorna();
+            default: break;
         }
-	limpa_tela(NAMETABLE_A);
-        if (vidas <= 0) // Game Over
-        {
-	    game_over();
-            sfx_play(nivel & 0x01 ? SFX_FIM1 : SFX_FIM0, 0);
-        } 
-        else // Vitória
-	{
-	    ppu_off();
-	    setup_graphics();
-            vram_adr(NAMETABLE_A);
-	    vram_unrle(completo ? tela_fim_completo : tela_fim_demo);
-	    ppu_on_all();
-	}
-	// Espera START para voltar ao início da aplicação
-	pad = pad_poll(0);
-	while (!(pad & PAD_START))
-	{
-	    pad = pad_poll(0);
-	    ppu_wait_nmi();
-	}
-	limpa_tela(NAMETABLE_A);
-        limpa_tela(NAMETABLE_C);
+        ppu_wait_nmi();
     }
 }
