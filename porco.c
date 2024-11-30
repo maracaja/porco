@@ -62,46 +62,46 @@ const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0
 const byte const demo[7] = /*{51, 99}; */{0, 10, 25, 35, 49, 50, 99};
 
 // Objetos
-static byte arena;
+byte arena;
 Adversario advs[N_ADVS];
 Bola bolas[N_BOLAS];
 Cartao cards[N_CARDS];
 Vilao v;
 
 // Dados do jogo
-static Estado estado;	// Máquina de estados da aplicação
-static EstadoJogo est_jogo;	// Máquina de estados de jogo
-static bool completo = false;	// Modo de jogo
-static char pad;  // Leitura do controle
-static byte nivel;
-static byte deb;  // Delay (em quadros) a cada tiro
-static byte dec;  // Delay (em quadros) a cada chute
-static byte rec;  // Delay (em quadros) entre dois choques do jogador contra oponentes
-static byte ata;   // Jogador que vai chutar (estava sendo o mesmo)
-static byte banco; // Número máximo de adversários por nível 
-static byte res;   // Tempo (em quadros) para aparecer o reserva
-static byte poup;  // Quantidade de moedas que podem aparecer
-static word tbo[4];  // Conta o tempo que o bônus aparece na tela
-static word dbo[4];  // Tempo sem bônus na tela
-static bool lado = false;  // Flags de animação
-static bool corre = false;
-static byte i = 0, j, k;   // Variáveis para uso em laços
-static bool pulo;    // Variável de controle para escapar de introduções
+Estado estado;	// Máquina de estados da aplicação
+EstadoJogo est_jogo;	// Máquina de estados de jogo
+bool completo = false;	// Modo de jogo
+char pad;  // Leitura do controle
+byte nivel;
+byte deb;  // Delay (em quadros) a cada tiro
+byte dec;  // Delay (em quadros) a cada chute
+byte rec;  // Delay (em quadros) entre dois choques do jogador contra oponentes
+byte ata;   // Jogador que vai chutar (estava sendo o mesmo)
+byte banco; // Número máximo de adversários por nível 
+byte res;   // Tempo (em quadros) para aparecer o reserva
+byte poup;  // Quantidade de moedas que podem aparecer
+word tbo[4];  // Conta o tempo que o bônus aparece na tela
+word dbo[4];  // Tempo sem bônus na tela
+bool lado = false;  // Flags de animação
+bool corre = false;
+byte i = 0, j, k;   // Variáveis para uso em laços
+bool pulo;    // Variável de controle para escapar de introduções
 
 // Dados do jogador
-static word x, y;
-static byte dinheiro;
-static byte energia;
-static byte luvas;
-static byte vidas;
-static byte move;
+word x, y;
+byte dinheiro;
+byte energia;
+byte luvas;
+byte vidas;
+byte move;
 
 // Dados de presença dos bônus
-static byte bonus;
-static byte y_taca;
+byte bonus;
+byte y_taca;
 // Posições onde se localizarão (ordem de definição das respectivas constantes)
-static byte xb[4] = {91, 157, 128, 128};	
-static byte yb[4] = {150, 150, 150, 150};
+byte xb[4] = {91, 157, 128, 128};	
+byte yb[4] = {150, 150, 150, 150};
 
 // setup PPU and tables
 void setup_graphics() 
@@ -115,25 +115,25 @@ void setup_graphics()
 // Escreve uma mensagem de linha única aparecendo um caractere por vez
 void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col)
 {
-    byte x = col, y = lin, tam = MIN(strlen(msg), 28), i = 0, j = 0;
+    byte a = col, b = lin, tam = MIN(strlen(msg), 28), m = 0, n = 0;
     char pad;
-    while (!pulo && i < tam) 
+    while (!pulo && m < tam) 
     {
-        if (j >= 4)
+        if (n >= 4)
         {
-            vrambuf_put(NTADR_A(x + i, y), &msg[i], 1);
+            vrambuf_put(NTADR_A(a + m, b), &msg[m], 1);
             set_vram_update(updbuf);
-            i++; j = 0;
+            m++; n = 0;
             vrambuf_flush();
         }
         else
         {
             ppu_wait_nmi();
-            j++;
+            n++;
         }
         // Sai do diálogo se o jogador pressionar A
         pad = pad_poll(0);
-        if (pad & PAD_A) pulo = true;
+        if (pad & BOTAO_PULO) pulo = true;
     }
 }
 
@@ -158,71 +158,44 @@ void transicao_intro()
 
 void conversa()
 {
-    byte i;
-    const char* const trechos[] = { "OLA, CAIM! SOU A TITIA,",
-                                    "DONA E PATROCINADORA DO",
-                                    "PORCARIAS FC. FUI PRESA",
-                                    "PELO TERRIVEL FUTEBOWSER",
-                                    "NUMA REALIDADE ONDE MEU ",
-                                    "TIME NAO TEM MUNDIAL.",
-                                    ESPACO,
-                                    "TE CONTRATEI PARA NOS",
-                                    "LIBERTAR DESSA MALDIcAO.",
-                                    ESPACO,
-                                    "USE OS GOLEIROS PARA SE",
-                                    "PROTEGER DOS ATAQUES DOS",
-                                    "ADVERSARIOS.",
-                                    ESPACO, 
-                                    "CONSEGUI TAMBEM ARBITROS",
-                                    "QUE TE AJUDARAO A TIRAR",
-                                    "NOSSOS RIVAIS DA FRENTE.",
-                                    ESPACO,
-                                    "SEMPRE QUE PRECISAR, USE",
-                                    "ENERGETICOS QUE LEMBRAM",
-                                    "A NOSSA CONQUISTA DE 51.",
-                                    ESPACO,
-                                    "LEMBRANDO: USE A GRANA ",
-                                    "PRA GANHAR A VIDA, NUNCA",
-                                    "O CONTRARIO. E COMO SOU",
-                                    "RYCA, VOU VOAR AGORA NO",
-                                    "MEU, DIGO, NOSSO AVIAO.",
-                                    ESPACO,
-                                    "PARA CONQUISTAR O MUNDO,",
-                                    "e PRECISO ATRAVESSA-LO.",
-                                    "BOA SORTE!" };
-    for (i = 0; i < 7; i++)
-        escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
+    byte z;
+    for (z = 0; z < 7; z++)
+        escreve_mensagem(trechos_titia[z], 2 * z + 2, COL_INTRO);
     if (!pulo) oam_meta_spr(TTX, SPRY, TACA, spr_liberta);
-    for (; i < 10; i++)
-        escreve_mensagem(trechos[i], 2 * i + 2, COL_INTRO);
-    transicao_intro();
+    for (; z < 10; z++)
+        escreve_mensagem(trechos_titia[z], 2 * z + 2, COL_INTRO);
+    if (!pulo) transicao_intro();
     if (!pulo) oam_meta_spr(SPRX, SPRY, GOLEIRO, spr_goleiro);
-    for (; i < 14; i++)
-        escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
+    for (; z < 14; z++)
+        escreve_mensagem(trechos_titia[z], 2 * z - 18, COL_INTRO);
     if (!pulo)
     {
         troca_spr_intro();
         oam_meta_spr(SPRX, SPRY, JUIZ, spr_arbitro);
     }
-    for (; i < 18; i++)
-        escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
+    for (; z < 18; i++)
+        escreve_mensagem(trechos_titia[z], 2 * z - 18, COL_INTRO);
     if (!pulo) 
     {
       	troca_spr_intro();
         oam_meta_spr(SPRX, SPRY, ENERG, spr_nrg);
     }
-    for (; i < 22; i++)
-        escreve_mensagem(trechos[i], 2 * i - 18, COL_INTRO);
-    transicao_intro();
-    oam_meta_spr(TTX, SPRY, MOEDA, spr_moeda);
-    for (; i < 31; i++)
-        escreve_mensagem(trechos[i], 2 * i - 42, COL_INTRO);
+    for (; z < 22; z++)
+        escreve_mensagem(trechos_titia[z], 2 * z - 18, COL_INTRO);
+    if (!pulo) 
+    {
+    	transicao_intro();
+    	oam_meta_spr(TTX, SPRY, MOEDA, spr_moeda);
+    }
+    for (; z < 31; z++)
+        escreve_mensagem(trechos_titia[z], 2 * z - 42, COL_INTRO);
+    if (!pulo) espera(150);
 }
 
 // História inicial do jogo
 void historinha()
 {
-    byte i;
+    byte z;
     byte caim_x = 100, caim_y = 210; // Coordenadas do personagem principal
     char pad;
     limpa_tela(NAMETABLE_C);
@@ -233,7 +206,7 @@ void historinha()
     escrita_centralizada("1984", 15);
     ppu_on_all();
     espera(30);
-    for (i = 0; i < 150 && !pulo; i++)
+    for (z = 0; z < 150 && !pulo; z++)
     {
         pad = pad_poll(0);
         if (pad & BOTAO_PULO) pulo = true;
@@ -264,53 +237,37 @@ void historinha()
 // INÍCIO DOS NÍVEIS ESPECIAIS
 void conversa_tigre()
 {
-    byte i;
-    const char* const trechos[] = { "TU NO LLEGARAS A LA FINAL.",
-                                    "@QUIEN MANDA ACA SOY YO!",
-                                    "@JAJAJAJAJA!" };
+    byte z;
     pulo = false;
-    for (i = 0; i < 3; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
+    for (z = 0; z < 3; z++) escreve_mensagem(trechos_tigre[i], 2 * z + 6, 2);
 }
 
 void conversa_edson()
 {
-    byte i;
-    const char* const trechos[] = { "INVENTEI UM JEITO DE TE",
-                                    "DERROTAR, ENTENDE?",
-                                    "POSSO FAZER MAIS DE 1000",
-                                    "GOLS, VOCE NAO VAI VENCER.",
-                                    "CAIU NA REDE, e PEIXE!" };
+    byte z;
     pulo = false;
-    for (i = 0; i < 5; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
+    for (z = 0; z < 5; z++) escreve_mensagem(trechos_edson[z], 2 * z + 6, 2);
 }
 
 void conversa_devil()
 {
-    byte i;
-    const char* const trechos[] = { "AH SHIT, HERE WE GO AGAIN!",
-                                    "PLEASE ALLOW ME 2 INTRODUCE",
-                                    "MYSELF, I*M A MAN... VOCE",
-                                    "JA SABE! TITIA TE MANDOU",
-                                    "IR ATRAS DE FUTEBOWSER, MAS",
-                                    "NAO DISSE QUE TENHO VARIOS",
-                                    "NOMES, NEM QUE SEU GOLEIRO",
-                                    "VAI FALHAR CONTRA MIM.",
-                                    "QUE O JOGO COMECE, QUERO",
-                                    "TOMAR MEU CHA LOGO MAIS!" };
+    byte z;
     oam_meta_spr(CX, CY + 10, CAIM, spr_jogador_parado);
     pulo = false;
-    for (i = 0; i < 10; i++) escreve_mensagem(trechos[i], 2 * i + 6, 2);
+    for (z = 0; z < 10; z++) escreve_mensagem(trechos_devil[z], 2 * z + 6, 2);
 }
 
 // Cria um novo adversário na tela
-void novo_adversario(byte i)
+void novo_adversario(byte a)
 {
     if (res >= RESERVA) 
     {
-        advs[i].ativo = true;
-        advs[i].energia = 100;
-        advs[i].x = i < 3 ? real(98 + 24 * (i % 3)) : real(64 + 60 * (i % 3));
-        advs[i].y = real(YMIN + (i < 3 ? 40 : 70 + 15 * arena));
+        byte resto = a % 3;
+        bool linha = a < 3;
+        advs[a].ativo = true;
+        advs[a].energia = 100;
+        advs[a].x = linha ? real(98 + 24 * resto) : real(64 + 60 * resto);
+        advs[a].y = real(YMIN + (linha ? 40 : 70 + 15 * arena));
         banco--;
     }
 }

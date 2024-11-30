@@ -10,6 +10,11 @@
 typedef enum {INICIO, MENU, INTRO, JOGO, VITORIA, DERROTA} Estado;
 typedef enum {ENTRADA, LOOP, PAUSA, PERDE, AVANCA} EstadoJogo;
 
+extern const char* trechos_titia[];
+extern const char* trechos_tigre[];
+extern const char* trechos_edson[];
+extern const char* trechos_devil[];
+
 // Valor absoluto
 int vabs(int x);
 
