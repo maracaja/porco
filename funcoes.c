@@ -259,10 +259,7 @@ void historinha()
 }
 
 void selecao(bool completo)
-{
-    oam_spr(52, 175 + (completo ? 24 : 0), CARD, completo ? 0 : 3, 4);
-    ppu_wait_nmi();
-}
+{ oam_spr(52, 175 + (completo ? 24 : 0), CARD, completo ? 0 : 3, 4); }
 
 void entrada_nivel(byte nivel)
 {

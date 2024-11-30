@@ -63,7 +63,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = {51, 99}; //{0, 10, 25, 35, 49, 50, 99};
+const byte const demo[7] = /*{51, 99}; */{0, 10, 25, 35, 49, 50, 99};
 
 // Objetos
 static byte arena;
@@ -75,6 +75,7 @@ Vilao v;
 // Dados do jogo
 static Estado estado;
 static EstadoJogo est_jogo;
+static bool completo = false;	// Modo de jogo
 static char pad;  // Leitura do controle
 static byte nivel;
 static byte deb;  // Delay (em quadros) a cada tiro
@@ -86,7 +87,7 @@ static byte res;   // Tempo (em quadros) para aparecer o reserva
 static byte poup;  // Quantidade de moedas que podem aparecer
 static word tbo[4];  // Conta o tempo que o bônus aparece na tela
 static word dbo[4];  // Tempo sem bônus na tela
-static bool lado = false;  // Flag de animação
+static bool lado = false;  // Flags de animação
 static bool corre = false;
 
 // Dados do jogador
@@ -680,7 +681,6 @@ void retorna()
 
 void main(void)
 {
-    bool completo = false, pausa = false;	// Modos de jogo
     byte i = 0, j, k;	// Variáveis para uso em laços
     int dx, dy;	// Variáveis de deslocamento do jogador
     estado = INICIO;
@@ -723,7 +723,6 @@ void main(void)
             	break;
             // Regime normal de jogo
             case JOGO:
-            	pad = pad_poll(0);
             	switch (est_jogo)
                 {
                     case ENTRADA:
@@ -768,22 +767,24 @@ void main(void)
                             music_play(0);
                             oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
                         }
+                        est_jogo = LOOP;
                         ppu_off();
                     	posiciona_jogador();
                     	arena = carrega_arena(nivel);
                         scroll(0, 0);
-                    	ppu_on_all();
-                    	est_jogo = LOOP;
+                    	ppu_on_all(); 
+                        ppu_wait_nmi();
                     	break;
                     // Loop do jogo
                     case LOOP:
+                    	pad = pad_poll(0);
                     	// Comando de animação
                         i++;
                         if (i > 4)
                         {
-                          i = 0;
-                          lado = !lado;
-                          corre = true;
+                            i = 0;
+                            lado = !lado;
+                            corre = true;
                         }
                     	// Controle do deslocamento do jogador na tela
                     	move = movimento(pad);
@@ -830,9 +831,11 @@ void main(void)
                         if (dec <= DELAY_CHUTE) dec++;
                         if (res <= RESERVA) res++;
                         if (rec <= RECUPERACAO) rec++;
+                    	ppu_wait_nmi();
                     	break;
                     // Pausa
                     case PAUSA:
+                    	pad = pad_poll(0);
                     	if (pad & PAD_START)
                         {
                             ppu_off();
@@ -860,7 +863,6 @@ void main(void)
                     	nivel = (completo ? nivel + 1 : demo[++j]);
                     	if (nivel > NIVEIS) estado = VITORIA;
                     	else est_jogo = ENTRADA;
-                    	break;
                     default: break;
                 }
             	break;
@@ -880,6 +882,5 @@ void main(void)
             	retorna();
             default: break;
         }
-        ppu_wait_nmi();
     }
 }
