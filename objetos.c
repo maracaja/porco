@@ -5,32 +5,32 @@
 // Tabela normalizada de tangentes
 const int const TG[16] = {-2599, -844, -479, -312, -210, -137, -78, -25, 25, 78, 137, 210, 312, 479, 844, 2599};
 
-byte i;	// Variável para iteração
+byte z;	// Variável para iteração
 
 void inicializa_adv(Adversario* a)
 {
-    for (i = 0; i < N_ADVS; i++)
+    for (z = 0; z < N_ADVS; z++)
     {
-        a[i].ativo = false;
-        a[i].energia = 100;
+        a[z].ativo = false;
+        a[z].energia = 100;
     }
 }
 
 void inicializa_bol(Bola* b)
-{ for (i = 0; i < N_BOLAS; i++) b[i].ativo = false; }
+{ for (z = 0; z < N_BOLAS; z++) b[z].ativo = false; }
 
 void inicializa_car(Cartao* c)
-{  for (i = 0; i < N_CARDS; i++) c[i].info = 0x00; }
+{  for (z = 0; z < N_CARDS; z++) c[z].info = 0x00; }
 
 byte direcao(int dx, int dy)
 {
     int delta = pos(dx), tan;
     if (delta == 0) return dy >= 0 ? 8 : 24;
     tan = dy / delta;
-    i = tan > 0 ? 8 : 0;
-    while (tan >= TG[i] && i < 15) i++;
-    i += (dx > 0 ? 24 : 8);
-    return i & 0x1F;
+    z = tan > 0 ? 8 : 0;
+    while (tan >= TG[z] && z < 15) z++;
+    z += (dx > 0 ? 24 : 8);
+    return z & 0x1F;
 }
 
 byte direcao2(word x1, word x2, word y1, word y2)
@@ -59,34 +59,34 @@ byte movimento(char pad)
 
 bool nao_bate_parede(byte arena, word x, word y, bool jog)
 {
-    byte i = pos(x), j = pos(y);
-    if (i <= XMIN || i >= XMAX || j <= YMIN || j >= YMAX) return false;
+    byte px = pos(x), py = pos(y);
+    if (px <= XMIN || px >= XMAX || py <= YMIN || py >= YMAX) return false;
     // Valores adaptados dos desenhos criados (usa menos RAM)
     if (arena <= 2)
     {	// Casos comuns aos níveis normais
-        if (j <= YMIN + (jog ? 16 : 8)) return i >= XMIN + 81 && i <= XMAX - 81;
-      	if (j <= YMIN + (jog ? 32 : 24))
-            return i <= XMIN + 57 || i >= XMAX - 57 || i >= XMIN + 81 && i <= XMAX - 81;
+        if (py <= YMIN + (jog ? 16 : 8)) return px >= XMIN + 81 && px <= XMAX - 81;
+      	if (py <= YMIN + (jog ? 32 : 24))
+            return px <= XMIN + 57 || px >= XMAX - 57 || px >= XMIN + 81 && px <= XMAX - 81;
     }
     switch (arena)	
     {	// Casos específicos
       	case 0:
-            if (j >= YMAX - (jog ? 16 : 24)) return false;
-            if (j >= 112 && j <= (jog ? 142 : 134)) return i <= XMIN + 73 || i >= XMAX - 73;
+            if (py >= YMAX - (jog ? 16 : 24)) return false;
+            if (py >= 112 && py <= (jog ? 142 : 134)) return px <= XMIN + 73 || px >= XMAX - 73;
             break;
       	case 1:
-            if (j >= 128 && j <= (jog ? 158 : 150)) return i >= XMIN + 65 && i <= XMAX - 65;
+            if (py >= 128 && py <= (jog ? 158 : 150)) return px >= XMIN + 65 && px <= XMAX - 65;
             break;
         case 2:
-            if (j >= 80 && j <= (jog ? 110 : 102) || j >= YMAX - 32 && j <= YMAX - (jog ? 16 : 24))
-              	return i >= XMIN + 17 && i <= XMAX - 17;
-            if (j >= 152 && j <= (jog ? 182 : 174))
-                return i <= XMIN + 41 || i >= XMAX - 41 || i >= XMIN + 81 && i <= XMAX - 81;
-            if (j >= YMAX - (jog ? 16 : 24)) return i >= XMIN + 33 && i <= XMAX - 33;
+            if (py >= 80 && py <= (jog ? 110 : 102) || py >= YMAX - 32 && py <= YMAX - (jog ? 16 : 24))
+              	return px >= XMIN + 17 && px <= XMAX - 17;
+            if (py >= 152 && py <= (jog ? 182 : 174))
+                return px <= XMIN + 41 || px >= XMAX - 41 || px >= XMIN + 81 && px <= XMAX - 81;
+            if (py >= YMAX - (jog ? 16 : 24)) return px >= XMIN + 33 && px <= XMAX - 33;
             break;
       	default:
-            if (j <= YMIN + (jog ? 16 : 8)) return false;
-            if (j >= 160 && j <= (jog ? 190 : 182)) return i >= XMIN + 49 && i <= XMAX - 49;
+            if (py <= YMIN + (jog ? 16 : 8)) return false;
+            if (py >= 160 && py <= (jog ? 190 : 182)) return px >= XMIN + 49 && px <= XMAX - 49;
     }
     return true;
 }

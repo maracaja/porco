@@ -16,7 +16,7 @@
 	.import popa
 
 FT_BASE_ADR	=$0500		;page in RAM, should be $xx00
-FT_DPCM_OFF	=$c000		;sample data start address
+FT_DPCM_OFF	=$C000		;sample data start address
 
 .define FT_THREAD       1	;undefine if you call sound effects in the same thread as sound update
 .define FT_PAL_SUPPORT	1  	;undefine to exclude PAL support

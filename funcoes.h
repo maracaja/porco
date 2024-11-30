@@ -3,8 +3,12 @@
 
 #include "neslib.h"
 
-// Variável de controle para escapar de introduções
-static bool pulo;
+#define desenha_tia(void) oam_meta_spr(TTX, TTY, EXTRA, spr_titia)
+#define desenha_jogador_intro(void) oam_meta_spr(SPRX, TTY + 18, CAIM, spr_jogador_parado)
+
+// Máquinas de Estados
+typedef enum {INICIO, MENU, INTRO, JOGO, VITORIA, DERROTA} Estado;
+typedef enum {ENTRADA, LOOP, PAUSA, PERDE, AVANCA} EstadoJogo;
 
 // Valor absoluto
 int vabs(int x);
@@ -15,9 +19,6 @@ void espera(word n);
 // Escreve um texto de forma a centralizá-lo na tela (nametable A)
 void escrita_centralizada(const char* str, unsigned char linha);
 
-// Escreve uma mensagem de linha única aparecendo um caractere por vez
-void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col);
-
 // Limpa a tela do nametable selecionado
 void limpa_tela(unsigned int adr);
 
@@ -26,14 +27,6 @@ void apresentacao(void);
 
 // Abertura do nível
 void entrada_nivel(byte nivel);
-
-// História inicial do jogo
-void historinha(void);
-
-// Início dos níveis especiais do jogo
-void conversa_tigre(void);
-void conversa_edson(void);
-void conversa_devil(void);
 
 // Tela de derrota
 void game_over(void);

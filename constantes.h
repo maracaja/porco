@@ -81,5 +81,9 @@
 #define SFX_PASSOU 9
 #define SFX_FIM0 10
 #define SFX_FIM1 11
+// Utilidades para introdução
+#define ESPACO " "
+#define COL_INTRO 5
+#define BOTAO_PULO PAD_A
 
 #endif
