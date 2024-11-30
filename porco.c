@@ -111,6 +111,18 @@ void setup_graphics()
     pal_spr(PALETTE);
 }
 
+// Definições iniciais
+void setup()
+{
+    ppu_off();
+    setup_graphics();
+    famitone_init(&trilha);
+    sfx_init(&sons);
+    nmi_set_callback(famitone_update);
+    estado = INICIO;
+    ppu_on_all();
+}
+
 // FUNÇÕES DE INTRODUÇÃO
 // Escreve uma mensagem de linha única aparecendo um caractere por vez
 void escreve_mensagem(const char* msg, unsigned char lin, unsigned char col)
@@ -841,10 +853,8 @@ void atualiza_bonus()
 void inicio()
 {
     setup_graphics();
-    famitone_init(abertura);
-    music_play(0);
+    sfx_play(SFX_INTRO, 0);
     apresentacao();
-    music_stop();
     selecao(completo);    
     estado = MENU;
 }
@@ -948,8 +958,8 @@ void inicio_nivel()
         posiciona_advs();
         bonus |= TEM_TACA;   // Taça (fim de nível)
         y_taca = YTACA;
-        famitone_init(trilha_fifa);	// TEMPORÁRIO
-        music_play(0);
+        //famitone_init(trilha_fifa);	// TEMPORÁRIO
+        //music_play(0);
         oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
     }
     est_jogo = LOOP;
@@ -1015,7 +1025,7 @@ void loop_jogo()
         if (nivel_comum)
         {
             ppu_off();
-            music_stop();
+            //music_stop();
             oam_clear();
             escrita_centralizada(" PARABENS!", 8);
             escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
@@ -1035,6 +1045,7 @@ void loop_jogo()
     if (dec <= DELAY_CHUTE) dec++;
     if (res <= RESERVA) res++;
     if (rec <= RECUPERACAO) rec++;
+    ppu_wait_nmi();
 }
 
 // Máquina de estados em ação durante o jogo
@@ -1053,9 +1064,7 @@ void jogo()
 
 void main(void)
 {
-    sfx_init(sons);
-    nmi_set_callback(famitone_update);
-    estado = INICIO;
+    setup();
     while (1)
     {	// Loop infinito
         switch (estado)
@@ -1067,7 +1076,6 @@ void main(void)
             case VITORIA: fim_vitoria(); break;	// Vitória            
             case DERROTA: fim_derrota(); 	// Derrota            	
             default: break;
-        }
-        ppu_wait_nmi();
+        }        
     }
 }
