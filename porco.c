@@ -59,7 +59,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = /*{51, 99}; */{0, 10, 25, 35, 49, 50, 99};
+const byte const demo[7] = /*{51, 99}; */{0, 11, 27, 34, 49, 51, 99};
 
 // Objetos
 byte arena;
@@ -91,7 +91,7 @@ bool pulo;    // Variável de controle para escapar de introduções
 // Dados do jogador
 word x, y;
 byte dinheiro;
-byte energia;
+sbyte energia;
 byte luvas;
 byte vidas;
 byte move;
@@ -114,13 +114,10 @@ void setup_graphics()
 // Definições iniciais
 void setup()
 {
-    ppu_off();
-    setup_graphics();
     famitone_init(&trilha);
     sfx_init(&sons);
     nmi_set_callback(famitone_update);
-    estado = INICIO;
-    ppu_on_all();
+    estado = INICIO;    
 }
 
 // FUNÇÕES DE INTRODUÇÃO
@@ -1045,7 +1042,6 @@ void loop_jogo()
     if (dec <= DELAY_CHUTE) dec++;
     if (res <= RESERVA) res++;
     if (rec <= RECUPERACAO) rec++;
-    ppu_wait_nmi();
 }
 
 // Máquina de estados em ação durante o jogo
@@ -1060,6 +1056,7 @@ void jogo()
         case AVANCA: avanca_nivel();	// Avança nível            
         default: break;
     }
+    ppu_wait_nmi();
 }
 
 void main(void)
