@@ -977,7 +977,7 @@ void pausa()
         escrita_centralizada("       ", 2);
         ppu_on_all();
         espera(15);
-        music_pause(0);
+        //music_pause(0);
         est_jogo = LOOP;
     }
     else espera(100);
@@ -986,7 +986,7 @@ void pausa()
 // Ações em caso de perder vida
 void perdeu_vida()
 {
-    music_stop();
+    //music_stop();
     vidas--;
     energia = 99;
     sfx_play(SFX_MORREU, 0);
@@ -998,7 +998,7 @@ void perdeu_vida()
 // Avanço de nível
 void avanca_nivel()
 {
-    music_stop();
+    //music_stop();
     nivel = (completo ? nivel + 1 : demo[++j]);
     if (nivel > NIVEIS) estado = VITORIA;
     else est_jogo = ENTRADA;
