@@ -1037,7 +1037,7 @@ void loop_jogo()
     }
     else if (energia <= 0) est_jogo = PERDE; // Acabou energia
     // Atualização do quadro
-    oam_clear();
+    oam_clear_fast();
     atualiza_placar();
     atualiza_sprites();
     atualiza_bonus();

@@ -15,7 +15,7 @@
 
 	.import popa
 
-FT_BASE_ADR	=$0100		;page in RAM, should be $xx00
+FT_BASE_ADR	=$0500		;page in RAM, should be $xx00
 FT_DPCM_OFF	=$c000		;sample data start address
 
 .define FT_THREAD       1	;undefine if you call sound effects in the same thread as sound update
