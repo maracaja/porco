@@ -637,14 +637,17 @@ void atualiza_sprites()
         }
         switch (nivel)
         {
-            case 17: 
-                da = rand() & 0x1F;
-                dx = COS(da) << 1;
-                dy = SEN(da) << 1;
-                m = pos(v.x + dx);
-                n = pos(v.y + dy);
-                if (m >= 58 && m <= 198) v.x += dx;
-                if (n >= 50 && n <= 100) v.y += dy;
+            case 17:
+            	if (corre)
+                {
+                    da = rand() & 0x1F;                
+                    dx = COS(da) << 2;
+                    dy = SEN(da) << 2;
+                    m = pos(v.x + dx);
+                    n = pos(v.y + dy);
+                    if (m >= 58 && m <= 198) v.x += dx;
+                    if (n >= 50 && n <= 100) v.y += dy;
+                }
                 break;
             case 34:
                 v.x = real(MAX(50, MIN(200, 255 - xj)));
