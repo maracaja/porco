@@ -468,6 +468,7 @@ void controla_jogador()
       if (nivel_comum) music_pause(*trilha_fifa);
       //nivel_comum ? *trilha : */ // FALTA TRILHA
       ppu_on_all();
+      espera(30);
       est_jogo = PAUSA;
     }
 }
@@ -972,18 +973,17 @@ void inicio_nivel()
 
 // Estado de pausa
 void pausa()
-{
+{    
     pad = pad_poll(0);
     if (pad & PAD_START)
     {
         ppu_off();
         escrita_centralizada("       ", 2);
         ppu_on_all();
-        espera(15);
+        espera(30);
         //music_pause(0);
         est_jogo = LOOP;
     }
-    else espera(100);
 }
 
 // Ações em caso de perder vida
