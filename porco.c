@@ -21,13 +21,11 @@
 //#link "sprites.c"
 
 // Importação dos recursos de áudio
-//#link "abertura.s"
 //#link "trilha.s"
-//#link "trilha_viloes.s"
 //#link "sons.s"
-extern char abertura[];
-extern char trilha[];
-extern char trilha_fifa[];
+//extern char abertura[];
+//extern char trilha[];
+//extern char trilha_fifa[];
 extern char sons[];
 
 // MACROS
@@ -59,7 +57,7 @@ const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x3
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
 // Tabela de níveis do modo demonstração
-const byte const demo[7] = /*{51, 99}; */{0, 11, 27, 34, 49, 51, 99};
+const byte const demo[7] = {0, 11, 27, 34, 49, 51};
 
 // Objetos
 byte arena;
@@ -114,7 +112,7 @@ void setup_graphics()
 // Definições iniciais
 void setup()
 {
-    famitone_init(&trilha);
+    famitone_init(0);
     sfx_init(&sons);
     nmi_set_callback(famitone_update);
     estado = INICIO;    
@@ -182,7 +180,7 @@ void conversa()
         troca_spr_intro();
         oam_meta_spr(SPRX, SPRY, JUIZ, spr_arbitro);
     }
-    for (; z < 18; i++)
+    for (; z < 18; z++)
         escreve_mensagem(trechos_titia[z], 2 * z - 18, COL_INTRO);
     if (!pulo) 
     {
@@ -465,7 +463,7 @@ void controla_jogador()
     {
       ppu_off();
       escrita_centralizada("PAUSADO", 2);
-      if (nivel_comum) music_pause(*trilha_fifa);
+     // if (nivel_comum) music_pause(*trilha_fifa);
       //nivel_comum ? *trilha : */ // FALTA TRILHA
       ppu_on_all();
       espera(30);
@@ -949,7 +947,7 @@ void inicio_nivel()
         if (!pulo) espera(120);
         bonus &= ~TEM_TACA;
         y_taca = YTACA + 16;
-        //famitone_init(trilha_fifa);
+        //famitone_init(&trilha);
         //music_play(0);
     }
     else // Configurações dos níveis normais
@@ -959,8 +957,9 @@ void inicio_nivel()
         posiciona_advs();
         bonus |= TEM_TACA;   // Taça (fim de nível)
         y_taca = YTACA;
-        //famitone_init(trilha_fifa);	// TEMPORÁRIO
+        //famitone_init(&trilha);	// TEMPORÁRIO
         //music_play(0);
+        //nmi_set_callback(famitone_update);
         oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
     }
     est_jogo = LOOP;

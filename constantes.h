@@ -2,7 +2,7 @@
 #define CONSTANTES_H
 
 #define NIVEIS 51
-#define DIVISOR 17  // 51 níveis -> Divide o jogo em 3 grandes blocos
+#define DIVISOR 17
 #define DEBOUNCE 15
 #define DELAY_CHUTE 15
 #define DELAY_BONUS 600
