@@ -45,11 +45,14 @@ const char* trechos_tigre[] =
  "@JAJAJAJAJA!"};
 
 const char* trechos_edson[] =
-{"INVENTEI UM JEITO DE TE",
- "DERROTAR, ENTENDE?",
- "POSSO FAZER MAIS DE 1000",
- "GOLS, VOCE NAO VAI VENCER.",
- "CAIU NA REDE, e PEIXE!"};
+{"POR QUE VOCES NAO FORAM",
+ "OS MELHORES DOS ANOS 60?",
+ "A RESPOSTA ESTA AQUI!",
+ "CAIU NA REDE, e PEIXE!",
+ "JÁ NOTOU QUE ISSO AQUI",
+ "ANDA MUITO AZUL? LEMBRA",
+ "UM TIME DE LONDRES QUE",
+ "VENCI NUM AMISTOSO..."};
 
 const char* trechos_devil[] = 
 {"AH SHIT, HERE WE GO AGAIN!",
