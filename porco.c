@@ -567,7 +567,7 @@ void pal_adv()
 }
 
 // Define o metasprite do adversário a ser usado
-byte* spr_adv()
+const byte* spr_adv()
 {
     switch (nivel % 5)
     {

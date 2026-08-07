@@ -6,7 +6,7 @@
 #include "constantes.h"
 #include "funcoes.h"
 
-const char* trechos_titia[] = 
+const char* const trechos_titia[] = 
 {"OLA, CAIM! SOU A TITIA,",
  "DONA E PATROCINADORA DO",
  "PORCARIAS FC. FUI PRESA",
@@ -39,12 +39,12 @@ const char* trechos_titia[] =
  "e PRECISO ATRAVESSA-LO.",
  "BOA SORTE!"};
 
-const char* trechos_tigre[] = 
+const char* const trechos_tigre[] = 
 {"TU NO LLEGARAS A LA FINAL.",
  "@QUIEN MANDA ACA SOY YO!",
  "@JAJAJAJAJA!"};
 
-const char* trechos_edson[] =
+const char* const trechos_edson[] =
 {"POR QUE VOCES NAO FORAM",
  "OS MELHORES DOS ANOS 60?",
  "A RESPOSTA ESTA AQUI!",
@@ -54,7 +54,7 @@ const char* trechos_edson[] =
  "UM TIME DE LONDRES QUE",
  "VENCI NUM AMISTOSO..."};
 
-const char* trechos_devil[] = 
+const char* const trechos_devil[] = 
 {"AH SHIT, HERE WE GO AGAIN!",
  "PLEASE ALLOW ME 2 INTRODUCE",
  "MYSELF, I*M A MAN... VOCE",
@@ -65,6 +65,13 @@ const char* trechos_devil[] =
  "VAI FALHAR CONTRA MIM.",
  "QUE O JOGO COMECE, QUERO",
  "TOMAR MEU CHA LOGO MAIS!"};
+
+const char* const trechos_disclaimer[] = 
+{"ESTA e UMA OBRA DE FICcAO.",
+ "QUALQUER SEMELHANcA COM",
+ "NOMES, PESSOAS, FATOS OU",
+ "CLUBES DE FUTEBOL NAO PASSA",
+ "DE MERA COINCIDENCIA." };
 
 int vabs(int x)
 { return x >= 0 ? x : -x; }
@@ -97,14 +104,9 @@ void limpa_tela(unsigned int adr)
 void disclaimer()
 {
     byte z;
-    const char* const trechos[5] = { "ESTA e UMA OBRA DE FICcAO.",
-                              	     "QUALQUER SEMELHANcA COM",
-                                     "NOMES, PESSOAS, FATOS OU",
-                                     "CLUBES DE FUTEBOL NAO PASSA",
-                                     "DE MERA COINCIDENCIA." };
     ppu_off();
     for (z = 0; z < 5; z++) 
-        escrita_centralizada(trechos[z], 2 * z + 10);
+        escrita_centralizada(trechos_disclaimer[z], 2 * z + 10);
     ppu_on_all();
     espera(380);
 }
