@@ -4,7 +4,7 @@
 #include "neslib.h"
 #include "vrambuf.h"	// VRAM update buffer
 //#link "vrambuf.c"
-//link "famitone2.s"
+//#link "famitone2.s"
 #include "constantes.h" // Constantes usadas
 #include "funcoes.h"	// Biblioteca de funções
 //#link "funcoes.c"
@@ -21,12 +21,14 @@
 //#link "sprites.c"
 
 // Importação dos recursos de áudio
-//link "trilha.s"
-//link "sons.s"
+//#link "porcarias.s"
+//#link "trilha.s"
+//#link "sons.s"
 //extern char abertura[];
-//extern char trilha[];
+extern char hino[];
+extern char trilha[];
 //extern char trilha_fifa[];
-//extern char sons[];
+extern char sons[];
 
 // MACROS
 // Trigonometria
@@ -112,21 +114,19 @@ void setup_graphics()
 // Definições iniciais
 void setup()
 {
-    //famitone_init(&trilha);
-    //sfx_init(&sons);
+    famitone_init(&hino);
+    sfx_init(sons);
     ppu_wait_nmi();
-    //nmi_set_callback(famitone_update);
+    nmi_set_callback(famitone_update);
     estado = INICIO;    
 }
 
-/*
-void //toca_efeito(byte efeito)
+void toca_efeito(byte efeito)
 {
     __asm__("cli");
     sfx_play(efeito, 0);
     __asm__("sei");
 }
-*/
 
 // FUNÇÕES DE INTRODUÇÃO
 // Escreve uma mensagem de linha única aparecendo um caractere por vez
@@ -234,6 +234,7 @@ void historinha()
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
     ppu_on_all();
+    music_play(0);
     while (caim_x > TTX - 4 && !pulo)
     {      
         caim_x--; caim_y -= 2;
@@ -249,6 +250,7 @@ void historinha()
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
     if (!pulo) conversa();
+    music_stop();
 }
 
 // INÍCIO DOS NÍVEIS ESPECIAIS
@@ -350,7 +352,7 @@ void leva_bolada()
     if (luvas > 0) luvas--;
     else energia = MAX(0, energia - 19);
     if (gol_disponivel) dbo[0] = 0;
-    ////toca_efeito(SFX_BOLADA);
+    toca_efeito(SFX_BOLADA);
 }
 
 void sofre_falta()
@@ -371,7 +373,7 @@ void sofre_falta()
         }
 	posiciona_jogador();
         dbo[1] = 0; dbo[2] = 0;
-        //toca_efeito(SFX_FALTA);
+        toca_efeito(SFX_FALTA);
     }
 }
 
@@ -379,14 +381,14 @@ void toma_energetico()
 {
     energia = MIN(energia + 51, 99);
     bonus &= ~BNRG;
-    //toca_efeito(SFX_BONUS);
+    toca_efeito(SFX_BONUS);
 }
 
 void escala_goleiro()
 {
     luvas = nivel < 51 ? 5 : 2;
     bonus &= ~BGOL;
-    //toca_efeito(SFX_BONUS);
+    toca_efeito(SFX_BONUS);
 }
 
 void compra_arbitro()
@@ -394,7 +396,7 @@ void compra_arbitro()
     if (temCartao) bonus |= CARD_VERM;
     else bonus |= TEM_CARTAO & ~CARD_VERM;
     bonus &= ~BARB;
-    //toca_efeito(SFX_JUIZ);
+    toca_efeito(SFX_JUIZ);
 }
 
 void ganha_dinheiro()
@@ -404,9 +406,9 @@ void ganha_dinheiro()
     {
         vidas++;
         dinheiro = 0;
-        //toca_efeito(SFX_VIDA);
+        toca_efeito(SFX_VIDA);
     }
-    else //toca_efeito(SFX_BONUS);
+    else toca_efeito(SFX_BONUS);
     bonus &= ~BDIN;    
 }
 
@@ -446,7 +448,7 @@ void atira()
         cards[c].y = y - real(16);
         cards[c].info |= (!jogador_mov || jogador_dir > 16) ? 24 : (jogador_dir < 8 ? 28 : 20);
     }
-    //toca_efeito(SFX_ATIRA);
+    toca_efeito(SFX_ATIRA);
     deb = 0;
 }
 
@@ -504,7 +506,7 @@ void chuta(byte a)
         bolas[b].x = advs[a].x;
         bolas[b].y = advs[a].y + real(8);
         bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
-        //toca_efeito(SFX_CHUTE);
+        toca_efeito(SFX_CHUTE);
     }
 }
 
@@ -514,7 +516,7 @@ void vilao_chuta()
     bolas[b].x = v.x - real(4);
     bolas[b].y = v.y + real(16);
     bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
-    //toca_efeito(SFX_CHUTE);
+    toca_efeito(SFX_CHUTE);
 }
 
 // Efeitos do tiro sobre o adversário
@@ -533,7 +535,7 @@ void leva_cartao(byte a, byte c)
         poup++;
     }
     desativa_cartao(c);
-    //toca_efeito(SFX_ACERTO);
+    toca_efeito(SFX_ACERTO);
 }
 
 void leva_cartao_vilao(byte c)
@@ -545,7 +547,7 @@ void leva_cartao_vilao(byte c)
         bonus |= TEM_TACA;
     }
     desativa_cartao(c);
-    //toca_efeito(SFX_ACERTO);
+    toca_efeito(SFX_ACERTO);
 }
 
 // Alternância de paleta conforme o nível
@@ -862,7 +864,7 @@ void atualiza_bonus()
 void inicio()
 {
     setup_graphics();
-    //toca_efeito(SFX_INTRO);
+    toca_efeito(SFX_INTRO);
     apresentacao();
     selecao(completo);    
     estado = MENU;
@@ -922,7 +924,7 @@ void fim_vitoria()
 void fim_derrota()
 {
     game_over();
-    //toca_efeito(nivel & 0x01 ? SFX_FIM1 : SFX_FIM0);
+    toca_efeito(nivel & 0x01 ? SFX_FIM1 : SFX_FIM0);
     retorna();
 }
 
@@ -1004,7 +1006,7 @@ void perdeu_vida()
     energia = 99;
     bonus &= ~(CARD_VERM | TEM_CARTAO);
     luvas = 0;
-    //toca_efeito(SFX_MORREU);
+    toca_efeito(SFX_MORREU);
     espera(90);
     if (vidas <= 0) estado = DERROTA;
     else est_jogo = ENTRADA;
@@ -1043,7 +1045,7 @@ void loop_jogo()
             escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
             ppu_on_all();
         }
-        //toca_efeito(SFX_PASSOU);
+        toca_efeito(SFX_PASSOU);
         ppu_wait_nmi();
         espera(400);
         est_jogo = AVANCA;
