@@ -1,4 +1,4 @@
-# [PORCO](http://8bitworkshop.com/redir.html?platform=nes&githubURL=https%3A%2F%2Fgithub.com%2Fmaracaja%2Fporco&file=porco.c)
+# [PORCO](https://maracaja.dev.br/downloads/porco.nes)
 *Desenvolvido por Sérgio Maracajá Jr. e Francisco Simão*
 
 
@@ -27,3 +27,7 @@ Os grandes vilões do jogo aparecerão em três momentos do início até o glori
 - **Setas:** movem o jogador pelo terreno. O jogador também pode correr pelas diagonais.
 - **A:** atira cartões contra os oponentes, se o poder estiver ativado. Em trechos de conversas, pula direto para o jogo.
 - **Start:** Pausa o jogo.
+
+## Considerações finais:
+
+
