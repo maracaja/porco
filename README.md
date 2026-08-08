@@ -19,15 +19,17 @@ Os adversários tentarão fazer faltas e lhe acertar boladas. Desvie delas. Gole
 
 Evite colidir com os adversários, isso diminui o seu poder, ou diminuirá drasticamente sua energia. Garrafas de energético aparecerão quando sua energia baixar. Tome-as sempre que as vir.
 
-Com a evolução da partida, moedas aparecerão. Juntando 100, é possível somar 1 vida.
+Com a evolução da partida, moedas aparecerão. Juntando 100, você ganhará 1 vida.
 
 Os grandes vilões do jogo aparecerão em três momentos do início até o glorioso nível 51: você vai precisar derrotá-los para que a taça apareça!
 
 ### Controles:
-- **Setas:** movem o jogador pelo terreno. O jogador também pode correr pelas diagonais.
-- **A:** atira cartões contra os oponentes, se o poder estiver ativado. Em trechos de conversas, pula direto para o jogo.
+- **Setas:** Movem o jogador pelo terreno. O jogador também pode correr pelas diagonais.
+- **A:** Atira cartões contra os oponentes, se o poder estiver ativado. Em trechos de conversas, pula direto para o jogo.
 - **Start:** Pausa o jogo.
 
 ## Considerações finais:
 
+Para baixar a ROM, basta clicar no título deste documento ou no link da descrição do projeto.
 
+Este jogo foi desenvolvido e compilado usando o [8bitWorkshop IDE](https://8bitworkshop.com/v3.12.1/?platform=vcs&file=examples%2Fhello.a). Recomendamos o emulador [Mesen](https://www.mesen.ca/) para a melhor experiência.
