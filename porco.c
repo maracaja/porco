@@ -21,13 +21,9 @@
 //#link "sprites.c"
 
 // Importação dos recursos de áudio
-//#link "porcarias.s"
-//#link "trilha.s"
+//#link "musicas.s"
 //#link "sons.s"
-//extern char abertura[];
-extern char hino[];
-extern char trilha[];
-//extern char trilha_fifa[];
+extern char musicas[];
 extern char sons[];
 
 // MACROS
@@ -71,7 +67,6 @@ Vilao v;
 // Dados do jogo
 Estado estado;	// Máquina de estados da aplicação
 EstadoJogo est_jogo;	// Máquina de estados de jogo
-bool completo = false;	// Modo de jogo
 char pad;  // Leitura do controle
 byte nivel;
 byte deb;  // Delay (em quadros) a cada tiro
@@ -114,7 +109,7 @@ void setup_graphics()
 // Definições iniciais
 void setup()
 {
-    famitone_init(&hino);
+    famitone_init(&musicas);
     sfx_init(sons);
     ppu_wait_nmi();
     nmi_set_callback(famitone_update);
@@ -234,7 +229,7 @@ void historinha()
     oam_meta_spr(caim_x, caim_y, CAIM, spr_jogador_parado);
     desenha_tia();
     ppu_on_all();
-    music_play(0);
+    music_play(TRILHA_HINO);
     while (caim_x > TTX - 4 && !pulo)
     {      
         caim_x--; caim_y -= 2;
@@ -258,14 +253,14 @@ void conversa_tigre()
 {
     byte z;
     pulo = false;
-    for (z = 0; z < 3; z++) escreve_mensagem(trechos_tigre[i], 2 * z + 6, 2);
+    for (z = 0; z < 3; z++) escreve_mensagem(trechos_tigre[z], 2 * z + 6, 2);
 }
 
 void conversa_edson()
 {
     byte z;
     pulo = false;
-    for (z = 0; z < 5; z++) escreve_mensagem(trechos_edson[z], 2 * z + 6, 2);
+    for (z = 0; z < 8; z++) escreve_mensagem(trechos_edson[z], 2 * z + 6, 2);
 }
 
 void conversa_devil()
@@ -473,13 +468,12 @@ void controla_jogador()
     if (pad & PAD_A && temCartao && deb > DEBOUNCE) atira();
     if (pad & PAD_START)
     {
-      ppu_off();
-      escrita_centralizada("PAUSADO", 2);
-      // if (nivel_comum) music_pause(*trilha_fifa);
-      //nivel_comum ? *trilha : */ // FALTA TRILHA
-      ppu_on_all();
-      espera(30);
-      est_jogo = PAUSA;
+        ppu_off();
+        escrita_centralizada("PAUSADO", 2);
+        music_pause(nivel_comum ? TRILHA_COMUM : TRILHA_VILAO);
+        ppu_on_all();
+        espera(30);
+        est_jogo = PAUSA;
     }
 }
 
@@ -865,8 +859,7 @@ void inicio()
 {
     setup_graphics();
     toca_efeito(SFX_INTRO);
-    apresentacao();
-    selecao(completo);    
+    apresentacao();   
     estado = MENU;
 }
 
@@ -876,7 +869,7 @@ void introducao()
     setup_graphics();
     historinha();
     limpa_tela(NAMETABLE_A);
-    nivel = completo ? 0 : demo[j = 0];
+    nivel = 0; 
     inicializa_jogador();
     estado = JOGO;
     est_jogo = ENTRADA;
@@ -886,9 +879,7 @@ void introducao()
 void menu()
 {
     pad = pad_poll(0);
-    if (pad & PAD_DOWN && !completo) selecao(completo = true);
-    if (pad & PAD_UP && completo) selecao(completo = false);
-    if (pad & PAD_A)
+    if (pad & PAD_START)
     {
         srand(nesclock());
         estado = INTRO;
@@ -901,9 +892,9 @@ void retorna()
     pad = pad_poll(0);
     while (!(pad & PAD_START))
     {
-      pad = pad_poll(0);
-      ppu_wait_nmi();
-      //music_play(0);
+        pad = pad_poll(0);
+        ppu_wait_nmi();
+        music_stop();
     }
     limpa_tela(NAMETABLE_A);
     limpa_tela(NAMETABLE_C);
@@ -916,8 +907,9 @@ void fim_vitoria()
     ppu_off();
     setup_graphics();
     vram_adr(NAMETABLE_A);
-    vram_unrle(completo ? tela_fim_completo : tela_fim_demo);
+    vram_unrle(tela_fim);
     ppu_on_all();
+    music_play(TRILHA_HINO);
     retorna();
 }
 
@@ -955,13 +947,12 @@ void inicio_nivel()
               break;
           default: 
               oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
-                conversa_devil();
+              conversa_devil();
         }
         if (!pulo) espera(120);
         bonus &= ~TEM_TACA;
         y_taca = YTACA + 16;
-        //famitone_init(&trilha);
-        //music_play(0);
+        music_play(TRILHA_VILAO);
     }
     else // Configurações dos níveis normais
     {
@@ -970,9 +961,7 @@ void inicio_nivel()
         posiciona_advs();
         bonus |= TEM_TACA;   // Taça (fim de nível)
         y_taca = YTACA;
-        //famitone_init(&trilha);	// TEMPORÁRIO
-        //music_play(0);
-        //nmi_set_callback(famitone_update);
+        music_play(TRILHA_COMUM);
         oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
     }
     est_jogo = LOOP;
@@ -991,7 +980,7 @@ void pausa()
     {
         ppu_off();
         escrita_centralizada("       ", 2);
-        //music_pause(0);
+        music_play(nivel_comum ? TRILHA_COMUM : TRILHA_VILAO);
         ppu_on_all();
         espera(30);
         est_jogo = LOOP;
@@ -1001,7 +990,7 @@ void pausa()
 // Ações em caso de perder vida
 void perdeu_vida()
 {
-    //music_stop();
+    music_stop();
     vidas--;
     energia = 99;
     bonus &= ~(CARD_VERM | TEM_CARTAO);
@@ -1015,8 +1004,8 @@ void perdeu_vida()
 // Avanço de nível
 void avanca_nivel()
 {
-    //music_stop();
-    nivel = (completo ? nivel + 1 : demo[++j]);
+    music_stop();
+    nivel++;
     if (nivel > NIVEIS) estado = VITORIA;
     else est_jogo = ENTRADA;
 }
@@ -1039,7 +1028,7 @@ void loop_jogo()
         if (nivel_comum)
         {
             ppu_off();
-            //music_stop();
+            music_stop();
             oam_clear();
             escrita_centralizada(" PARABENS!", 8);
             escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
@@ -1075,7 +1064,6 @@ void jogo()
         case AVANCA: avanca_nivel();	// Avança nível            
         default: break;
     }
-    //nmi_set_callback(famitone_update);
 }
 
 void main(void)

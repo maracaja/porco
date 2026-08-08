@@ -126,9 +126,6 @@ void apresentacao()
     }
 }
 
-void selecao(bool completo)
-{ oam_spr(52, 175 + (completo ? 24 : 0), CARD, completo ? 0 : 3, 4); }
-
 void entrada_nivel(byte nivel)
 {
     limpa_tela(NAMETABLE_A);

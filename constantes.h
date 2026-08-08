@@ -86,5 +86,9 @@
 #define ESPACO " "
 #define COL_INTRO 5
 #define BOTAO_PULO PAD_A
+// Identificação das trilhas sonoras
+#define TRILHA_HINO 2
+#define TRILHA_COMUM 1
+#define TRILHA_VILAO 0
 
 #endif
