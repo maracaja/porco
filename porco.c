@@ -1,6 +1,6 @@
+#include <nes.h>
 #include <stdlib.h>
 #include <string.h>
-#include <nes.h>
 #include "neslib.h"
 #include "vrambuf.h"	// VRAM update buffer
 //#link "vrambuf.c"
