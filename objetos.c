@@ -98,7 +98,7 @@ byte x_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 3: return 48 + rand() % 120;
+      	case 3: return 60 + rand() % 136;
       	default: return 25 + rand() % 206;
     }
 }
