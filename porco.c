@@ -1,7 +1,7 @@
 #include <nes.h>
+#include "neslib.h"
 #include <stdlib.h>
 #include <string.h>
-#include "neslib.h"
 #include "vrambuf.h"	// VRAM update buffer
 //#link "vrambuf.c"
 //#link "famitone2.s"
