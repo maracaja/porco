@@ -59,7 +59,7 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog);
 byte aleatorio(void);
 
 // Define, dada uma probabilidade, se o adversário pode chutar ou não uma bola
-bool pode_chutar(byte nivel);
+bool pode_chutar(byte nivel, byte id_bola);
 
 // Define, aleatoriamente, as posições para o surgimento de um bônus
 byte x_bonus(byte arena);

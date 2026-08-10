@@ -7,7 +7,7 @@
 #define DELAY_CHUTE 15
 #define DELAY_BONUS 600
 #define RECUPERACAO 60
-#define RESERVA 130
+#define RESERVA 75
 // Sprites
 #define ZERO 0x30
 #define CARD 0x01

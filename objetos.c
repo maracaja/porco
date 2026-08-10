@@ -91,15 +91,15 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
     return true;
 }
 
-bool pode_chutar(byte nivel)
-{ return rand() / (nivel + 1) <= 256; }
+bool pode_chutar(byte nivel, byte id_bola)
+{ return id_bola < N_BOLAS && rand8() <= (nivel + 1); }
 
 byte x_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 3: return 60 + rand() % 136;
-      	default: return 25 + rand() % 206;
+      	case 3: return 64 + rand16() % 128;
+      	default: return 25 + rand16() % 206;
     }
 }
 
@@ -107,8 +107,8 @@ byte y_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 0: return YMAX - 77 + rand() % 40;
-      	case 1: return YMAX - 40 + rand() % 40;
-      	default: return YMAX - 40 + rand() % 30;
+      	case 0: return YMAX - 77 + rand16() % 40;
+      	case 1: return YMAX - 40 + rand16() % 40;
+      	default: return YMAX - 40 + rand16() % 30;
     }
 }

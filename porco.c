@@ -1,6 +1,5 @@
 #include <nes.h>
 #include "neslib.h"
-#include <stdlib.h>
 #include <string.h>
 #include "vrambuf.h"	// VRAM update buffer
 //#link "vrambuf.c"
@@ -72,7 +71,6 @@ byte nivel;
 byte deb;  // Delay (em quadros) a cada tiro
 byte dec;  // Delay (em quadros) a cada chute
 byte rec;  // Delay (em quadros) entre dois choques do jogador contra oponentes
-byte ata;   // Jogador que vai chutar (estava sendo o mesmo)
 byte banco; // Número máximo de adversários por nível 
 byte res;   // Tempo (em quadros) para aparecer o reserva
 byte poup;  // Quantidade de moedas que podem aparecer
@@ -283,6 +281,7 @@ void novo_adversario(byte a)
         advs[a].x = linha ? real(98 + 24 * resto) : real(64 + 60 * resto);
         advs[a].y = real(YMIN + (linha ? 40 : 70 + 5 * arena));
         banco--;
+        if (est_jogo == LOOP) res = 0;
     }
 }
 
@@ -301,7 +300,7 @@ void inicializa_jogador()
     luvas = 0;
     vidas = 3;
     bonus = BGOL | BARB | BDIN;
-    poup = 0;
+    poup = 1;
 }
 
 void posiciona_vilao()
@@ -325,9 +324,8 @@ void inicializa_vilao()
 
 void inicializa_agentes()
 {
-    ata = 0;
     deb = DEBOUNCE;
-    dec = DELAY_CHUTE;
+    dec = 0;
     if (nivel_comum) inicializa_adv(advs);
     else inicializa_vilao();
     inicializa_bol(bolas);
@@ -396,7 +394,7 @@ void compra_arbitro()
 
 void ganha_dinheiro()
 {
-    dinheiro++;
+    dinheiro++; poup--;
     if (dinheiro > 99)
     {
         vidas++;
@@ -466,11 +464,12 @@ void controla_jogador()
     }
     // Atira cartão (se tiver esse poder)
     if (pad & PAD_A && temCartao && deb > DEBOUNCE) atira();
+    // Pausa o jogo
     if (pad & PAD_START)
     {
         ppu_off();
         escrita_centralizada("PAUSADO", 2);
-        music_pause(nivel_comum ? TRILHA_COMUM : TRILHA_VILAO);
+        music_pause(1);
         ppu_on_all();
         espera(30);
         est_jogo = PAUSA;
@@ -489,28 +488,41 @@ byte ativa_bola()
             return b;
         }
     }
-    return 0;
+    return 0xF0; // Se todas estiverem ativas, retorna um valor incompatível bit a bit
 }
 
 void chuta(byte a)
 {
-    if (pode_chutar(nivel))
+    if (dec > DELAY_CHUTE)
     {
         byte b = ativa_bola();
-        bolas[b].x = advs[a].x;
-        bolas[b].y = advs[a].y + real(8);
-        bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
-        toca_efeito(SFX_CHUTE);
+        if (pode_chutar(nivel, b))
+        {
+            bolas[b].x = advs[a].x;
+            bolas[b].y = advs[a].y + real(8);
+            bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
+            toca_efeito(SFX_CHUTE);
+        }
+        else bolas[b].ativo = false;
+        dec = 0;
     }
 }
 
 void vilao_chuta()
 {
-    byte b = ativa_bola();
-    bolas[b].x = v.x - real(4);
-    bolas[b].y = v.y + real(16);
-    bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
-    toca_efeito(SFX_CHUTE);
+    if (dec > DELAY_CHUTE)
+    {
+        byte b = ativa_bola();
+        if (b < N_BOLAS && !(rand8() & (nivel == 34 ? 0x01 : 0x03)))
+        {
+            bolas[b].x = v.x - real(4);
+            bolas[b].y = v.y + real(16);
+            bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
+            toca_efeito(SFX_CHUTE);
+        }
+        else bolas[b].ativo = false; 
+        dec = 0;
+    }
 }
 
 // Efeitos do tiro sobre o adversário
@@ -605,81 +617,6 @@ void atualiza_sprites()
     int dx, dy, xa, ya, xc, yc, xj = pos(x), yj = pos(y);
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
     if (temTaca) oam_meta_spr(XTACA, y_taca, TACA, spr_liberta); // Taça
-    // Adversários
-    if (nivel_comum)
-    {
-        for (a = 0; a < N_ADVS; a++)
-        {
-            if (advs[a].ativo)
-            {
-                xa = (int) pos(advs[a].x);
-                ya = (int) pos(advs[a].y);
-                if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofre_falta();
-                oam_meta_spr(pos(advs[a].x), pos(advs[a].y), ADV + 8 * a, spr_adv());
-            }
-            else if (banco > 0) novo_adversario(a);
-        }
-        if (corre)
-        {
-            corre = false;
-            if (nivel < 17 || nivel > 34) corre_atras(4);
-            if (nivel > 17)
-            {
-                corre_atras(5);
-                corre_atras(3);
-            }
-            for (a = 0; a < 3; a++) advs[a].x += real(lado ? 5 : -5);
-        }
-    }
-    else if (v.ativo)
-    {
-        xa = (int) pos(v.x);
-        ya = (int) pos(v.y);
-        if (xa > xj - 4 && xa < xj + 12 && ya > yj - 24 && ya < yj + 16) 
-        {
-            sofre_falta();
-            if (nivel == 51) posiciona_vilao();
-        }
-        switch (nivel)
-        {
-            case 17:
-            	if (corre)
-                {
-                    da = rand() & 0x1F;                
-                    dx = COS(da) << 2;
-                    dy = SEN(da) << 2;
-                    m = pos(v.x + dx);
-                    n = pos(v.y + dy);
-                    if (m >= 58 && m <= 198) v.x += dx;
-                    if (n >= 50 && n <= 100) v.y += dy;
-                }
-                break;
-            case 34:
-                v.x = real(MAX(50, MIN(200, 255 - xj)));
-                v.y = (xa == 50 || xa == 200) ? real(MAX(50, ya - 2)) : real(MIN(120, ya + 2));
-                break;
-            default:
-                if (ya > 144 && (xj < 80 || xj > 176)) v.y = real(144);
-                else if (xj < 80)
-                {
-                    v.x = real(60);
-                    v.y = real(MAX(50, ya - 1));
-                }
-                else if (xj > 176)
-                {
-                    v.x = real(196);
-                    v.y = real(MAX(50, ya - 1));
-                }
-                else if (xj >= 100 && xj <= 156)
-                {
-                    da = direcao2(x, v.x, y, v.y);
-                    v.x += COS(da) << 1;
-                    v.y += SEN(da) << 1; 
-                }
-                else v.x += real(lado ? 7 : -7);
-        }
-        oam_meta_spr(pos(v.x), pos(v.y), EXTRA, v.nome == TIGRE ? spr_tigre(lado) : (v.nome == EDISON ? spr_edson(lado) : spr_diabito(lado)));
-    }
     // Cartões
     for (a = 0; a < N_CARDS; a++)
     {
@@ -786,17 +723,82 @@ void atualiza_sprites()
       	oam_meta_spr(xb[3], yb[3], MOEDA, spr_moeda);
     }
     else dbo[3]++;
-    // Prepara novo chute
-    if (dec > DELAY_CHUTE)
+    // Adversários
+    if (nivel_comum)
     {
-        if (nivel_comum)
+        for (a = 0; a < N_ADVS; a++)
         {
-            if (advs[ata].ativo) chuta(ata);
-            else ata = (ata >= N_ADVS) ? 0 : ata + 1;
+            if (advs[a].ativo)
+            {
+                xa = (int) pos(advs[a].x);
+                ya = (int) pos(advs[a].y);
+                if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofre_falta();
+                else chuta(a);
+                oam_meta_spr(pos(advs[a].x), pos(advs[a].y), ADV + 8 * a, spr_adv());
+            }
+            else if (banco > 0) novo_adversario(a);
         }
-        else if (v.ativo && !(rand() & (nivel == 34 ? 0x01 : 0x03)))
-            vilao_chuta();
-        dec = 0;
+        if (corre)
+        {
+            corre = false;
+            if (nivel < 17 || nivel > 34) corre_atras(4);
+            if (nivel > 17)
+            {
+                corre_atras(5);
+                corre_atras(3);
+            }
+            for (a = 0; a < 3; a++) advs[a].x += real(lado ? 5 : -5);
+        }
+    }
+    else if (v.ativo)
+    {
+        xa = (int) pos(v.x);
+        ya = (int) pos(v.y);
+        if (xa > xj - 4 && xa < xj + 12 && ya > yj - 24 && ya < yj + 16) 
+        {
+            sofre_falta();
+            if (nivel == 51) posiciona_vilao();
+        }
+        switch (nivel)
+        {
+            case 17:
+            	if (corre)
+                {
+                    da = rand16() & 0x1F;                
+                    dx = COS(da) << 2;
+                    dy = SEN(da) << 2;
+                    m = pos(v.x + dx);
+                    n = pos(v.y + dy);
+                    if (m >= 58 && m <= 198) v.x += dx;
+                    if (n >= 50 && n <= 100) v.y += dy;
+                }
+                break;
+            case 34:
+                v.x = real(MAX(50, MIN(200, 255 - xj)));
+                v.y = (xa == 50 || xa == 200) ? real(MAX(50, ya - 2)) : real(MIN(120, ya + 2));
+                break;
+            default:
+                if (ya > 144 && (xj < 80 || xj > 176)) v.y = real(144);
+                else if (xj < 80)
+                {
+                    v.x = real(60);
+                    v.y = real(MAX(50, ya - 1));
+                }
+                else if (xj > 176)
+                {
+                    v.x = real(196);
+                    v.y = real(MAX(50, ya - 1));
+                }
+                else if (xj >= 100 && xj <= 156)
+                {
+                    da = direcao2(x, v.x, y, v.y);
+                    v.x += COS(da) << 1;
+                    v.y += SEN(da) << 1; 
+                }
+                else v.x += real(lado ? 7 : -7);
+        }
+        vilao_chuta();
+        oam_meta_spr(pos(v.x), pos(v.y), EXTRA, v.nome == TIGRE ? spr_tigre(lado) : (v.nome == EDISON ? spr_edson(lado) : spr_diabito(lado)));
     }
 }
 
@@ -881,7 +883,7 @@ void menu()
     pad = pad_poll(0);
     if (pad & PAD_START)
     {
-        srand(nesclock());
+        set_rand(nesclock());
         estado = INTRO;
     }
 }
@@ -927,12 +929,22 @@ void inicio_nivel()
     entrada_nivel(nivel);
     pal_adv();
     deb = DEBOUNCE;
-    dec = DELAY_CHUTE;
+    dec = 0;
     rec = RECUPERACAO;
     for (k = 0; k < 4; k++) tbo[k] = 0;
     inicializa_agentes();
-    // Vilões se apresentam
-    if (!nivel_comum)
+    // Configurações dos níveis normais
+    if (nivel_comum)
+    {
+      	res = RESERVA;
+        banco = 11 + nivel % DIVISOR;                                                                        
+        posiciona_advs();
+        bonus |= TEM_TACA;   // Taça (fim de nível)
+        y_taca = YTACA;
+        music_play(TRILHA_COMUM);
+        oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
+    }
+    else  // Vilões se apresentam
     {
         oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);                
         switch (nivel)
@@ -954,16 +966,6 @@ void inicio_nivel()
         y_taca = YTACA + 16;
         music_play(TRILHA_VILAO);
     }
-    else // Configurações dos níveis normais
-    {
-        res = RESERVA;
-        banco = 11 + nivel % DIVISOR;                                                                        
-        posiciona_advs();
-        bonus |= TEM_TACA;   // Taça (fim de nível)
-        y_taca = YTACA;
-        music_play(TRILHA_COMUM);
-        oam_meta_spr(pos(x), pos(y), CAIM, spr_jogador_parado);
-    }
     est_jogo = LOOP;
     ppu_off();
     posiciona_jogador();
@@ -980,7 +982,7 @@ void pausa()
     {
         ppu_off();
         escrita_centralizada("       ", 2);
-        music_play(nivel_comum ? TRILHA_COMUM : TRILHA_VILAO);
+        music_pause(0);
         ppu_on_all();
         espera(30);
         est_jogo = LOOP;
