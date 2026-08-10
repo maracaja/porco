@@ -502,9 +502,9 @@ void chuta(byte a)
             bolas[b].y = advs[a].y + real(8);
             bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
             toca_efeito(SFX_CHUTE);
+            dec = 0;
         }
         else bolas[b].ativo = false;
-        dec = 0;
     }
 }
 
