@@ -70,6 +70,7 @@ char pad;  // Leitura do controle
 byte nivel;
 byte deb;  // Delay (em quadros) a cada tiro
 byte dec;  // Delay (em quadros) a cada chute
+byte dlc;  // Tempo (em quadros) até o próximo chute poder acontecer
 byte rec;  // Delay (em quadros) entre dois choques do jogador contra oponentes
 byte banco; // Número máximo de adversários por nível 
 byte res;   // Tempo (em quadros) para aparecer o reserva
@@ -493,7 +494,7 @@ byte ativa_bola()
 
 void chuta(byte a)
 {
-    if (dec > DELAY_CHUTE)
+    if (dec > dlc)
     {
         byte b = ativa_bola();
         if (pode_chutar(nivel, b))
@@ -650,7 +651,7 @@ void atualiza_sprites()
                 cards[a].y += dy;
             }
             else desativa_cartao(a);
-            oam_spr(pos(cards[a].x), pos(cards[a].y), CARD, vermelho(cards[a]) ? 0 : 3, CARTAO + 4 * a);
+            oam_spr(pos(cards[a].x), pos(cards[a].y), CARD, vermelho(cards[a]) ? 0 : 3, CARTAO + (a << 2));
         }
     }
     // Disparos inimigos
@@ -671,7 +672,7 @@ void atualiza_sprites()
                 bolas[a].y += dy;
 	    }
 	    else bolas[a].ativo = false;
-	    oam_spr(pos(bolas[a].x), pos(bolas[a].y), BOLA, 0, TIRO + 4 * a);
+	    oam_spr(pos(bolas[a].x), pos(bolas[a].y), BOLA, 0, TIRO + (a << 2));
 	}
     }    
     // Bônus a coletar
@@ -734,7 +735,7 @@ void atualiza_sprites()
                 ya = (int) pos(advs[a].y);
                 if (vabs(xj - xa) < 8 && vabs(yj - ya) < 16) sofre_falta();
                 else chuta(a);
-                oam_meta_spr(pos(advs[a].x), pos(advs[a].y), ADV + 8 * a, spr_adv());
+                oam_meta_spr(pos(advs[a].x), pos(advs[a].y), ADV + (a << 3), spr_adv());
             }
             else if (banco > 0) novo_adversario(a);
         }
@@ -937,7 +938,8 @@ void inicio_nivel()
     if (nivel_comum)
     {
       	res = RESERVA;
-        banco = 11 + nivel % DIVISOR;                                                                        
+        banco = 11 + nivel % DIVISOR;
+        dlc = DELAY_CHUTE << (2 - nivel / DIVISOR);
         posiciona_advs();
         bonus |= TEM_TACA;   // Taça (fim de nível)
         y_taca = YTACA;
@@ -1048,8 +1050,8 @@ void loop_jogo()
     atualiza_placar();
     atualiza_sprites();
     atualiza_bonus();
+    if (dec <= 0xF0) dec++;
     if (deb <= DEBOUNCE) deb++;
-    if (dec <= DELAY_CHUTE) dec++;
     if (res <= RESERVA) res++;
     if (rec <= RECUPERACAO) rec++;
 }

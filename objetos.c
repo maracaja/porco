@@ -92,7 +92,7 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
 }
 
 bool pode_chutar(byte nivel, byte id_bola)
-{ return id_bola < N_BOLAS && rand16() / (nivel + 2) <= 130; }
+{ return id_bola < N_BOLAS && rand8() <= nivel; }
 
 byte x_bonus(byte arena)
 {

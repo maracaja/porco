@@ -86,7 +86,7 @@ void escrita_centralizada(const char* str, unsigned char linha)
 {
     byte tam, col;
     tam = strlen(str);
-    col = 16 - tam / 2 - tam % 2;
+    col = 16 - (tam >> 1) - (tam & 0x01);
     vram_adr(NTADR_A(col, linha));
     vram_write(str, tam);
 }
@@ -106,7 +106,7 @@ void disclaimer()
     byte z;
     ppu_off();
     for (z = 0; z < 5; z++) 
-        escrita_centralizada(trechos_disclaimer[z], 2 * z + 10);
+        escrita_centralizada(trechos_disclaimer[z], (z << 1) + 10);
     ppu_on_all();
     espera(380);
 }
@@ -197,7 +197,7 @@ void placar(byte n, byte col, byte dig)
     }
     for (z = dig - 1; z >= 0; z--)
     {
-      	oam_spr((col + z) << 3, PL_LIN, ZERO + n % 10, 0, sprid + 4 * z);
+      	oam_spr((col + z) << 3, PL_LIN, ZERO + n % 10, 0, sprid + (z << 2));
         n /= 10;
     }
 }
