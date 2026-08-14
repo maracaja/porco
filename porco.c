@@ -636,7 +636,10 @@ void atualiza_sprites()
                         xa = (int) pos(advs[b].x);
                         ya = (int) pos(advs[b].y);
                         if (vabs(xa - xc) < 6 && yc > ya - 14 && yc < ya + 7)
+                        {
                             leva_cartao(b, a);
+                            b = N_ADVS;
+                        }
                     }	
                 }
             }
