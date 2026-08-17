@@ -355,7 +355,7 @@ void sofre_falta()
     {
         switch (nivel)
         {
-            case 34: energia = 0; break;
+            case 51: energia = 0; break;
             default:
             	if (bonus & TEM_CARTAO)
                 {
@@ -532,7 +532,7 @@ void leva_cartao(byte a, byte c)
     switch (nivel / DIVISOR)
     {
         case 0: advs[a].energia -= (vermelho(cards[c]) ? 100 : 50); break;
-        case 1: advs[a].energia -= (vermelho(cards[c]) ? 66 : 34); break;
+        case 1: advs[a].energia -= (vermelho(cards[c]) ? 67 : 34); break;
         default: advs[a].energia -= (vermelho(cards[c]) ? 50 : 25);
     }
     if (advs[a].energia <= 0)
@@ -1032,10 +1032,10 @@ void loop_jogo()
     controla_jogador();    	
     if (pegou_taca())
     {	// Chegou ao objetivo
+        music_stop();
         if (nivel_comum)
         {
-            ppu_off();
-            music_stop();
+            ppu_off();            
             oam_clear();
             escrita_centralizada(" PARABENS!", 8);
             escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
