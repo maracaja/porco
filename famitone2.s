@@ -23,7 +23,7 @@ FT_DPCM_OFF	=$c000		;sample data start address
 .define FT_NTSC_SUPPORT	1  	;undefine to exclude NTSC support
 .define FT_SFX_ENABLE   1
 .define FT_DPCM_ENABLE  0
-.define FT_SFX_STREAMS  1
+.define FT_SFX_STREAMS  2
 
 .segment "ZEROPAGE"
 
@@ -688,6 +688,7 @@ FamiToneUpdate:
 	sta FT_MR_PULSE1_H
 @ch1prev:
 	lda FT_CH1_VOLUME
+    lsr a
 @ch1cut:
 	ora FT_CH1_DUTY
 	sta FT_MR_PULSE1_V
@@ -721,6 +722,7 @@ FamiToneUpdate:
 	sta FT_MR_PULSE2_H
 @ch2prev:
 	lda FT_CH2_VOLUME
+    lsr a
 @ch2cut:
 	ora FT_CH2_DUTY
 	sta FT_MR_PULSE2_V

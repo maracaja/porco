@@ -41,15 +41,15 @@ byte movimento(char pad)
     byte dir;
     if (pad & PAD_LEFT)
     {
-        dir = 16;
-        if (pad & PAD_UP) dir += 4;
-        else if (pad & PAD_DOWN) dir -= 4;
+        if (pad & PAD_UP) dir = 20;
+        else if (pad & PAD_DOWN) dir = 12;
+        else dir = 16;
     }
     else if (pad & PAD_RIGHT)
     {
-        dir = 0;
         if (pad & PAD_UP) dir = 28;
-        else if (pad & PAD_DOWN) dir += 4;
+        else if (pad & PAD_DOWN) dir = 4;
+        else dir = 0;
     }
     else if (pad & PAD_UP) dir = 24;
     else if (pad & PAD_DOWN) dir = 8;
@@ -71,7 +71,7 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
     switch (arena)	
     {	// Casos específicos
       	case 0:
-            if (py >= YMAX - (jog ? 16 : 24)) return false;
+            if (py >= YMAX - 16) return false;
             if (py >= 112 && py <= (jog ? 142 : 134)) return px <= XMIN + 73 || px >= XMAX - 73;
             break;
       	case 1:
@@ -98,7 +98,7 @@ byte x_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 3: return 64 + rand16() % 128;
+      	case 3: return 80 + rand16() % 96;
       	default: return 25 + rand16() % 206;
     }
 }
@@ -107,7 +107,7 @@ byte y_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 0: return YMAX - 77 + rand16() % 40;
+      	case 0: return YMAX - 80 + rand16() % 40;
       	case 1: return YMAX - 40 + rand16() % 40;
       	default: return YMAX - 40 + rand16() % 30;
     }

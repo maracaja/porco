@@ -53,9 +53,6 @@ const int const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142
 const byte PALETTE[16] = { 0x01,0x0F,0x30,0x16,0x01,0x19,0x36,0x30,0x01,0x04,0x36,0x07,0x01,0x27,0x10,0x38 };
 const byte PAL_EXTRA[20] = { 0x01,0x16,0x36,0x30,0x01,0x30,0x17,0x0f,0x01,0x38,0x27,0x21,0x01,0x30,0x06,0x0f,0x01,0x30,0x36,0x16 };
 
-// Tabela de níveis do modo demonstração
-const byte const demo[7] = {0, 11, 27, 34, 49, 51};
-
 // Objetos
 byte arena;
 Adversario advs[N_ADVS];
@@ -113,13 +110,6 @@ void setup()
     ppu_wait_nmi();
     nmi_set_callback(famitone_update);
     estado = INICIO;    
-}
-
-void toca_efeito(byte efeito)
-{
-    __asm__("cli");
-    sfx_play(efeito, 0);
-    __asm__("sei");
 }
 
 // FUNÇÕES DE INTRODUÇÃO
@@ -346,7 +336,7 @@ void leva_bolada()
     if (luvas > 0) luvas--;
     else energia = MAX(0, energia - 19);
     if (gol_disponivel) dbo[0] = 0;
-    toca_efeito(SFX_BOLADA);
+    sfx_play(SFX_BOLADA, 0);
 }
 
 void sofre_falta()
@@ -367,7 +357,7 @@ void sofre_falta()
         }
 	posiciona_jogador();
         dbo[1] = 0; dbo[2] = 0;
-        toca_efeito(SFX_FALTA);
+        sfx_play(SFX_FALTA, 1);
     }
 }
 
@@ -375,14 +365,14 @@ void toma_energetico()
 {
     energia = MIN(energia + 51, 99);
     bonus &= ~BNRG;
-    toca_efeito(SFX_BONUS);
+    sfx_play(SFX_BONUS, 0);
 }
 
 void escala_goleiro()
 {
     luvas = nivel < 51 ? 5 : 2;
     bonus &= ~BGOL;
-    toca_efeito(SFX_BONUS);
+    sfx_play(SFX_BONUS, 0);
 }
 
 void compra_arbitro()
@@ -390,7 +380,7 @@ void compra_arbitro()
     if (temCartao) bonus |= CARD_VERM;
     else bonus |= TEM_CARTAO & ~CARD_VERM;
     bonus &= ~BARB;
-    toca_efeito(SFX_JUIZ);
+    sfx_play(SFX_JUIZ, 0);
 }
 
 void ganha_dinheiro()
@@ -400,9 +390,9 @@ void ganha_dinheiro()
     {
         vidas++;
         dinheiro = 0;
-        toca_efeito(SFX_VIDA);
+        sfx_play(SFX_VIDA, 1);
     }
-    else toca_efeito(SFX_BONUS);
+    else sfx_play(SFX_BONUS, 0);
     bonus &= ~BDIN;    
 }
 
@@ -442,7 +432,7 @@ void atira()
         cards[c].y = y - real(16);
         cards[c].info |= (!jogador_mov || jogador_dir > 16) ? 24 : (jogador_dir < 8 ? 28 : 20);
     }
-    toca_efeito(SFX_ATIRA);
+    sfx_play(SFX_ATIRA, 0);
     deb = 0;
 }
 
@@ -502,7 +492,7 @@ void chuta(byte a)
             bolas[b].x = advs[a].x;
             bolas[b].y = advs[a].y + real(8);
             bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
-            toca_efeito(SFX_CHUTE);
+            sfx_play(SFX_CHUTE, 0);
             dec = 0;
         }
         else bolas[b].ativo = false;
@@ -519,7 +509,7 @@ void vilao_chuta()
             bolas[b].x = v.x - real(4);
             bolas[b].y = v.y + real(16);
             bolas[b].dir = direcao2(x, bolas[b].x, y, bolas[b].y);
-            toca_efeito(SFX_CHUTE);
+            sfx_play(SFX_CHUTE, 0);
         }
         else bolas[b].ativo = false; 
         dec = 0;
@@ -539,10 +529,10 @@ void leva_cartao(byte a, byte c)
     {
       	advs[a].ativo = false;
         res = 0;
-        poup++;
+        if (poup < 200) poup++;
     }
     desativa_cartao(c);
-    toca_efeito(SFX_ACERTO);
+    sfx_play(SFX_ACERTO, 0);
 }
 
 void leva_cartao_vilao(byte c)
@@ -554,7 +544,7 @@ void leva_cartao_vilao(byte c)
         bonus |= TEM_TACA;
     }
     desativa_cartao(c);
-    toca_efeito(SFX_ACERTO);
+    sfx_play(SFX_ACERTO, 0);
 }
 
 // Alternância de paleta conforme o nível
@@ -614,6 +604,7 @@ void atualiza_placar()
 // Atualização dos sprites a cada quadro
 void atualiza_sprites()
 {
+    bool sai;
     byte a, b, m, n, da;
     int dx, dy, xa, ya, xc, yc, xj = pos(x), yj = pos(y);
     oam_meta_spr(xj, yj, CAIM, pad & 0xF0 ? spr_jogador(lado) : spr_jogador_parado); // Jogador
@@ -621,10 +612,9 @@ void atualiza_sprites()
     // Cartões
     for (a = 0; a < N_CARDS; a++)
     {
+        sai = false;
     	if (card_ativo(cards[a]))
         {
-            dx = COS(card_dir(cards[a])) << 2;
-            dy = SEN(card_dir(cards[a])) << 2;
             xc = (int) pos(cards[a].x);
             yc = (int) pos(cards[a].y);
             if (nivel_comum)
@@ -639,6 +629,7 @@ void atualiza_sprites()
                         {
                             leva_cartao(b, a);
                             b = N_ADVS;
+                            sai = true;
                         }
                     }	
                 }
@@ -646,36 +637,49 @@ void atualiza_sprites()
             else if (v.ativo)
             {
                 if (xa > xc - 4 && xa < xc + 8 && ya > yc - 16 && ya < yc + 14)
+                {
                     leva_cartao_vilao(a);
+                    sai = true;
+                }
             }
-            if (nao_bate_parede(arena, cards[a].x + dx, cards[a].y + dy, false))
+            if (!sai)
             {
-                cards[a].x += dx;
-                cards[a].y += dy;
+                dx = COS(card_dir(cards[a])) << 2;
+                dy = SEN(card_dir(cards[a])) << 2;
+                if (nao_bate_parede(arena, cards[a].x + dx, cards[a].y + dy, false))
+                {
+                    cards[a].x += dx;
+                    cards[a].y += dy;
+                }
+                else desativa_cartao(a);
+                oam_spr(pos(cards[a].x), pos(cards[a].y), CARD, vermelho(cards[a]) ? 0 : 3, CARTAO + (a << 2));
             }
-            else desativa_cartao(a);
-            oam_spr(pos(cards[a].x), pos(cards[a].y), CARD, vermelho(cards[a]) ? 0 : 3, CARTAO + (a << 2));
         }
     }
     // Disparos inimigos
     for (a = 0; a < N_BOLAS; a++)
     {
+        sai = false;
         if (bolas[a].ativo)
 	{
-	    dx = COS(bolas[a].dir) << veloc;
-	    dy = SEN(bolas[a].dir) << veloc;
             if (vabs(xj - pos(bolas[a].x)) < 8 && pos(bolas[a].y) > yj - 16 && pos(bolas[a].y) < yj + 8)
             {
                 leva_bolada();
                 bolas[a].ativo = false;
+                sai = true;
             }
-	    else if (nao_bate_parede(arena, bolas[a].x + dx, bolas[a].y + dy, false))
-	    {
-		bolas[a].x += dx;
-                bolas[a].y += dy;
-	    }
-	    else bolas[a].ativo = false;
-	    oam_spr(pos(bolas[a].x), pos(bolas[a].y), BOLA, 0, TIRO + (a << 2));
+            if (!sai)
+            {
+                dx = COS(bolas[a].dir) << veloc;
+        	dy = SEN(bolas[a].dir) << veloc;
+        	if (nao_bate_parede(arena, bolas[a].x + dx, bolas[a].y + dy, false))
+        	{
+                    bolas[a].x += dx;
+                    bolas[a].y += dy;
+        	}
+        	else bolas[a].ativo = false;
+        	oam_spr(pos(bolas[a].x), pos(bolas[a].y), BOLA, 0, TIRO + (a << 2));
+            }
 	}
     }    
     // Bônus a coletar
@@ -768,7 +772,7 @@ void atualiza_sprites()
             case 17:
             	if (corre)
                 {
-                    da = rand16() & 0x1F;                
+                    da = rand8() & 0x1F;                
                     dx = COS(da) << 2;
                     dy = SEN(da) << 2;
                     m = pos(v.x + dx);
@@ -864,7 +868,7 @@ void atualiza_bonus()
 void inicio()
 {
     setup_graphics();
-    toca_efeito(SFX_INTRO);
+    sfx_play(SFX_INTRO, 0);
     apresentacao();   
     estado = MENU;
 }
@@ -922,7 +926,7 @@ void fim_vitoria()
 void fim_derrota()
 {
     game_over();
-    toca_efeito(nivel & 0x01 ? SFX_FIM1 : SFX_FIM0);
+    sfx_play(nivel & 0x01 ? SFX_FIM1 : SFX_FIM0, 0);
     retorna();
 }
 
@@ -1002,7 +1006,7 @@ void perdeu_vida()
     energia = 99;
     bonus &= ~(CARD_VERM | TEM_CARTAO);
     luvas = 0;
-    toca_efeito(SFX_MORREU);
+    sfx_play(SFX_MORREU, 1);
     espera(90);
     if (vidas <= 0) estado = DERROTA;
     else est_jogo = ENTRADA;
@@ -1041,7 +1045,7 @@ void loop_jogo()
             escrita_centralizada(" VOCE PASSOU DE FASE!", 10);
             ppu_on_all();
         }
-        toca_efeito(SFX_PASSOU);
+        sfx_play(SFX_PASSOU, 0);
         ppu_wait_nmi();
         espera(400);
         est_jogo = AVANCA;
