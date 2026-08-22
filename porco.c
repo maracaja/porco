@@ -41,8 +41,6 @@ extern char sons[];
 #define arb_disponivel (!(temCartao && cVermelho))
 #define nrg_disponivel (energia < 60)
 #define din_disponivel (vidas < 9 || energia < 99)
-// Tipo de nível
-#define nivel_comum (nivel % DIVISOR != 0 || nivel == 0)
 
 // Tabela de senos normalizados em 8 bits (x2)
 const int const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -64,6 +62,7 @@ Estado estado;	// Máquina de estados da aplicação
 EstadoJogo est_jogo;	// Máquina de estados de jogo
 char pad;  // Leitura do controle
 byte nivel;
+bool nivel_comum;  // Tipo de nível
 byte deb;  // Delay (em quadros) a cada tiro
 byte dec;  // Delay (em quadros) a cada chute
 byte dlc;  // Tempo (em quadros) até o próximo chute poder acontecer
@@ -270,7 +269,7 @@ void novo_adversario(byte a)
         advs[a].ativo = true;
         advs[a].energia = 100;
         advs[a].x = linha ? real(98 + 24 * resto) : real(64 + 60 * resto);
-        advs[a].y = real(YMIN + (linha ? 40 : 70 + 5 * arena));
+        advs[a].y = real(YMIN + (linha ? 40 : 70 + 2 * arena));
         banco--;
         if (est_jogo == LOOP) res = 0;
     }
@@ -355,7 +354,7 @@ void sofre_falta()
                 else energia = MAX(0, energia - 50);
                 rec = 0;
         }
-	posiciona_jogador();
+    	posiciona_jogador();
         dbo[1] = 0; dbo[2] = 0;
         sfx_play(SFX_FALTA, 1);
     }
@@ -671,16 +670,16 @@ void atualiza_sprites()
             if (!sai)
             {
                 dx = COS(bolas[a].dir) << veloc;
-        	dy = SEN(bolas[a].dir) << veloc;
-        	if (nao_bate_parede(arena, bolas[a].x + dx, bolas[a].y + dy, false))
-        	{
+            	dy = SEN(bolas[a].dir) << veloc;
+            	if (nao_bate_parede(arena, bolas[a].x + dx, bolas[a].y + dy, false))
+            	{
                     bolas[a].x += dx;
                     bolas[a].y += dy;
-        	}
-        	else bolas[a].ativo = false;
-        	oam_spr(pos(bolas[a].x), pos(bolas[a].y), BOLA, 0, TIRO + (a << 2));
+            	}
+            	else bolas[a].ativo = false;
+            	oam_spr(pos(bolas[a].x), pos(bolas[a].y), BOLA, 0, TIRO + (a << 2));
             }
-	}
+    	}
     }    
     // Bônus a coletar
     if (bonus & BGOL)
@@ -936,6 +935,7 @@ void inicio_nivel()
 {
     entrada_nivel(nivel);
     pal_adv();
+    nivel_comum = nivel % DIVISOR != 0 || nivel == 0;
     deb = DEBOUNCE;
     dec = 0;
     rec = RECUPERACAO;
@@ -959,17 +959,17 @@ void inicio_nivel()
         oam_meta_spr(CX, CY, CAIM, spr_jogador_parado);                
         switch (nivel)
         {
-          case 17:
-              oam_meta_spr(VLX, VLYI, EXTRA, spr_tigre_parado);
-              conversa_tigre();
-              break;
-          case 34: 
-              oam_meta_spr(VLX, VLYI, EXTRA, spr_edson_parado);
-              conversa_edson();
-              break;
-          default: 
-              oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
-              conversa_devil();
+            case 17:
+                oam_meta_spr(VLX, VLYI, EXTRA, spr_tigre_parado);
+                conversa_tigre();
+                break;
+            case 34: 
+                oam_meta_spr(VLX, VLYI, EXTRA, spr_edson_parado);
+                conversa_edson();
+                break;
+            default: 
+                oam_meta_spr(VLX, VLYI, EXTRA, spr_diabito_parado);
+                conversa_devil();
         }
         if (!pulo) espera(120);
         bonus &= ~TEM_TACA;
