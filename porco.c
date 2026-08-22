@@ -43,7 +43,6 @@ extern char sons[];
 #define din_disponivel (vidas < 9 || energia < 99)
 // Tipo de nível
 #define nivel_comum (nivel % DIVISOR != 0 || nivel == 0)
-#define veloc (nivel > 25 ? 2 : 1)
 
 // Tabela de senos normalizados em 8 bits (x2)
 const int const senos[32] = {0,49,97,142,181,212,236,251,256,251,236,212,181,142,97,49,0,-50,-98,-143,-182,-213,-237,-252,-256,-252,-237,-213,-182,-143,-98,-50};
@@ -72,6 +71,7 @@ byte rec;  // Delay (em quadros) entre dois choques do jogador contra oponentes
 byte banco; // Número máximo de adversários por nível 
 byte res;   // Tempo (em quadros) para aparecer o reserva
 byte poup;  // Quantidade de moedas que podem aparecer
+byte veloc;   // Velocidade das bolas disparadas
 word tbo[4];  // Conta o tempo que o bônus aparece na tela
 word dbo[4];  // Tempo sem bônus na tela
 bool lado = false;  // Flags de animação
@@ -437,9 +437,9 @@ void atira()
 }
 
 bool pegou_taca()
-{
+{   // Valores constantes substituindo o código 'xj >= XTACA - 9 && xj <= XTACA + 5'
     byte xj = pos(x), yj = pos(y);
-    return xj >= XTACA - 9 && xj <= XTACA + 5 && yj >= y_taca - 21 && yj <= y_taca + 13 && temTaca;
+    return xj >= 119 && xj <= 133 && yj >= y_taca - 21 && yj <= y_taca + 13 && temTaca;
 }
 
 // Controle do deslocamento do jogador na tela
@@ -939,6 +939,7 @@ void inicio_nivel()
     deb = DEBOUNCE;
     dec = 0;
     rec = RECUPERACAO;
+    veloc = nivel > 25 ? 2 : 1;
     for (k = 0; k < 4; k++) tbo[k] = 0;
     inicializa_agentes();
     // Configurações dos níveis normais

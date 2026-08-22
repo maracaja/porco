@@ -57,6 +57,8 @@ byte movimento(char pad)
     return 0x20 | dir;
 }
 
+// Verifica se sprites não colidem com os blocos desenhados das arenas.
+// Valores foram calculados a partir das constantes XMIN, XMAX, YMIN e YMAX
 bool nao_bate_parede(byte arena, word x, word y, bool jog)
 {
     byte px = pos(x), py = pos(y);
@@ -64,29 +66,28 @@ bool nao_bate_parede(byte arena, word x, word y, bool jog)
     // Valores adaptados dos desenhos criados (usa menos RAM)
     if (arena <= 2)
     {	// Casos comuns aos níveis normais
-        if (py <= YMIN + (jog ? 16 : 8)) return px >= XMIN + 81 && px <= XMAX - 81;
-      	if (py <= YMIN + (jog ? 32 : 24))
-            return px <= XMIN + 57 || px >= XMAX - 57 || px >= XMIN + 81 && px <= XMAX - 81;
+        if (py <= (jog ? 46 : 38)) return px >= 96 && px <= 152;
+      	if (py <= (jog ? 62 : 54)) return px <= 72 || px >= 176 || px >= 96 && px <= 152;
     }
     switch (arena)	
     {	// Casos específicos
       	case 0:
-            if (py >= YMAX - 16) return false;
-            if (py >= 112 && py <= (jog ? 142 : 134)) return px <= XMIN + 73 || px >= XMAX - 73;
+            if (py >= 208) return false;
+            if (py >= 112 && py <= (jog ? 142 : 134)) return px <= 88 || px >= 160;
             break;
       	case 1:
-            if (py >= 128 && py <= (jog ? 158 : 150)) return px >= XMIN + 65 && px <= XMAX - 65;
+            if (py >= 128 && py <= (jog ? 158 : 150)) return px >= 80 && px <= 168;
             break;
         case 2:
-            if (py >= 80 && py <= (jog ? 110 : 102) || py >= YMAX - 32 && py <= YMAX - (jog ? 16 : 24))
-              	return px >= XMIN + 17 && px <= XMAX - 17;
+            if (py >= 80 && py <= (jog ? 110 : 102) || py >= 192 && py <= (jog ? 208 : 200))
+              	return px >= 32 && px <= 216;
             if (py >= 152 && py <= (jog ? 182 : 174))
-                return px <= XMIN + 41 || px >= XMAX - 41 || px >= XMIN + 81 && px <= XMAX - 81;
-            if (py >= YMAX - (jog ? 16 : 24)) return px >= XMIN + 33 && px <= XMAX - 33;
+                return px <= 56 || px >= 192 || px >= 96 && px <= 152;
+            if (py >= (jog ? 208 : 200)) return px >= 48 && px <= 200;
             break;
       	default:
-            if (py <= YMIN + (jog ? 16 : 8)) return false;
-            if (py >= 160 && py <= (jog ? 190 : 182)) return px >= XMIN + 49 && px <= XMAX - 49;
+            if (py <= (jog ? 46 : 38)) return false;
+            if (py >= 160 && py <= (jog ? 190 : 182)) return px >= 64 && px <= 184;
     }
     return true;
 }
@@ -107,8 +108,8 @@ byte y_bonus(byte arena)
 {
     switch (arena)
     {
-      	case 0: return YMAX - 80 + rand16() % 40;
-      	case 1: return YMAX - 40 + rand16() % 40;
-      	default: return YMAX - 40 + rand16() % 30;
+      	case 0: return 144 + rand16() % 40; 	// YMAX - 80 = 144
+      	case 1: return 184 + rand16() % 40;	// YMAX - 40 = 184
+      	default: return 184 + rand16() % 30;
     }
 }
