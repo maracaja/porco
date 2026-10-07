@@ -31,5 +31,4 @@ Os grandes vilões do jogo aparecerão em três momentos do início até o glori
 ## Considerações finais:
 
 Para baixar a ROM, basta clicar no título deste documento ou no link da descrição do projeto.
-
-Este jogo foi desenvolvido e compilado usando o [8bitWorkshop IDE](https://8bitworkshop.com/v3.12.1/?platform=vcs&file=examples%2Fhello.a). Recomendamos o emulador [Mesen](https://www.mesen.ca/) para a melhor experiência.
+Este jogo foi desenvolvido e compilado usando o [8bitWorkshop IDE](https://8bitworkshop.com/redir.html?platform=nes&file=porco.c&githubURL=https%3A%2F%2Fgithub.com%2Fmaracaja%2Fporco). Recomendamos o emulador [Mesen](https://www.mesen.ca/) para a melhor experiência.
